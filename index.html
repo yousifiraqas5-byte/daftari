@@ -1,328 +1,1259 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 
-  <meta
-    name="theme-color"
-    content="#f5f5f7"
-  >
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-  <meta
-    name="description"
-    content="دفتري الشخصي لإدارة الدخل والمصروفات والادخار والديون"
-  >
+    <meta
+        name="theme-color"
+        content="#0f9f92"
+    >
 
-  <title>دفتري</title>
+    <title>دفتري</title>
 
-  <link rel="stylesheet" href="style.css">
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
 </head>
 
 <body>
 
-  <main class="app">
+<div class="app">
 
-    <!-- Header -->
-    <header class="header">
+    <!-- ================= HEADER ================= -->
 
-      <div class="brand">
-        <h1>دفتري</h1>
-        <p>إدارة أموالك بكل بساطة</p>
-      </div>
+    <header class="top-header">
 
-      <button
-        class="profile-button"
-        type="button"
-        aria-label="الملف الشخصي"
-      >
-        👤
-      </button>
+        <div class="header-top">
+
+            <div>
+                <div class="brand">
+                    دفتري
+                </div>
+
+                <div
+                    class="greeting"
+                    id="greeting"
+                >
+                    خلينا نرتب يومك.
+                </div>
+            </div>
+
+            <button
+                type="button"
+                class="theme-button"
+                id="themeButton"
+                aria-label="تغيير المظهر"
+            >
+                ☾
+            </button>
+
+        </div>
+
+
+        <div class="header-date">
+
+            <span id="currentDate">
+                اليوم
+            </span>
+
+        </div>
 
     </header>
 
 
-    <!-- Month selector -->
-    <section class="month-card">
+    <!-- ================= MONTH BAR ================= -->
 
-      <div class="month-navigation">
-
-        <button
-          class="month-button"
-          id="nextMonth"
-          type="button"
-          aria-label="الشهر التالي"
-        >
-          ‹
-        </button>
-
-        <div class="month-info">
-          <strong id="monthName">سبتمبر 2026</strong>
-          <span>الملخص المالي للشهر</span>
-        </div>
+    <div class="month-bar">
 
         <button
-          class="month-button"
-          id="previousMonth"
-          type="button"
-          aria-label="الشهر السابق"
+            type="button"
+            class="month-button"
+            id="previousMonth"
+            aria-label="الشهر السابق"
         >
-          ›
+            ‹
         </button>
 
-      </div>
+        <div class="month-title">
 
-    </section>
+            <span
+                class="month-name"
+                id="monthName"
+            >
+                الشهر الحالي
+            </span>
 
-
-    <!-- Balance -->
-    <section class="balance-card">
-
-      <div class="balance-label">
-        المتبقي هذا الشهر
-      </div>
-
-      <div class="balance-value">
-        <span id="remaining">0</span>
-        <span class="currency">د.ع</span>
-      </div>
-
-      <div class="balance-footer">
-
-        <div class="balance-item">
-          <span>الدخل</span>
-          <strong id="balanceIncome">0 د.ع</strong>
         </div>
 
-        <div class="balance-item">
-          <span>المصروفات</span>
-          <strong id="balanceExpenses">0 د.ع</strong>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- Financial summary -->
-    <h2 class="section-title">
-      الملخص المالي
-    </h2>
-
-    <section class="financial-grid">
-
-      <!-- Income -->
-      <article class="financial-card">
-
-        <div class="card-icon income-icon">
-          💰
-        </div>
-
-        <div class="card-label">
-          الدخل
-        </div>
-
-        <div
-          class="card-value income-value"
-          id="income"
+        <button
+            type="button"
+            class="month-button"
+            id="nextMonth"
+            aria-label="الشهر التالي"
         >
-          0
-        </div>
+            ›
+        </button>
 
-      </article>
+    </div>
 
 
-      <!-- Expenses -->
-      <article class="financial-card">
+    <!-- ================= MAIN ================= -->
 
-        <div class="card-icon expense-icon">
-          💸
-        </div>
+    <main class="main-content">
 
-        <div class="card-label">
-          المصروفات
-        </div>
 
-        <div
-          class="card-value expense-value"
-          id="expenses"
+        <!-- =================================================
+             HOME
+        ================================================== -->
+
+        <section
+            class="page active"
+            id="homePage"
         >
-          0
-        </div>
 
-      </article>
+            <div class="page-intro">
+
+                <span class="eyebrow">
+                    دفتري
+                </span>
+
+                <h1>
+                    ترتيب حياتك
+                </h1>
+
+                <p>
+                    كل شيء مهم بحياتك بمكان واحد.
+                </p>
+
+            </div>
 
 
-      <!-- Savings -->
-      <article class="financial-card">
+            <div class="main-sections">
 
-        <div class="card-icon saving-icon">
-          🏦
-        </div>
 
-        <div class="card-label">
-          الادخار
-        </div>
+                <!-- PERSONAL -->
 
-        <div
-          class="card-value saving-value"
-          id="savings"
+                <button
+                    type="button"
+                    class="main-section-card personal-card"
+                    data-page="personalPage"
+                >
+
+                    <div class="section-card-icon">
+                        ◌
+                    </div>
+
+                    <div class="section-card-text">
+
+                        <span>
+                            شخصي
+                        </span>
+
+                        <small>
+                            السيارة والمصروف
+                        </small>
+
+                    </div>
+
+                    <span class="section-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
+
+                <!-- HOME -->
+
+                <button
+                    type="button"
+                    class="main-section-card home-card"
+                    data-page="homeExpensesPage"
+                >
+
+                    <div class="section-card-icon">
+                        ⌂
+                    </div>
+
+                    <div class="section-card-text">
+
+                        <span>
+                            مصرف البيت
+                        </span>
+
+                        <small>
+                            ميزانية ومصاريف المنزل
+                        </small>
+
+                    </div>
+
+                    <span class="section-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
+            </div>
+
+
+            <!-- MONTH SUMMARY -->
+
+            <section class="summary-section">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            هذا الشهر
+                        </span>
+
+                        <h2>
+                            نظرة سريعة
+                        </h2>
+
+                    </div>
+
+                </div>
+
+
+                <div class="summary-list">
+
+                    <div class="summary-row">
+
+                        <span>
+                            إجمالي المصروف
+                        </span>
+
+                        <strong id="homeTotalExpenses">
+                            0 د.ع
+                        </strong>
+
+                    </div>
+
+
+                    <div class="summary-row">
+
+                        <span>
+                            الادخار
+                        </span>
+
+                        <strong id="homeSavings">
+                            غير محدد
+                        </strong>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PERSONAL
+        ================================================== -->
+
+        <section
+            class="page"
+            id="personalPage"
         >
-          0
-        </div>
 
-      </article>
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="homePage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        شخصي
+                    </span>
+
+                    <h1>
+                        شخصي
+                    </h1>
+
+                </div>
+
+            </div>
 
 
-      <!-- Amount owed -->
-      <article class="financial-card">
+            <div class="personal-options">
 
-        <div class="card-icon debt-icon">
-          📋
-        </div>
 
-        <div class="card-label">
-          مطلوب إليك
-        </div>
+                <!-- CAR -->
 
-        <div
-          class="card-value debt-value"
-          id="owed"
+                <button
+                    type="button"
+                    class="option-card"
+                    data-page="carPage"
+                >
+
+                    <div class="option-icon">
+                        🚗
+                    </div>
+
+                    <div class="option-content">
+
+                        <strong>
+                            السيارة
+                        </strong>
+
+                        <span>
+                            البنزين والصيانة والزيت
+                        </span>
+
+                    </div>
+
+                    <span class="option-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
+
+                <!-- EXPENSES -->
+
+                <button
+                    type="button"
+                    class="option-card"
+                    data-page="expensesPage"
+                >
+
+                    <div class="option-icon">
+                        د.ع
+                    </div>
+
+                    <div class="option-content">
+
+                        <strong>
+                            مصروف
+                        </strong>
+
+                        <span>
+                            المصروفات الأساسية والشخصية
+                        </span>
+
+                    </div>
+
+                    <span class="option-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             PERSONAL EXPENSES
+        ================================================== -->
+
+        <section
+            class="page"
+            id="expensesPage"
         >
-          0
-        </div>
 
-      </article>
+            <div class="page-header">
 
-    </section>
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="personalPage"
+                >
+                    ‹
+                </button>
 
+                <div>
 
-    <!-- Quick actions -->
-    <h2 class="section-title">
-      إجراءات سريعة
-    </h2>
+                    <span class="eyebrow">
+                        شخصي
+                    </span>
 
-    <section class="actions">
+                    <h1>
+                        مصروف
+                    </h1>
 
-      <button
-        class="action-button"
-        id="addIncomeButton"
-        type="button"
-      >
+                </div>
 
-        <span class="action-icon">
-          ➕
-        </span>
-
-        <span class="action-text">
-          <strong>إضافة دخل</strong>
-          <span>سجل دخلك لهذا الشهر</span>
-        </span>
-
-      </button>
+            </div>
 
 
-      <button
-        class="action-button"
-        id="addExpenseButton"
-        type="button"
-      >
+            <!-- BASIC EXPENSES -->
 
-        <span class="action-icon">
-          💸
-        </span>
+            <div class="section-heading">
 
-        <span class="action-text">
-          <strong>إضافة مصروف</strong>
-          <span>سجل أي مبلغ صرفته</span>
-        </span>
+                <div>
 
-      </button>
+                    <span class="eyebrow">
+                        شهرياً
+                    </span>
 
+                    <h2>
+                        مصروفاتك الأساسية
+                    </h2>
 
-      <button
-        class="action-button"
-        id="addSavingsButton"
-        type="button"
-      >
+                </div>
 
-        <span class="action-icon">
-          🏦
-        </span>
-
-        <span class="action-text">
-          <strong>إضافة ادخار</strong>
-          <span>أضف مبلغًا إلى مدخراتك</span>
-        </span>
-
-      </button>
+            </div>
 
 
-      <button
-        class="action-button"
-        id="addOwedButton"
-        type="button"
-      >
-
-        <span class="action-icon">
-          📋
-        </span>
-
-        <span class="action-text">
-          <strong>مبلغ مطلوب إليك</strong>
-          <span>سجل مبلغًا لك عند شخص</span>
-        </span>
-
-      </button>
-
-    </section>
-
-  </main>
+            <div class="expense-list">
 
 
-  <!-- Bottom navigation -->
-  <nav class="bottom-nav" aria-label="التنقل الرئيسي">
+                <!-- LOAN -->
 
-    <button
-      class="nav-item active"
-      type="button"
-      data-section="home"
-    >
-      <span class="nav-icon">⌂</span>
-      الرئيسية
-    </button>
+                <article class="expense-card">
 
-    <button
-      class="nav-item"
-      type="button"
-      data-section="expenses"
-    >
-      <span class="nav-icon">↙</span>
-      المصروفات
-    </button>
+                    <div class="expense-icon">
+                        س
+                    </div>
 
-    <button
-      class="nav-item"
-      type="button"
-      data-section="car"
-    >
-      <span class="nav-icon">🚗</span>
-      السيارة
-    </button>
+                    <div class="expense-info">
 
-    <button
-      class="nav-item"
-      type="button"
-      data-section="more"
-    >
-      <span class="nav-icon">•••</span>
-      المزيد
-    </button>
+                        <h3>
+                            السلفة
+                        </h3>
 
-  </nav>
+                        <p>
+                            مبلغ شهري ثابت
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="loanValue">
+                            425,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="loan"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
 
 
-  <script src="script.js"></script>
+                <!-- FUEL -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon fuel">
+                        ⛽
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            ميزانية البنزين
+                        </h3>
+
+                        <p>
+                            تضاف إلى قسم السيارة
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="fuelBudgetValue">
+                            200,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="fuelBudget"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- MOBILE INTERNET -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon internet">
+                        ◎
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            نت الموبايل
+                        </h3>
+
+                        <p>
+                            اشتراك شهري
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="mobileInternetValue">
+                            40,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="mobileInternet"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- HOME -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon home">
+                        ⌂
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            مصرف البيت
+                        </h3>
+
+                        <p>
+                            مساهمتك في ميزانية البيت
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="homeContributionValue">
+                            550,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="homeContribution"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- SAVINGS -->
+
+                <article class="expense-card saving-card">
+
+                    <div class="expense-icon saving">
+                        $
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            الادخار
+                        </h3>
+
+                        <p>
+                            حدد المبلغ الذي تريد ادخاره
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="savingValue">
+                            غير محدد
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            id="setSavingButton"
+                        >
+                            تحديد
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <!-- TOTAL -->
+
+            <div class="total-box">
+
+                <div>
+
+                    <span>
+                        إجمالي المصروفات الأساسية
+                    </span>
+
+                    <strong id="fixedExpenseTotal">
+                        1,015,000 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- CUSTOM -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        إضافي
+                    </span>
+
+                    <h2>
+                        مصروفات أخرى
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="small-action"
+                    id="addExpenseButton"
+                >
+                    + إضافة
+                </button>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="customExpenseList"
+            ></div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             CAR
+        ================================================== -->
+
+        <section
+            class="page"
+            id="carPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="personalPage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        شخصي
+                    </span>
+
+                    <h1>
+                        السيارة
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="car-budget-box">
+
+                <div class="budget-main">
+
+                    <span>
+                        ميزانية البنزين
+                    </span>
+
+                    <strong id="carBudgetDisplay">
+                        200,000 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        المصروف من الميزانية
+                    </span>
+
+                    <strong id="carSpentDisplay">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        المتبقي
+                    </span>
+
+                    <strong id="carRemainingDisplay">
+                        200,000 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="carFuelButton"
+                >
+
+                    <span>
+                        ⛽
+                    </span>
+
+                    <strong>
+                        بنزين
+                    </strong>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="carMaintenanceButton"
+                >
+
+                    <span>
+                        🔧
+                    </span>
+
+                    <strong>
+                        صيانة
+                    </strong>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="carOilButton"
+                >
+
+                    <span>
+                        ◉
+                    </span>
+
+                    <strong>
+                        زيت
+                    </strong>
+
+                </button>
+
+            </div>
+
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        السجل
+                    </span>
+
+                    <h2>
+                        مصاريف السيارة
+                    </h2>
+
+                </div>
+
+                <span
+                    class="section-total"
+                    id="carTotal"
+                >
+                    0 د.ع
+                </span>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="carExpensesList"
+            ></div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             HOME EXPENSES
+        ================================================== -->
+
+        <section
+            class="page"
+            id="homeExpensesPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="homePage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        المنزل
+                    </span>
+
+                    <h1>
+                        مصرف البيت
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <!-- HOME BUDGET -->
+
+            <div class="home-budget">
+
+                <div class="budget-main">
+
+                    <span>
+                        ميزانية المنزل
+                    </span>
+
+                    <strong id="homeBudgetValue">
+                        1,100,000 د.ع
+                    </strong>
+
+                </div>
+
+
+                <div class="home-contributors">
+
+                    <div>
+
+                        <span>
+                            مساهمتك
+                        </span>
+
+                        <strong id="homeContributionSummary">
+                            550,000 د.ع
+                        </strong>
+
+                    </div>
+
+
+                    <div>
+
+                        <span>
+                            مساهمة نورهان
+                        </span>
+
+                        <strong id="norhanContributionSummary">
+                            550,000 د.ع
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="budget-row">
+
+                    <span>
+                        المصروفات الأساسية
+                    </span>
+
+                    <strong id="homeBasicTotal">
+                        785,000 د.ع
+                    </strong>
+
+                </div>
+
+
+                <div class="budget-row">
+
+                    <span>
+                        المتبقي
+                    </span>
+
+                    <strong id="homeRemaining">
+                        315,000 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- BASIC HOME EXPENSES -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        ثابتة شهرياً
+                    </span>
+
+                    <h2>
+                        المصروفات الأساسية
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="expense-list home-basic-list">
+
+
+                <!-- GENERATOR -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon generator">
+                        ⚡
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            المولد
+                        </h3>
+
+                        <p>
+                            قابل للتعديل كل شهر
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="generatorValue">
+                            100,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="generator"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- HOME INTERNET -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon internet">
+                        ◎
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            نت البيت
+                        </h3>
+
+                        <p>
+                            قابل للتعديل كل شهر
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="homeInternetValue">
+                            35,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="homeInternet"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+
+                <!-- RENT -->
+
+                <article class="expense-card">
+
+                    <div class="expense-icon home">
+                        ⌂
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            الإيجار
+                        </h3>
+
+                        <p>
+                            قابل للتعديل كل شهر
+                        </p>
+
+                    </div>
+
+                    <div class="expense-value">
+
+                        <strong id="rentValue">
+                            650,000
+                        </strong>
+
+                        <small>
+                            د.ع
+                        </small>
+
+                        <button
+                            type="button"
+                            class="edit-expense"
+                            data-edit-setting="rent"
+                        >
+                            تعديل
+                        </button>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+
+            <!-- OTHER HOME EXPENSES -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        إضافي
+                    </span>
+
+                    <h2>
+                        مصاريف أخرى
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="small-action"
+                    id="addHomeExpenseButton"
+                >
+                    + إضافة
+                </button>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="homeExpensesList"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ================= BOTTOM NAV ================= -->
+
+    <nav class="bottom-nav">
+
+        <button
+            type="button"
+            class="nav-item active"
+            data-page="homePage"
+        >
+
+            <span>
+                ⌂
+            </span>
+
+            <small>
+                الرئيسية
+            </small>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="nav-item"
+            data-page="personalPage"
+        >
+
+            <span>
+                ◌
+            </span>
+
+            <small>
+                شخصي
+            </small>
+
+        </button>
+
+
+        <button
+            type="button"
+            class="nav-item"
+            data-page="homeExpensesPage"
+        >
+
+            <span>
+                ▦
+            </span>
+
+            <small>
+                البيت
+            </small>
+
+        </button>
+
+    </nav>
+
+</div>
+
+
+
+<!-- ================= MODAL ================= -->
+
+<div
+    class="modal hidden"
+    id="modal"
+>
+
+    <div
+        class="modal-overlay"
+        id="modalOverlay"
+    ></div>
+
+    <div class="modal-sheet">
+
+        <button
+            type="button"
+            class="modal-close"
+            id="modalClose"
+            aria-label="إغلاق"
+        >
+            ×
+        </button>
+
+        <div id="modalContent"></div>
+
+    </div>
+
+</div>
+
+
+
+<!-- ================= TOAST ================= -->
+
+<div
+    class="toast hidden"
+    id="toast"
+    aria-live="polite"
+></div>
+
+
+<script src="script.js"></script>
 
 </body>
 </html>
