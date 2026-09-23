@@ -1,433 +1,328 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="theme-color" content="#f5f5f7">
-  <meta name="description" content="دفتري الشخصي لإدارة الدخل والمصروفات والادخار والديون">
+  <meta
+    name="theme-color"
+    content="#f5f5f7"
+  >
+
+  <meta
+    name="description"
+    content="دفتري الشخصي لإدارة الدخل والمصروفات والادخار والديون"
+  >
 
   <title>دفتري</title>
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg: #f5f5f7;
-      --card: rgba(255, 255, 255, 0.88);
-      --text: #1c1c1e;
-      --secondary: #6e6e73;
-      --border: rgba(60, 60, 67, 0.12);
-      --blue: #007aff;
-      --green: #34c759;
-      --red: #ff3b30;
-      --orange: #ff9500;
-      --purple: #af52de;
-      --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-    }
-
-    body {
-      font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "SF Pro Display",
-        "SF Pro Text",
-        "Segoe UI",
-        Tahoma,
-        Arial,
-        sans-serif;
-
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 24px 16px 100px;
-    }
-
-    button {
-      font: inherit;
-    }
-
-    .app {
-      width: 100%;
-      max-width: 760px;
-      margin: 0 auto;
-    }
-
-    /* Header */
-
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .brand h1 {
-      font-size: 34px;
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
-
-    .brand p {
-      color: var(--secondary);
-      font-size: 14px;
-      margin-top: 4px;
-    }
-
-    .profile-button {
-      width: 46px;
-      height: 46px;
-      border: 0;
-      border-radius: 50%;
-      background: #ffffff;
-      box-shadow: var(--shadow);
-      font-size: 21px;
-      cursor: pointer;
-    }
-
-    /* Month selector */
-
-    .month-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 16px;
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-      backdrop-filter: blur(20px);
-    }
-
-    .month-navigation {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .month-button {
-      width: 42px;
-      height: 42px;
-      border: 0;
-      border-radius: 14px;
-      background: #f2f2f7;
-      color: var(--text);
-      font-size: 20px;
-      cursor: pointer;
-    }
-
-    .month-button:active {
-      transform: scale(0.96);
-    }
-
-    .month-info {
-      text-align: center;
-      flex: 1;
-    }
-
-    .month-info strong {
-      display: block;
-      font-size: 19px;
-      font-weight: 700;
-    }
-
-    .month-info span {
-      display: block;
-      color: var(--secondary);
-      font-size: 13px;
-      margin-top: 3px;
-    }
-
-    /* Balance */
-
-    .balance-card {
-      background: linear-gradient(145deg, #1c1c1e, #303034);
-      color: white;
-      border-radius: 28px;
-      padding: 26px;
-      margin-bottom: 16px;
-      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.14);
-    }
-
-    .balance-label {
-      color: rgba(255, 255, 255, 0.65);
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-
-    .balance-value {
-      font-size: 38px;
-      font-weight: 800;
-      letter-spacing: -1px;
-    }
-
-    .currency {
-      font-size: 15px;
-      font-weight: 500;
-      margin-right: 5px;
-      opacity: 0.75;
-    }
-
-    .balance-footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 15px;
-      margin-top: 24px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .balance-item span {
-      display: block;
-      color: rgba(255,255,255,0.55);
-      font-size: 12px;
-      margin-bottom: 5px;
-    }
-
-    .balance-item strong {
-      font-size: 16px;
-    }
-
-    /* Financial cards */
-
-    .section-title {
-      font-size: 20px;
-      font-weight: 750;
-      margin: 28px 4px 12px;
-    }
-
-    .financial-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .financial-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 19px;
-      margin-bottom: 14px;
-    }
-
-    .income-icon {
-      background: rgba(52, 199, 89, 0.12);
-    }
-
-    .expense-icon {
-      background: rgba(255, 59, 48, 0.12);
-    }
-
-    .saving-icon {
-      background: rgba(175, 82, 222, 0.12);
-    }
-
-    .debt-icon {
-      background: rgba(255, 149, 0, 0.12);
-    }
-
-    .card-label {
-      color: var(--secondary);
-      font-size: 13px;
-      margin-bottom: 5px;
-    }
-
-    .card-value {
-      font-size: 22px;
-      font-weight: 750;
-    }
-
-    .income-value {
-      color: var(--green);
-    }
-
-    .expense-value {
-      color: var(--red);
-    }
-
-    .saving-value {
-      color: var(--purple);
-    }
-
-    .debt-value {
-      color: var(--orange);
-    }
-
-    /* Quick actions */
-
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .action-button {
-      border: 1px solid var(--border);
-      background: white;
-      border-radius: 20px;
-      padding: 17px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      cursor: pointer;
-      text-align: right;
-      transition: transform 0.15s ease;
-    }
-
-    .action-button:active {
-      transform: scale(0.97);
-    }
-
-    .action-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      background: #f2f2f7;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 19px;
-      flex-shrink: 0;
-    }
-
-    .action-text strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 3px;
-    }
-
-    .action-text span {
-      color: var(--secondary);
-      font-size: 12px;
-    }
-
-    /* Bottom navigation */
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 14px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(92%, 620px);
-      background: rgba(255,255,255,0.9);
-      border: 1px solid var(--border);
-      border-radius: 25px;
-      padding: 8px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.12);
-      backdrop-filter: blur(20px);
-      z-index: 100;
-    }
-
-    .nav-item {
-      border: 0;
-      background: transparent;
-      border-radius: 18px;
-      padding: 9px 5px;
-      cursor: pointer;
-      color: var(--secondary);
-      font-size: 11px;
-    }
-
-    .nav-item .nav-icon {
-      display: block;
-      font-size: 20px;
-      margin-bottom: 3px;
-    }
-
-    .nav-item.active {
-      color: var(--blue);
-      background: rgba(0,122,255,0.09);
-    }
-
-    /* Responsive */
-
-    @media (max-width: 480px) {
-      body {
-        padding: 18px 12px 100px;
-      }
-
-      .brand h1 {
-        font-size: 30px;
-      }
-
-      .balance-card {
-        padding: 22px;
-        border-radius: 24px;
-      }
-
-      .balance-value {
-        font-size: 32px;
-      }
-
-      .financial-grid {
-        gap: 9px;
-      }
-
-      .financial-card {
-        padding: 15px;
-      }
-
-      .card-value {
-        font-size: 19px;
-      }
-
-      .actions {
-        gap: 9px;
-      }
-    }
-
-    /* Dark mode */
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #000000;
-        --card: rgba(28, 28, 30, 0.92);
-        --text: #f5f5f7;
-        --secondary: #98989f;
-        --border: rgba(255,255,255,0.10);
-      }
-
-      .profile-button,
-      .action-button {
-        background: #1c1c1e;
-        color: var(--text);
-      }
-
-      .month-button {
-        background: #2c2c2e;
-        color: var(--text);
-      }
-
-      .bottom-nav {
-        background: rgba(28,28,30,0.92);
-      }
-
-      .action-icon {
-        background: #2c2c2e;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <main class
-```
+  <main class="app">
+
+    <!-- Header -->
+    <header class="header">
+
+      <div class="brand">
+        <h1>دفتري</h1>
+        <p>إدارة أموالك بكل بساطة</p>
+      </div>
+
+      <button
+        class="profile-button"
+        type="button"
+        aria-label="الملف الشخصي"
+      >
+        👤
+      </button>
+
+    </header>
+
+
+    <!-- Month selector -->
+    <section class="month-card">
+
+      <div class="month-navigation">
+
+        <button
+          class="month-button"
+          id="nextMonth"
+          type="button"
+          aria-label="الشهر التالي"
+        >
+          ‹
+        </button>
+
+        <div class="month-info">
+          <strong id="monthName">سبتمبر 2026</strong>
+          <span>الملخص المالي للشهر</span>
+        </div>
+
+        <button
+          class="month-button"
+          id="previousMonth"
+          type="button"
+          aria-label="الشهر السابق"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- Balance -->
+    <section class="balance-card">
+
+      <div class="balance-label">
+        المتبقي هذا الشهر
+      </div>
+
+      <div class="balance-value">
+        <span id="remaining">0</span>
+        <span class="currency">د.ع</span>
+      </div>
+
+      <div class="balance-footer">
+
+        <div class="balance-item">
+          <span>الدخل</span>
+          <strong id="balanceIncome">0 د.ع</strong>
+        </div>
+
+        <div class="balance-item">
+          <span>المصروفات</span>
+          <strong id="balanceExpenses">0 د.ع</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Financial summary -->
+    <h2 class="section-title">
+      الملخص المالي
+    </h2>
+
+    <section class="financial-grid">
+
+      <!-- Income -->
+      <article class="financial-card">
+
+        <div class="card-icon income-icon">
+          💰
+        </div>
+
+        <div class="card-label">
+          الدخل
+        </div>
+
+        <div
+          class="card-value income-value"
+          id="income"
+        >
+          0
+        </div>
+
+      </article>
+
+
+      <!-- Expenses -->
+      <article class="financial-card">
+
+        <div class="card-icon expense-icon">
+          💸
+        </div>
+
+        <div class="card-label">
+          المصروفات
+        </div>
+
+        <div
+          class="card-value expense-value"
+          id="expenses"
+        >
+          0
+        </div>
+
+      </article>
+
+
+      <!-- Savings -->
+      <article class="financial-card">
+
+        <div class="card-icon saving-icon">
+          🏦
+        </div>
+
+        <div class="card-label">
+          الادخار
+        </div>
+
+        <div
+          class="card-value saving-value"
+          id="savings"
+        >
+          0
+        </div>
+
+      </article>
+
+
+      <!-- Amount owed -->
+      <article class="financial-card">
+
+        <div class="card-icon debt-icon">
+          📋
+        </div>
+
+        <div class="card-label">
+          مطلوب إليك
+        </div>
+
+        <div
+          class="card-value debt-value"
+          id="owed"
+        >
+          0
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- Quick actions -->
+    <h2 class="section-title">
+      إجراءات سريعة
+    </h2>
+
+    <section class="actions">
+
+      <button
+        class="action-button"
+        id="addIncomeButton"
+        type="button"
+      >
+
+        <span class="action-icon">
+          ➕
+        </span>
+
+        <span class="action-text">
+          <strong>إضافة دخل</strong>
+          <span>سجل دخلك لهذا الشهر</span>
+        </span>
+
+      </button>
+
+
+      <button
+        class="action-button"
+        id="addExpenseButton"
+        type="button"
+      >
+
+        <span class="action-icon">
+          💸
+        </span>
+
+        <span class="action-text">
+          <strong>إضافة مصروف</strong>
+          <span>سجل أي مبلغ صرفته</span>
+        </span>
+
+      </button>
+
+
+      <button
+        class="action-button"
+        id="addSavingsButton"
+        type="button"
+      >
+
+        <span class="action-icon">
+          🏦
+        </span>
+
+        <span class="action-text">
+          <strong>إضافة ادخار</strong>
+          <span>أضف مبلغًا إلى مدخراتك</span>
+        </span>
+
+      </button>
+
+
+      <button
+        class="action-button"
+        id="addOwedButton"
+        type="button"
+      >
+
+        <span class="action-icon">
+          📋
+        </span>
+
+        <span class="action-text">
+          <strong>مبلغ مطلوب إليك</strong>
+          <span>سجل مبلغًا لك عند شخص</span>
+        </span>
+
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <!-- Bottom navigation -->
+  <nav class="bottom-nav" aria-label="التنقل الرئيسي">
+
+    <button
+      class="nav-item active"
+      type="button"
+      data-section="home"
+    >
+      <span class="nav-icon">⌂</span>
+      الرئيسية
+    </button>
+
+    <button
+      class="nav-item"
+      type="button"
+      data-section="expenses"
+    >
+      <span class="nav-icon">↙</span>
+      المصروفات
+    </button>
+
+    <button
+      class="nav-item"
+      type="button"
+      data-section="car"
+    >
+      <span class="nav-icon">🚗</span>
+      السيارة
+    </button>
+
+    <button
+      class="nav-item"
+      type="button"
+      data-section="more"
+    >
+      <span class="nav-icon">•••</span>
+      المزيد
+    </button>
+
+  </nav>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
