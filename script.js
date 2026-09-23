@@ -911,6 +911,16 @@ function setupActions() {
         openAddDebtorModal
     );
 
+    $("addPersonalTaskButton")?.addEventListener(
+        "click",
+        () => openAddTaskModal("personalTasks", "إضافة مهمة شخصية")
+    );
+
+    $("addHomeTaskButton")?.addEventListener(
+        "click",
+        () => openAddTaskModal("homeTasks", "إضافة مهمة بيت")
+    );
+
     document
         .querySelectorAll("[data-edit-setting]")
         .forEach((button) => {
@@ -950,6 +960,22 @@ function setupActions() {
 
             if (debtorDeleteButton) {
                 deleteDebtor(debtorDeleteButton.dataset.debtorDelete);
+                return;
+            }
+
+            const taskToggleButton =
+                event.target.closest("[data-task-toggle]");
+
+            if (taskToggleButton) {
+                toggleTask(taskToggleButton.dataset.taskToggle);
+                return;
+            }
+
+            const taskDeleteButton =
+                event.target.closest("[data-task-delete]");
+
+            if (taskDeleteButton) {
+                deleteTask(taskDeleteButton.dataset.taskDelete);
             }
 
         }
@@ -1298,7 +1324,340 @@ function savingsMonthlyReport(year, month) {
     };
 }
 
-/* __APPEND__ */
+/* =========================================================
+   PAGE TABS
+========================================================= */
+
+function setupPageTabs() {
+    document
+        .querySelectorAll(".page-tab")
+        .forEach((tab) => {
+
+            tab.addEventListener(
+                "click",
+                () => {
+
+                    const tabsContainer = tab.closest(".page-tabs");
+
+                    if (!tabsContainer) {
+                        return;
+                    }
+
+                    tabsContainer
+                        .querySelectorAll(".page-tab")
+                        .forEach((item) => {
+
+                            item.classList.toggle(
+                                "active",
+                                item === tab
+                            );
+
+                        });
+
+                    const page = tab.closest(".page");
+
+                    if (!page) {
+                        return;
+                    }
+
+                    page
+                        .querySelectorAll(".tab-panel")
+                        .forEach((panel) => {
+
+                            panel.classList.toggle(
+                                "active",
+                                panel.id === tab.dataset.tab
+                            );
+
+                        });
+
+                }
+            );
+
+        });
+}
+
+/* =========================================================
+   TASKS (personal + home)
+   Stored per month in the same database:
+   month.tasks = [{ id, listKey, title, note, done, date }]
+========================================================= */
+
+function ensureTasks(month) {
+    if (!Array.isArray(month.tasks)) {
+        month.tasks = [];
+    }
+
+    return month.tasks;
+}
+
+function taskFormHtml({ title }) {
+    return `
+        <h2 class="modal-title">${title}</h2>
+
+        <form id="genericForm">
+
+            <div class="form-group">
+
+                <label for="genericTitle">
+                    نص المهمة
+                </label>
+
+                <input
+                    type="text"
+                    id="genericTitle"
+                    placeholder="مثال: دفع فاتورة الكهرباء"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="genericNote">
+                    ملاحظة (اختياري)
+                </label>
+
+                <input
+                    type="text"
+                    id="genericNote"
+                    placeholder="ملاحظة..."
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="genericDate">
+                    التاريخ
+                </label>
+
+                <input
+                    type="date"
+                    id="genericDate"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                حفظ
+            </button>
+
+        </form>
+    `;
+}
+
+function openAddTaskModal(listKey, modalTitle) {
+    openModal(
+        taskFormHtml({
+            title: modalTitle
+        })
+    );
+
+    const form = $("genericForm");
+
+    if (!form) {
+        return;
+    }
+
+    form.addEventListener(
+        "submit",
+        (event) => {
+
+            event.preventDefault();
+
+            const title = $("genericTitle")?.value?.trim();
+
+            if (!title) {
+                showToast("أدخل نص المهمة");
+                return;
+            }
+
+            const month = currentMonthData();
+
+            const tasks = ensureTasks(month);
+
+            tasks.push({
+                id: Date.now(),
+                listKey,
+                title,
+                note: getFormNote(),
+                done: false,
+                date: getFormDate()
+            });
+
+            commit();
+            closeModal();
+            showToast("تمت إضافة المهمة");
+
+        }
+    );
+}
+
+function toggleTask(taskId) {
+    const month = currentMonthData();
+
+    const tasks = ensureTasks(month);
+
+    const task = tasks.find(
+        (item) => item.id === Number(taskId)
+    );
+
+    if (!task) {
+        return;
+    }
+
+    task.done = !task.done;
+
+    commit();
+}
+
+function deleteTask(taskId, force = false) {
+    const month = currentMonthData();
+
+    if (
+        !force &&
+        isMonthLocked(month.year, month.month)
+    ) {
+        showToast("🔒 شهر مغلق — استخدم الضغط المطول");
+        return;
+    }
+
+    const tasks = ensureTasks(month);
+
+    month.tasks = tasks.filter(
+        (item) => item.id !== Number(taskId)
+    );
+
+    commit();
+    showToast("تم حذف المهمة");
+}
+
+function taskRowHtml(task) {
+    return `
+        <div class="record-row task-row ${task.done ? "task-done" : ""}">
+
+            <button
+                type="button"
+                class="task-check"
+                data-task-toggle="${task.id}"
+                aria-label="إكمال"
+            >
+                ${task.done ? "✓" : ""}
+            </button>
+
+            <div class="record-info">
+
+                <strong>
+                    ${task.title}
+                </strong>
+
+                <span>
+                    ${formatDate(task.date)}
+                    ${task.note ? ` - ${task.note}` : ""}
+                </span>
+
+            </div>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-task-delete="${task.id}"
+                aria-label="حذف"
+            >
+                ×
+            </button>
+
+        </div>
+    `;
+}
+
+function renderTaskList(listId, listKey) {
+    const month = currentMonthData();
+
+    const list = $(listId);
+
+    if (!list) {
+        return;
+    }
+
+    const tasks = ensureTasks(month).filter(
+        (task) => task.listKey === listKey
+    );
+
+    if (!tasks.length) {
+        list.innerHTML = emptyListHtml("لا توجد مهام بعد");
+        return;
+    }
+
+    list.innerHTML = tasks
+        .slice()
+        .reverse()
+        .map(taskRowHtml)
+        .join("");
+
+    if (isMonthLocked()) {
+        Array.from(list.children).forEach((row) => {
+
+            const taskId =
+                row.querySelector("[data-task-delete]")?.dataset.taskDelete;
+
+            if (!taskId) {
+                return;
+            }
+
+            attachRecordPress(
+                row,
+                () => {
+
+                    openModal(
+                        `
+                        <h2 class="modal-title">حذف مهمة شهر مغلق</h2>
+
+                        <p class="locked-hint">
+                            🔒 هذا الشهر مغلق. يمكنك حذف هذه المهمة فقط.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="form-submit danger"
+                            id="forceDeleteTaskButton"
+                        >
+                            حذف المهمة
+                        </button>
+                        `
+                    );
+
+                    $("forceDeleteTaskButton")?.addEventListener(
+                        "click",
+                        () => {
+
+                            closeModal();
+
+                            deleteTask(taskId, true);
+
+                        }
+                    );
+
+                }
+            );
+
+        });
+    }
+}
+
+function renderTasks() {
+    renderTaskList("personalTasksList", "personalTasks");
+    renderTaskList("homeTasksList", "homeTasks");
+}
+
+/* TASK RENDER APPEND */
+
+
 
 function formatDate(iso) {
     const date = new Date(iso);
@@ -2062,6 +2421,8 @@ function renderAll() {
 
     renderHomeExpensesPage();
 
+    renderTasks();
+
     renderSavingsPage();
 }
 
@@ -2088,6 +2449,8 @@ function init() {
     setupMonthNavigation();
 
     setupModal();
+
+    setupPageTabs();
 
     setupActions();
 

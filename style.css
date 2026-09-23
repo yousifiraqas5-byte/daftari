@@ -2174,3 +2174,118 @@ body.dark .modal-overlay {
 
     box-shadow: 0 8px 20px rgba(214, 69, 69, 0.25);
 }
+
+
+/* =========================================================
+   PAGE TABS
+========================================================= */
+
+.page-tabs {
+
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 18px;
+
+    background: var(--surface-soft);
+
+    border: 1px solid var(--border);
+
+    border-radius: 15px;
+
+    padding: 5px;
+}
+
+
+.page-tab {
+
+    flex: 1;
+
+    min-height: 42px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    background: transparent;
+
+    color: var(--text-secondary);
+
+    font-size: 13px;
+
+    font-weight: 800;
+}
+
+
+.page-tab.active {
+
+    background: var(--primary);
+
+    color: white;
+
+    box-shadow:
+        0 6px 16px rgba(15, 159, 146, 0.25);
+}
+
+
+.tab-panel {
+
+    display: none;
+}
+
+
+.tab-panel.active {
+
+    display: block;
+}
+
+
+/* =========================================================
+   TASKS
+========================================================= */
+
+.task-row {
+
+    align-items: center;
+}
+
+
+.task-check {
+
+    width: 30px;
+
+    height: 30px;
+
+    flex-shrink: 0;
+
+    border: 2px solid var(--border);
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 900;
+
+    line-height: 1;
+}
+
+
+.task-done .task-check {
+
+    background: var(--primary);
+
+    border-color: var(--primary);
+}
+
+
+.task-done .record-info strong {
+
+    text-decoration: line-through;
+
+    color: var(--text-secondary);
+}

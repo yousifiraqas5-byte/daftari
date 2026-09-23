@@ -226,11 +226,11 @@
                     <div class="section-card-text">
 
                         <span>
-                            مصرف البيت
+                            البيت
                         </span>
 
                         <small>
-                            ميزانية ومصاريف المنزل
+                            مهام البيت وميزانيته
                         </small>
 
                     </div>
@@ -322,11 +322,11 @@
                 <div>
 
                     <span class="eyebrow">
-                        شخصي
+                        الشخصي
                     </span>
 
                     <h1>
-                        شخصي
+                        👤 الشخصي
                     </h1>
 
                 </div>
@@ -334,100 +334,175 @@
             </div>
 
 
-            <div class="personal-options">
+            <!-- TABS -->
 
-
-                <!-- CAR -->
-
-                <button
-                    type="button"
-                    class="option-card"
-                    data-page="carPage"
-                >
-
-                    <div class="option-icon">
-                        🚗
-                    </div>
-
-                    <div class="option-content">
-
-                        <strong>
-                            السيارة
-                        </strong>
-
-                        <span>
-                            البنزين والصيانة والزيت
-                        </span>
-
-                    </div>
-
-                    <span class="option-arrow">
-                        ‹
-                    </span>
-
-                </button>
-
-
-                <!-- EXPENSES -->
+            <div
+                class="page-tabs"
+                data-tabs-for="personalPage"
+            >
 
                 <button
                     type="button"
-                    class="option-card"
-                    data-page="expensesPage"
+                    class="page-tab active"
+                    data-tab="personalTasksTab"
                 >
-
-                    <div class="option-icon">
-                        د.ع
-                    </div>
-
-                    <div class="option-content">
-
-                        <strong>
-                            مصروف
-                        </strong>
-
-                        <span>
-                            المصروفات الأساسية والشخصية
-                        </span>
-
-                    </div>
-
-                    <span class="option-arrow">
-                        ‹
-                    </span>
-
+                    🗒 المهام
                 </button>
-
-
-                <!-- SAVINGS -->
 
                 <button
                     type="button"
-                    class="option-card"
-                    data-page="savingsPage"
+                    class="page-tab"
+                    data-tab="personalMoneyTab"
                 >
+                    💰 مالي
+                </button>
 
-                    <div class="option-icon">
-                        💰
-                    </div>
+            </div>
 
-                    <div class="option-content">
 
-                        <strong>
-                            الادخار
-                        </strong>
+            <!-- TAB: TASKS -->
 
-                        <span>
-                            الإيداع والسحب والمدينون
+            <div
+                class="tab-panel active"
+                id="personalTasksTab"
+            >
+
+                <div class="section-heading section-heading-space">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            قائمة المهام
                         </span>
 
+                        <h2>
+                            مهامي الشخصية
+                        </h2>
+
                     </div>
 
-                    <span class="option-arrow">
-                        ‹
-                    </span>
+                    <button
+                        type="button"
+                        class="small-action"
+                        id="addPersonalTaskButton"
+                    >
+                        + إضافة
+                    </button>
 
-                </button>
+                </div>
+
+
+                <div
+                    class="record-list"
+                    id="personalTasksList"
+                ></div>
+
+            </div>
+
+
+            <!-- TAB: MONEY -->
+
+            <div
+                class="tab-panel"
+                id="personalMoneyTab"
+            >
+
+                <div class="personal-options">
+
+
+                    <!-- CAR -->
+
+                    <button
+                        type="button"
+                        class="option-card"
+                        data-page="carPage"
+                    >
+
+                        <div class="option-icon">
+                            🚗
+                        </div>
+
+                        <div class="option-content">
+
+                            <strong>
+                                السيارة
+                            </strong>
+
+                            <span>
+                                البنزين والصيانة والزيت
+                            </span>
+
+                        </div>
+
+                        <span class="option-arrow">
+                            ‹
+                        </span>
+
+                    </button>
+
+
+                    <!-- EXPENSES -->
+
+                    <button
+                        type="button"
+                        class="option-card"
+                        data-page="expensesPage"
+                    >
+
+                        <div class="option-icon">
+                            د.ع
+                        </div>
+
+                        <div class="option-content">
+
+                            <strong>
+                                مصروف
+                            </strong>
+
+                            <span>
+                                المصروفات الأساسية والشخصية
+                            </span>
+
+                        </div>
+
+                        <span class="option-arrow">
+                            ‹
+                        </span>
+
+                    </button>
+
+
+                    <!-- SAVINGS -->
+
+                    <button
+                        type="button"
+                        class="option-card"
+                        data-page="savingsPage"
+                    >
+
+                        <div class="option-icon">
+                            💰
+                        </div>
+
+                        <div class="option-content">
+
+                            <strong>
+                                الادخار
+                            </strong>
+
+                            <span>
+                                الإيداع والسحب والمدينون
+                            </span>
+
+                        </div>
+
+                        <span class="option-arrow">
+                            ‹
+                        </span>
+
+                    </button>
+
+                </div>
 
             </div>
 
@@ -1238,12 +1313,86 @@
                     </span>
 
                     <h1>
-                        مصرف البيت
+                        🏠 البيت
                     </h1>
 
                 </div>
 
             </div>
+
+
+            <!-- TABS -->
+
+            <div
+                class="page-tabs"
+                data-tabs-for="homeExpensesPage"
+            >
+
+                <button
+                    type="button"
+                    class="page-tab active"
+                    data-tab="homeTasksTab"
+                >
+                    📝 مهام
+                </button>
+
+                <button
+                    type="button"
+                    class="page-tab"
+                    data-tab="homeMoneyTab"
+                >
+                    💰 مالي
+                </button>
+
+            </div>
+
+
+            <!-- TAB: TASKS -->
+
+            <div
+                class="tab-panel active"
+                id="homeTasksTab"
+            >
+
+                <div class="section-heading section-heading-space">
+
+                    <div>
+
+                        <span class="eyebrow">
+                            قائمة المهام
+                        </span>
+
+                        <h2>
+                            مهام البيت
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="small-action"
+                        id="addHomeTaskButton"
+                    >
+                        + إضافة
+                    </button>
+
+                </div>
+
+
+                <div
+                    class="record-list"
+                    id="homeTasksList"
+                ></div>
+
+            </div>
+
+
+            <!-- TAB: MONEY -->
+
+            <div
+                class="tab-panel"
+                id="homeMoneyTab"
+            >
 
 
             <!-- HOME BUDGET -->
@@ -1505,6 +1654,8 @@
                 class="record-list"
                 id="homeExpensesList"
             ></div>
+
+            </div>
 
         </section>
 
