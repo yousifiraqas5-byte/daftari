@@ -1,0 +1,773 @@
+```css
+/* =========================================================
+   دفتري — التصميم الرئيسي
+   iOS / RTL
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f5f5f7;
+  --card: rgba(255, 255, 255, 0.92);
+  --text: #1c1c1e;
+  --secondary: #6e6e73;
+  --border: rgba(60, 60, 67, 0.12);
+
+  --blue: #007aff;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --purple: #af52de;
+
+  --radius-large: 28px;
+  --radius-medium: 22px;
+  --radius-small: 16px;
+
+  --shadow:
+    0 8px 30px rgba(0, 0, 0, 0.06);
+}
+
+
+/* =========================================================
+   الصفحة
+   ========================================================= */
+
+html {
+  direction: rtl;
+  scroll-behavior: smooth;
+}
+
+body {
+  direction: rtl;
+
+  min-height: 100vh;
+
+  background: var(--bg);
+  color: var(--text);
+
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "SF Pro Display",
+    "SF Pro Text",
+    "Segoe UI",
+    Tahoma,
+    Arial,
+    sans-serif;
+
+  padding: 24px 16px 110px;
+
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+
+/* =========================================================
+   العناصر العامة
+   ========================================================= */
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(0, 122, 255, 0.28);
+  outline-offset: 2px;
+}
+
+
+/* =========================================================
+   التطبيق
+   ========================================================= */
+
+.app {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+}
+
+.brand h1 {
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 800;
+
+  letter-spacing: -1px;
+}
+
+.brand p {
+  margin-top: 5px;
+
+  color: var(--secondary);
+
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.profile-button {
+  width: 46px;
+  height: 46px;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  box-shadow: var(--shadow);
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 20px;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.profile-button:active {
+  transform: scale(0.94);
+}
+
+
+/* =========================================================
+   اختيار الشهر
+   ========================================================= */
+
+.month-card {
+  background: var(--card);
+
+  border: 1px solid var(--border);
+  border-radius: var(--radius-large);
+
+  padding: 16px;
+
+  box-shadow: var(--shadow);
+
+  margin-bottom: 16px;
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.month-navigation {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.month-button {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  border: 0;
+  border-radius: 14px;
+
+  background: #f2f2f7;
+  color: var(--text);
+
+  cursor: pointer;
+
+  font-size: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.month-button:active {
+  transform: scale(0.94);
+}
+
+.month-info {
+  flex: 1;
+
+  min-width: 0;
+
+  text-align: center;
+}
+
+.month-info strong {
+  display: block;
+
+  font-size: 19px;
+  line-height: 1.3;
+  font-weight: 750;
+}
+
+.month-info span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: var(--secondary);
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   بطاقة المتبقي
+   ========================================================= */
+
+.balance-card {
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      #1c1c1e,
+      #303034
+    );
+
+  color: #ffffff;
+
+  border-radius: var(--radius-large);
+
+  padding: 26px;
+
+  margin-bottom: 16px;
+
+  box-shadow:
+    0 14px 35px rgba(0, 0, 0, 0.14);
+}
+
+.balance-label {
+  color: rgba(255, 255, 255, 0.62);
+
+  font-size: 14px;
+
+  margin-bottom: 8px;
+}
+
+.balance-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+
+  font-size: 38px;
+  line-height: 1.1;
+
+  font-weight: 800;
+
+  letter-spacing: -1px;
+}
+
+.currency {
+  margin-right: 6px;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.balance-footer {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 28px;
+
+  margin-top: 24px;
+  padding-top: 18px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.12);
+}
+
+.balance-item {
+  min-width: 0;
+}
+
+.balance-item span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: rgba(255, 255, 255, 0.52);
+
+  font-size: 12px;
+}
+
+.balance-item strong {
+  display: block;
+
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+
+/* =========================================================
+   عناوين الأقسام
+   ========================================================= */
+
+.section-title {
+  margin:
+    28px 4px
+    12px;
+
+  font-size: 20px;
+  line-height: 1.3;
+
+  font-weight: 750;
+}
+
+
+/* =========================================================
+   البطاقات المالية
+   ========================================================= */
+
+.financial-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.financial-card {
+  min-width: 0;
+
+  background: var(--card);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: var(--radius-medium);
+
+  padding: 18px;
+
+  box-shadow: var(--shadow);
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+
+  border-radius: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-bottom: 14px;
+
+  font-size: 18px;
+}
+
+.income-icon {
+  background: rgba(52, 199, 89, 0.12);
+}
+
+.expense-icon {
+  background: rgba(255, 59, 48, 0.12);
+}
+
+.saving-icon {
+  background: rgba(175, 82, 222, 0.12);
+}
+
+.debt-icon {
+  background: rgba(255, 149, 0, 0.12);
+}
+
+.card-label {
+  margin-bottom: 5px;
+
+  color: var(--secondary);
+
+  font-size: 13px;
+}
+
+.card-value {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  font-size: 22px;
+  line-height: 1.25;
+
+  font-weight: 750;
+}
+
+.card-value small {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.income-value {
+  color: var(--green);
+}
+
+.expense-value {
+  color: var(--red);
+}
+
+.saving-value {
+  color: var(--purple);
+}
+
+.debt-value {
+  color: var(--orange);
+}
+
+
+/* =========================================================
+   الإجراءات السريعة
+   ========================================================= */
+
+.actions {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.action-button {
+  width: 100%;
+
+  min-width: 0;
+
+  border:
+    1px solid var(--border);
+
+  background: #ffffff;
+
+  color: var(--text);
+
+  border-radius: 20px;
+
+  padding: 17px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  text-align: right;
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.action-button:active {
+  transform: scale(0.97);
+}
+
+.action-icon {
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  border-radius: 14px;
+
+  background: #f2f2f7;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 18px;
+}
+
+.action-text {
+  min-width: 0;
+}
+
+.action-text strong {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 14px;
+  line-height: 1.3;
+}
+
+.action-text span {
+  display: block;
+
+  color: var(--secondary);
+
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+/* =========================================================
+   التنقل السفلي
+   ========================================================= */
+
+.bottom-nav {
+  position: fixed;
+
+  bottom: 14px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  z-index: 100;
+
+  width: min(92%, 620px);
+
+  padding: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.9);
+
+  border:
+    1px solid var(--border);
+
+  border-radius: 25px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 4px;
+
+  box-shadow:
+    0 10px 35px rgba(0, 0, 0, 0.12);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.nav-item {
+  min-width: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--secondary);
+
+  border-radius: 18px;
+
+  padding: 9px 5px;
+
+  cursor: pointer;
+
+  font-size: 11px;
+
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.nav-item .nav-icon {
+  display: block;
+
+  margin-bottom: 3px;
+
+  font-size: 20px;
+
+  line-height: 1;
+}
+
+.nav-item.active {
+  color: var(--blue);
+
+  background:
+    rgba(0, 122, 255, 0.09);
+}
+
+
+/* =========================================================
+   الشاشات الصغيرة
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  body {
+    padding:
+      18px
+      12px
+      105px;
+  }
+
+  .brand h1 {
+    font-size: 30px;
+  }
+
+  .brand p {
+    font-size: 13px;
+  }
+
+  .balance-card {
+    padding: 22px;
+
+    border-radius: 24px;
+  }
+
+  .balance-value {
+    font-size: 32px;
+  }
+
+  .balance-footer {
+    gap: 20px;
+  }
+
+  .financial-grid {
+    gap: 9px;
+  }
+
+  .financial-card {
+    padding: 15px;
+
+    border-radius: 19px;
+  }
+
+  .card-value {
+    font-size: 19px;
+  }
+
+  .actions {
+    gap: 9px;
+  }
+
+  .action-button {
+    padding: 14px;
+
+    border-radius: 18px;
+  }
+
+  .action-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-basis: 38px;
+
+    border-radius: 12px;
+  }
+}
+
+
+/* =========================================================
+   الشاشات الضيقة جدًا
+   ========================================================= */
+
+@media (max-width: 350px) {
+
+  .financial-grid,
+  .actions {
+    grid-template-columns: 1fr;
+  }
+
+  .balance-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .balance-value {
+    font-size: 29px;
+  }
+}
+
+
+/* =========================================================
+   الوضع الداكن
+   ========================================================= */
+
+@media (prefers-color-scheme: dark) {
+
+  :root {
+    --bg: #000000;
+
+    --card:
+      rgba(28, 28, 30, 0.94);
+
+    --text: #f5f5f7;
+
+    --secondary: #98989f;
+
+    --border:
+      rgba(255, 255, 255, 0.10);
+  }
+
+  .profile-button {
+    background: #1c1c1e;
+    color: #ffffff;
+  }
+
+  .month-button {
+    background: #2c2c2e;
+    color: #ffffff;
+  }
+
+  .action-button {
+    background: #1c1c1e;
+    color: #f5f5f7;
+  }
+
+  .action-icon {
+    background: #2c2c2e;
+  }
+
+  .bottom-nav {
+    background:
+      rgba(28, 28, 30, 0.94);
+  }
+}
+
+
+/* =========================================================
+   تقليل الحركة
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+```
