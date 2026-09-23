@@ -1,9 +1,3 @@
-```css
-/* =========================================================
-   دفتري — التصميم الرئيسي
-   iOS / RTL
-   ========================================================= */
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -23,32 +17,14 @@
   --orange: #ff9500;
   --purple: #af52de;
 
-  --radius-large: 28px;
-  --radius-medium: 22px;
-  --radius-small: 16px;
-
-  --shadow:
-    0 8px 30px rgba(0, 0, 0, 0.06);
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
 }
 
-
-/* =========================================================
-   الصفحة
-   ========================================================= */
-
 html {
-  direction: rtl;
   scroll-behavior: smooth;
 }
 
 body {
-  direction: rtl;
-
-  min-height: 100vh;
-
-  background: var(--bg);
-  color: var(--text);
-
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -59,37 +35,24 @@ body {
     Arial,
     sans-serif;
 
+  background: var(--bg);
+  color: var(--text);
+
+  min-height: 100vh;
+
   padding: 24px 16px 110px;
 
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-
-
-/* =========================================================
-   العناصر العامة
-   ========================================================= */
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
 }
 
 button {
+  font: inherit;
+}
+
+button,
+a {
   -webkit-tap-highlight-color: transparent;
 }
-
-button:focus-visible {
-  outline: 3px solid rgba(0, 122, 255, 0.28);
-  outline-offset: 2px;
-}
-
-
-/* =========================================================
-   التطبيق
-   ========================================================= */
 
 .app {
   width: 100%;
@@ -97,10 +60,9 @@ button:focus-visible {
   margin: 0 auto;
 }
 
-
-/* =========================================================
+/* =========================
    Header
-   ========================================================= */
+========================= */
 
 .header {
   display: flex;
@@ -114,17 +76,13 @@ button:focus-visible {
   font-size: 34px;
   line-height: 1.1;
   font-weight: 800;
-
   letter-spacing: -1px;
 }
 
 .brand p {
-  margin-top: 5px;
-
   color: var(--secondary);
-
   font-size: 14px;
-  line-height: 1.4;
+  margin-top: 5px;
 }
 
 .profile-button {
@@ -138,13 +96,9 @@ button:focus-visible {
 
   box-shadow: var(--shadow);
 
+  font-size: 21px;
+
   cursor: pointer;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  font-size: 20px;
 
   transition:
     transform 0.15s ease,
@@ -156,15 +110,15 @@ button:focus-visible {
 }
 
 
-/* =========================================================
-   اختيار الشهر
-   ========================================================= */
+/* =========================
+   Month selector
+========================= */
 
 .month-card {
   background: var(--card);
 
   border: 1px solid var(--border);
-  border-radius: var(--radius-large);
+  border-radius: 24px;
 
   padding: 16px;
 
@@ -187,7 +141,7 @@ button:focus-visible {
   width: 42px;
   height: 42px;
 
-  flex: 0 0 42px;
+  flex-shrink: 0;
 
   border: 0;
   border-radius: 14px;
@@ -195,13 +149,9 @@ button:focus-visible {
   background: #f2f2f7;
   color: var(--text);
 
-  cursor: pointer;
-
   font-size: 22px;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  cursor: pointer;
 
   transition:
     transform 0.15s ease,
@@ -214,9 +164,6 @@ button:focus-visible {
 
 .month-info {
   flex: 1;
-
-  min-width: 0;
-
   text-align: center;
 }
 
@@ -224,40 +171,34 @@ button:focus-visible {
   display: block;
 
   font-size: 19px;
-  line-height: 1.3;
-  font-weight: 750;
+  font-weight: 700;
 }
 
 .month-info span {
   display: block;
 
-  margin-top: 3px;
-
   color: var(--secondary);
 
   font-size: 13px;
+
+  margin-top: 3px;
 }
 
 
-/* =========================================================
-   بطاقة المتبقي
-   ========================================================= */
+/* =========================
+   Balance
+========================= */
 
 .balance-card {
-  position: relative;
+  background: linear-gradient(
+    145deg,
+    #1c1c1e,
+    #303034
+  );
 
-  overflow: hidden;
+  color: white;
 
-  background:
-    linear-gradient(
-      145deg,
-      #1c1c1e,
-      #303034
-    );
-
-  color: #ffffff;
-
-  border-radius: var(--radius-large);
+  border-radius: 28px;
 
   padding: 26px;
 
@@ -268,7 +209,7 @@ button:focus-visible {
 }
 
 .balance-label {
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.65);
 
   font-size: 14px;
 
@@ -276,34 +217,35 @@ button:focus-visible {
 }
 
 .balance-value {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-
   font-size: 38px;
-  line-height: 1.1;
+  line-height: 1.15;
 
   font-weight: 800;
 
   letter-spacing: -1px;
+
+  overflow-wrap: anywhere;
 }
 
 .currency {
-  margin-right: 6px;
-
   font-size: 15px;
+
   font-weight: 500;
 
-  color: rgba(255, 255, 255, 0.7);
+  margin-right: 5px;
+
+  opacity: 0.75;
 }
 
 .balance-footer {
   display: flex;
-  align-items: flex-start;
 
-  gap: 28px;
+  justify-content: space-between;
+
+  gap: 15px;
 
   margin-top: 24px;
+
   padding-top: 18px;
 
   border-top:
@@ -317,40 +259,36 @@ button:focus-visible {
 .balance-item span {
   display: block;
 
-  margin-bottom: 5px;
-
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 255, 255, 0.55);
 
   font-size: 12px;
+
+  margin-bottom: 5px;
 }
 
 .balance-item strong {
-  display: block;
-
   font-size: 16px;
-  line-height: 1.3;
+
+  overflow-wrap: anywhere;
 }
 
 
-/* =========================================================
-   عناوين الأقسام
-   ========================================================= */
+/* =========================
+   Section titles
+========================= */
 
 .section-title {
-  margin:
-    28px 4px
-    12px;
-
   font-size: 20px;
-  line-height: 1.3;
 
   font-weight: 750;
+
+  margin: 28px 4px 12px;
 }
 
 
-/* =========================================================
-   البطاقات المالية
-   ========================================================= */
+/* =========================
+   Financial cards
+========================= */
 
 .financial-grid {
   display: grid;
@@ -362,18 +300,18 @@ button:focus-visible {
 }
 
 .financial-card {
-  min-width: 0;
-
   background: var(--card);
 
   border:
     1px solid var(--border);
 
-  border-radius: var(--radius-medium);
+  border-radius: 22px;
 
   padding: 18px;
 
   box-shadow: var(--shadow);
+
+  min-width: 0;
 }
 
 .card-icon {
@@ -383,12 +321,13 @@ button:focus-visible {
   border-radius: 13px;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  margin-bottom: 14px;
+  font-size: 19px;
 
-  font-size: 18px;
+  margin-bottom: 14px;
 }
 
 .income-icon {
@@ -408,28 +347,19 @@ button:focus-visible {
 }
 
 .card-label {
-  margin-bottom: 5px;
-
   color: var(--secondary);
 
   font-size: 13px;
+
+  margin-bottom: 5px;
 }
 
 .card-value {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px;
-
   font-size: 22px;
-  line-height: 1.25;
 
   font-weight: 750;
-}
 
-.card-value small {
-  font-size: 11px;
-  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .income-value {
@@ -449,9 +379,9 @@ button:focus-visible {
 }
 
 
-/* =========================================================
-   الإجراءات السريعة
-   ========================================================= */
+/* =========================
+   Quick actions
+========================= */
 
 .actions {
   display: grid;
@@ -463,14 +393,10 @@ button:focus-visible {
 }
 
 .action-button {
-  width: 100%;
-
-  min-width: 0;
-
   border:
     1px solid var(--border);
 
-  background: #ffffff;
+  background: white;
 
   color: var(--text);
 
@@ -479,6 +405,7 @@ button:focus-visible {
   padding: 17px;
 
   display: flex;
+
   align-items: center;
 
   gap: 12px;
@@ -500,17 +427,18 @@ button:focus-visible {
   width: 42px;
   height: 42px;
 
-  flex: 0 0 42px;
-
   border-radius: 14px;
 
   background: #f2f2f7;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  font-size: 18px;
+  font-size: 19px;
+
+  flex-shrink: 0;
 }
 
 .action-text {
@@ -520,39 +448,34 @@ button:focus-visible {
 .action-text strong {
   display: block;
 
-  margin-bottom: 3px;
-
   font-size: 14px;
-  line-height: 1.3;
+
+  margin-bottom: 3px;
 }
 
 .action-text span {
-  display: block;
-
   color: var(--secondary);
 
   font-size: 12px;
+
   line-height: 1.4;
 }
 
 
-/* =========================================================
-   التنقل السفلي
-   ========================================================= */
+/* =========================
+   Bottom navigation
+========================= */
 
 .bottom-nav {
   position: fixed;
 
   bottom: 14px;
+
   left: 50%;
 
   transform: translateX(-50%);
 
-  z-index: 100;
-
   width: min(92%, 620px);
-
-  padding: 8px;
 
   background:
     rgba(255, 255, 255, 0.9);
@@ -562,10 +485,12 @@ button:focus-visible {
 
   border-radius: 25px;
 
+  padding: 8px;
+
   display: grid;
 
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(4, 1fr);
 
   gap: 4px;
 
@@ -574,16 +499,14 @@ button:focus-visible {
 
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+
+  z-index: 100;
 }
 
 .nav-item {
-  min-width: 0;
-
   border: 0;
 
   background: transparent;
-
-  color: var(--secondary);
 
   border-radius: 18px;
 
@@ -591,21 +514,28 @@ button:focus-visible {
 
   cursor: pointer;
 
+  color: var(--secondary);
+
   font-size: 11px;
 
   transition:
     background 0.15s ease,
-    color 0.15s ease;
+    color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.nav-item:active {
+  transform: scale(0.95);
 }
 
 .nav-item .nav-icon {
   display: block;
 
-  margin-bottom: 3px;
-
   font-size: 20px;
 
   line-height: 1;
+
+  margin-bottom: 4px;
 }
 
 .nav-item.active {
@@ -616,25 +546,31 @@ button:focus-visible {
 }
 
 
-/* =========================================================
-   الشاشات الصغيرة
-   ========================================================= */
+/* =========================
+   Focus accessibility
+========================= */
+
+button:focus-visible {
+  outline:
+    3px solid rgba(0, 122, 255, 0.35);
+
+  outline-offset: 2px;
+}
+
+
+/* =========================
+   Mobile
+========================= */
 
 @media (max-width: 480px) {
 
   body {
     padding:
-      18px
-      12px
-      105px;
+      18px 12px 105px;
   }
 
   .brand h1 {
     font-size: 30px;
-  }
-
-  .brand p {
-    font-size: 13px;
   }
 
   .balance-card {
@@ -647,18 +583,12 @@ button:focus-visible {
     font-size: 32px;
   }
 
-  .balance-footer {
-    gap: 20px;
-  }
-
   .financial-grid {
     gap: 9px;
   }
 
   .financial-card {
     padding: 15px;
-
-    border-radius: 19px;
   }
 
   .card-value {
@@ -672,45 +602,57 @@ button:focus-visible {
   .action-button {
     padding: 14px;
 
-    border-radius: 18px;
+    gap: 9px;
   }
 
   .action-icon {
     width: 38px;
     height: 38px;
 
-    flex-basis: 38px;
-
     border-radius: 12px;
+
+    font-size: 17px;
+  }
+
+  .action-text strong {
+    font-size: 13px;
+  }
+
+  .action-text span {
+    font-size: 11px;
   }
 }
 
 
-/* =========================================================
-   الشاشات الضيقة جدًا
-   ========================================================= */
+/* =========================
+   Very small screens
+========================= */
 
 @media (max-width: 350px) {
 
-  .financial-grid,
+  .financial-grid {
+    grid-template-columns: 1fr;
+  }
+
   .actions {
     grid-template-columns: 1fr;
   }
 
   .balance-footer {
     flex-direction: column;
+
     gap: 12px;
   }
 
-  .balance-value {
-    font-size: 29px;
+  .bottom-nav {
+    width: 96%;
   }
 }
 
 
-/* =========================================================
-   الوضع الداكن
-   ========================================================= */
+/* =========================
+   Dark mode
+========================= */
 
 @media (prefers-color-scheme: dark) {
 
@@ -718,7 +660,7 @@ button:focus-visible {
     --bg: #000000;
 
     --card:
-      rgba(28, 28, 30, 0.94);
+      rgba(28, 28, 30, 0.92);
 
     --text: #f5f5f7;
 
@@ -726,21 +668,22 @@ button:focus-visible {
 
     --border:
       rgba(255, 255, 255, 0.10);
+
+    --shadow:
+      0 8px 30px rgba(0, 0, 0, 0.25);
   }
 
-  .profile-button {
+  .profile-button,
+  .action-button {
     background: #1c1c1e;
-    color: #ffffff;
+
+    color: var(--text);
   }
 
   .month-button {
     background: #2c2c2e;
-    color: #ffffff;
-  }
 
-  .action-button {
-    background: #1c1c1e;
-    color: #f5f5f7;
+    color: var(--text);
   }
 
   .action-icon {
@@ -749,25 +692,6 @@ button:focus-visible {
 
   .bottom-nav {
     background:
-      rgba(28, 28, 30, 0.94);
+      rgba(28, 28, 30, 0.92);
   }
 }
-
-
-/* =========================================================
-   تقليل الحركة
-   ========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
-  }
-}
-```
