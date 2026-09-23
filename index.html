@@ -391,7 +391,252 @@
 
                 </button>
 
+
+                <!-- SAVINGS -->
+
+                <button
+                    type="button"
+                    class="option-card"
+                    data-page="savingsPage"
+                >
+
+                    <div class="option-icon">
+                        💰
+                    </div>
+
+                    <div class="option-content">
+
+                        <strong>
+                            الادخار
+                        </strong>
+
+                        <span>
+                            الإيداع والسحب والمدينون
+                        </span>
+
+                    </div>
+
+                    <span class="option-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
             </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             SAVINGS
+        ================================================== -->
+
+        <section
+            class="page"
+            id="savingsPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="personalPage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        الادخار
+                    </span>
+
+                    <h1>
+                        الادخار
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <!-- SAVINGS BALANCE -->
+
+            <div class="home-budget savings-balance">
+
+                <div class="budget-main">
+
+                    <span>
+                        الرصيد الحالي
+                    </span>
+
+                    <strong id="savingsBalance">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        إجمالي الإيداعات
+                    </span>
+
+                    <strong id="savingsDepositsTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        إجمالي السحوبات
+                    </span>
+
+                    <strong id="savingsWithdrawalsTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        المحوّل من المصروفات
+                    </span>
+
+                    <strong id="savingsFromExpensesTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        المستحق عند الآخرين
+                    </span>
+
+                    <strong id="savingsDebtsTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="budget-row">
+
+                    <span>
+                        إجمالي الأموال + المستحقات
+                    </span>
+
+                    <strong id="savingsGrandTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <!-- DEPOSIT / WITHDRAW -->
+
+            <div class="quick-actions">
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="savingsDepositButton"
+                >
+
+                    <span>
+                        ＋
+                    </span>
+
+                    <strong>
+                        إيداع
+                    </strong>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="savingsWithdrawButton"
+                >
+
+                    <span>
+                        －
+                    </span>
+
+                    <strong>
+                        سحب
+                    </strong>
+
+                </button>
+
+            </div>
+
+
+            <!-- DEBTORS -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        المبالغ المستحقة
+                    </span>
+
+                    <h2>
+                        👥 المدينون
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="small-action"
+                    id="addDebtorButton"
+                >
+                    + إضافة مدين
+                </button>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="debtorsList"
+            ></div>
+
+
+            <!-- MOVEMENTS LOG -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        الأرشيف
+                    </span>
+
+                    <h2>
+                        📋 سجل الحركات
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="savingsLogList"
+            ></div>
 
         </section>
 

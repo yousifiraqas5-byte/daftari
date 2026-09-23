@@ -1991,3 +1991,90 @@ body.dark .modal-overlay {
             0.01ms !important;
     }
 }
+
+/* =========================================================
+   SAVINGS PAGE
+========================================================= */
+
+.savings-choice .choice-label {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.savings-choice input[type="checkbox"] {
+
+    width: 20px;
+
+    height: 20px;
+
+    accent-color: var(--primary);
+}
+
+
+.record-amount.negative {
+
+    color: #d64545;
+}
+
+
+.debtor-row {
+
+    flex-wrap: wrap;
+}
+
+
+.debtor-amounts {
+
+    display: block;
+
+    margin-top: 4px;
+
+    color: var(--text-secondary);
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.debtor-actions {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.settled-badge {
+
+    display: inline-block;
+
+    margin-inline-start: 8px;
+
+    padding: 3px 9px;
+
+    border-radius: 20px;
+
+    background: rgba(15, 159, 146, 0.14);
+
+    color: var(--primary);
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
