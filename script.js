@@ -264,6 +264,155 @@ function updateMonthHeader() {
 
     setText("currentDate", dateText);
     setText("monthName", `${MONTH_NAMES[currentMonth]} ${currentYear}`);
+
+    updateMonthLock();
+}
+
+/* =========================================================
+   MONTH LOCK
+   Previous months become read-only.
+   Records can be edited/deleted only via long-press (~2s).
+========================================================= */
+
+const LONG_PRESS_DURATION = 2000;
+
+function isMonthLocked(year = currentYear, month = currentMonth) {
+    const today = new Date();
+
+    return (
+        year < today.getFullYear() ||
+        (year === today.getFullYear() && month < today.getMonth())
+    );
+}
+
+function updateMonthLock() {
+    const lock = $("monthLock");
+
+    if (!lock) {
+        return;
+    }
+
+    lock.classList.toggle(
+        "hidden",
+        !isMonthLocked()
+    );
+}
+
+/*
+    Attaches long-press behavior to a rendered record row.
+
+    - locked month  : normal click is disabled; press-and-hold ~2s
+                      unlocks the row (visual state) and then a
+                      single tap triggers the action.
+    - current month : click works as before (no change).
+*/
+function attachRecordPress(row, onAction) {
+    if (!row) {
+        return;
+    }
+
+    if (!isMonthLocked()) {
+        row.addEventListener("click", onAction);
+        return;
+    }
+
+    row.classList.add("locked-record");
+
+    let pressTimer = null;
+    let unlocked = false;
+    let startX = 0;
+    let startY = 0;
+
+    const clearProgress = () => {
+        row.classList.remove("long-pressing");
+-lg;
+    };
+
+    const cancelPress = () => {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+        clearProgress();
+    };
+
+    row.addEventListener(
+        "pointerdown",
+        (event) => {
+
+            if (event.button && event.button !== 0) {
+                return;
+            }
+
+            if (unlocked) {
+                return;
+            }
+
+            startX = event.clientX;
+            startY = event.clientY;
+
+            row.classList.add("long-pressing");
+
+            pressTimer = setTimeout(
+                () => {
+
+                    unlocked = true;
+
+                    clearProgress();
+
+                    row.classList.remove("locked-record");
+
+                    row.classList.add("unlocked-record");
+
+                    showToast("تم فتح التعديل مؤقتاً — اضغط على العملية");
+
+                },
+                LONG_PRESS_DURATION
+            );
+
+        }
+    );
+
+    row.addEventListener(
+        "pointermove",
+        (event) => {
+
+            if (!pressTimer) {
+                return;
+            }
+
+            const moved =
+                Math.abs(event.clientX - startX) > 10 ||
+                Math.abs(event.clientY - startY) > 10;
+
+            if (moved) {
+                cancelPress();
+            }
+
+        }
+    );
+
+    row.addEventListener("pointerup", cancelPress);
+    row.addEventListener("pointercancel", cancelPress);
+    row.addEventListener("pointerleave", cancelPress);
+
+    row.addEventListener(
+        "click",
+        (event) => {
+
+            event.preventDefault();
+            event.stopImmediatePropagation();
+
+            if (unlocked) {
+                unlocked = false;
+
+                row.classList.remove("unlocked-record");
+
+                row.classList.add("locked-record");
+
+                onAction(event);
+            }
+
+        }
+    );
 }
 
 function setupMonthNavigation() {
