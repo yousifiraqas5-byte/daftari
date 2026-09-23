@@ -276,7 +276,22 @@ function updateMonthHeader() {
 
 const LONG_PRESS_DURATION = 2000;
 
-function isMonthLocked(year = currentYear, month = currentMonth) {
+/*
+    Central month-lock state - compares YEAR + MONTH against today:
+
+        past months    (before today's year/month) -> CLOSED (true)
+        current month                             -> OPEN   (false)
+        future months                             -> OPEN   (false)
+
+    Example (today = 23/09/2026):
+        Jan 2026 .. Aug 2026 -> closed
+        Sep 2026             -> open
+        Oct 2026 .. Dec 2026 -> open
+        Jan 2027             -> open
+
+    This is the single source of truth used by every lock check.
+*/
+function isMonthClosed(year = currentYear, month = currentMonth) {
     const today = new Date();
 
     return (
@@ -294,7 +309,7 @@ function updateMonthLock() {
 
     lock.classList.toggle(
         "hidden",
-        !isMonthLocked()
+        !isMonthClosed()
     );
 }
 
@@ -311,7 +326,7 @@ function attachRecordPress(row, onAction) {
         return;
     }
 
-    if (!isMonthLocked()) {
+    if (!isMonthClosed()) {
         row.addEventListener("click", onAction);
         return;
     }
@@ -987,7 +1002,7 @@ function deleteRecord(listName, recordId, force = false) {
 
     if (
         !force &&
-        isMonthLocked(month.year, month.month)
+        isMonthClosed(month.year, month.month)
     ) {
         showToast("🔒 شهر مغلق — استخدم الضغط المطول");
         return;
@@ -1017,7 +1032,7 @@ function wireRecordRows(listElement, listName) {
         return;
     }
 
-    if (!isMonthLocked()) {
+    if (!isMonthClosed()) {
         return;
     }
 
@@ -1521,7 +1536,7 @@ function deleteTask(taskId, force = false) {
 
     if (
         !force &&
-        isMonthLocked(month.year, month.month)
+        isMonthClosed(month.year, month.month)
     ) {
         showToast("🔒 شهر مغلق — استخدم الضغط المطول");
         return;
@@ -1600,7 +1615,7 @@ function renderTaskList(listId, listKey) {
         .map(taskRowHtml)
         .join("");
 
-    if (isMonthLocked()) {
+    if (isMonthClosed()) {
         Array.from(list.children).forEach((row) => {
 
             const taskId =
@@ -2141,7 +2156,7 @@ function renderSavingsLog() {
         return;
     }
 
-    if (!account.transactions.length) {
+    if (!ledger.transactions.length) {
         list.innerHTML = emptyListHtml("لا توجد حركات بعد");
         return;
     }
@@ -2160,7 +2175,7 @@ function renderSavingsLog() {
         debtorPayment: "👥"
     };
 
-    list.innerHTML = account.transactions
+    list.innerHTML = ledger.transactions
         .slice()
         .reverse()
         .map((transaction) => {

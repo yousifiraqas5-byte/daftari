@@ -2104,6 +2104,17 @@ body.dark .modal-overlay {
 }
 
 
+/* Generic visibility utility - required so elements using the
+   "hidden" class (like #monthLock) are actually hidden. Previously
+   only .modal.hidden / .toast.hidden were defined, which left the
+   "شهر مغلق" badge visible in EVERY month (current and future). */
+
+.hidden {
+
+    display: none !important;
+}
+
+
 .locked-record {
 
     position: relative;
@@ -2114,7 +2125,7 @@ body.dark .modal-overlay {
 
 .locked-record::after {
 
-    content: "??";
+    content: "\1F512";
 
     position: absolute;
 
