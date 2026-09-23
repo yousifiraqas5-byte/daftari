@@ -1,6 +1,7 @@
 /* =========================================================
    DAFTARI
    Local-only personal life organizer
+   Rewritten to match the current index.html structure
 ========================================================= */
 
 "use strict";
@@ -10,6 +11,7 @@
 ========================================================= */
 
 const STORAGE_KEY = "daftari_v2";
+const THEME_KEY = "daftari_theme";
 
 const DEFAULT_MONTH_SETTINGS = {
     loan: 425000,
@@ -39,6 +41,15 @@ const MONTH_NAMES = [
     "كانون الأول"
 ];
 
+const WEEKDAY_NAMES = [
+    "الأحد",
+    "الإثنين",
+    "الثلاثاء",
+    "الأربعاء",
+    "الخميس",
+    "الجمعة",
+    "السبت"
+];
 
 /* =========================================================
    APP STATE
@@ -51,7 +62,6 @@ let currentMonth = now.getMonth();
 
 let activePage = "homePage";
 let toastTimer = null;
-
 
 /* =========================================================
    DOM HELPERS
@@ -69,10 +79,14 @@ function setText(id, value) {
     }
 }
 
-function currency(value) {
+function formatNumber(value) {
     const number = Number(value) || 0;
 
-    return `${number.toLocaleString("en-US")} د.ع`;
+    return number.toLocaleString("en-US");
+}
+
+function currency(value) {
+    return `${formatNumber(value)} د.ع`;
 }
 
 function numberValue(value) {
@@ -89,9 +103,8 @@ function monthKey(year = currentYear, month = currentMonth) {
     return `${year}-${String(month + 1).padStart(2, "0")}`;
 }
 
-
 /* =========================================================
-   DEFAULT DATA
+   DATABASE
 ========================================================= */
 
 function createMonth(year, month) {
@@ -113,27 +126,18 @@ function createMonth(year, month) {
     };
 }
 
-
-/* =========================================================
-   DATABASE
-========================================================= */
-
 function loadDatabase() {
     try {
         const saved = localStorage.getItem(STORAGE_KEY);
 
         if (!saved) {
-            return {
-                months: {}
-            };
+            return { months: {} };
         }
 
         const database = JSON.parse(saved);
 
         if (!database || typeof database !== "object") {
-            return {
-                months: {}
-            };
+            return { months: {} };
         }
 
         if (!database.months || typeof database.months !== "object") {
@@ -145,14 +149,9 @@ function loadDatabase() {
     } catch (error) {
         console.error("Daftari storage error:", error);
 
-        return {
-            months: {}
-        };
+        return { months: {} };
     }
 }
-
-let database = loadDatabase();
-
 
 function saveDatabase() {
     try {
@@ -160,46 +159,30 @@ function saveDatabase() {
             STORAGE_KEY,
             JSON.stringify(database)
         );
-    } catch (error) {
-        console.error("Unable to save Daftari data:", error);
 
-        showToast("تعذر حفظ البيانات على الجهاز");
+    } catch (error) {
+        console.error("Daftari save error:", error);
     }
 }
 
+let database = loadDatabase();
 
 function ensureCurrentMonth() {
     const key = monthKey();
 
     if (!database.months[key]) {
-        database.months[key] = createMonth(
-            currentYear,
-            currentMonth
-        );
-
-        saveDatabase();
+        database.months[key] = createMonth(currentYear, currentMonth);
     }
 
-    normalizeMonth(database.months[key]);
+    const month = database.months[key];
 
-    return database.months[key];
-}
+    month.year = currentYear;
+    month.month = currentMonth;
 
-
-function normalizeMonth(month) {
-    if (!month.settings || typeof month.settings !== "object") {
-        month.settings = {};
-    }
-
-    Object.keys(DEFAULT_MONTH_SETTINGS).forEach((key) => {
-        if (
-            month.settings[key] === undefined ||
-            month.settings[key] === null ||
-            Number.isNaN(Number(month.settings[key]))
-        ) {
-            month.settings[key] = DEFAULT_MONTH_SETTINGS[key];
-        }
-    });
+    month.settings = {
+        ...DEFAULT_MONTH_SETTINGS,
+        ...(month.settings || {})
+    };
 
     if (!Array.isArray(month.expenses)) {
         month.expenses = [];
@@ -213,1233 +196,201 @@ function normalizeMonth(month) {
         month.homeExpenses = [];
     }
 
-    if (month.savings === undefined) {
-        month.savings = null;
-    }
-
     return month;
 }
 
-
-function getCurrentMonthData() {
+function currentMonthData() {
     return ensureCurrentMonth();
 }
 
-
-function getSettings() {
-    return getCurrentMonthData().settings;
-}
-
-
-/* =========================================================
-   MONTH NAVIGATION
-========================================================= */
-
-function updateMonthHeader() {
-    setText(
-        "currentMonthName",
-        MONTH_NAMES[currentMonth]
-    );
-
-    setText(
-        "currentMonthYear",
-        currentYear
-    );
-}
-
-
-function changeMonth(direction) {
-    currentMonth += direction;
-
-    if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-    }
-
-    if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-    }
-
-    ensureCurrentMonth();
-
-    updateMonthHeader();
-
-    renderAll();
-}
-
-
-function openMonthPicker() {
-    const modal = $("monthModal");
-
-    if (!modal) {
-        return;
-    }
-
-    renderMonthPicker();
-
-    openModal("monthModal");
-}
-
-
-function renderMonthPicker() {
-    const grid = $("monthPickerGrid");
-    const yearElement = $("pickerYear");
-
-    if (!grid) {
-        return;
-    }
-
-    if (yearElement) {
-        yearElement.textContent = currentYear;
-    }
-
-    grid.innerHTML = "";
-
-    MONTH_NAMES.forEach((name, index) => {
-        const button = document.createElement("button");
-
-        button.type = "button";
-        button.className = "month-option";
-
-        if (index === currentMonth) {
-            button.classList.add("selected");
-        }
-
-        button.textContent = name;
-
-        button.addEventListener("click", () => {
-            currentMonth = index;
-
-            ensureCurrentMonth();
-
-            updateMonthHeader();
-            renderAll();
-
-            closeModal("monthModal");
-        });
-
-        grid.appendChild(button);
-    });
-}
-
-
-/* =========================================================
-   PAGE NAVIGATION
-========================================================= */
-
-function openPage(pageId) {
-    const pages = document.querySelectorAll(".page");
-
-    pages.forEach((page) => {
-        page.classList.remove("active");
-    });
-
-    const target = $(pageId);
-
-    if (!target) {
-        return;
-    }
-
-    target.classList.add("active");
-
-    activePage = pageId;
-
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-    renderAll();
-}
-
-
-function goBack(pageId) {
-    openPage(pageId);
-}
-
-
-/* =========================================================
-   PERSONAL EXPENSE CALCULATIONS
-========================================================= */
-
-/*
-    Important:
-
-    Fuel budget belongs to the CAR section.
-    Home contribution belongs to HOME.
-    Savings is not counted until the user specifies an amount.
-
-    Therefore personal fixed expenses are:
-
-    loan + mobile internet
-*/
-
-function getPersonalBasicTotal() {
-    const settings = getSettings();
-
-    return (
-        numberValue(settings.loan) +
-        numberValue(settings.mobileInternet)
-    );
-}
-
-
-function getCustomPersonalTotal() {
-    const month = getCurrentMonthData();
-
-    return month.expenses.reduce(
-        (total, expense) => {
-            return total + numberValue(expense.amount);
-        },
-        0
-    );
-}
-
-
-function getPersonalGrandTotal() {
-    return (
-        getPersonalBasicTotal() +
-        getCustomPersonalTotal()
-    );
-}
-
-
-/* =========================================================
-   HOME CALCULATIONS
-========================================================= */
-
-function getHomeBudget() {
-    const settings = getSettings();
-
-    return (
-        numberValue(settings.homeContribution) +
-        numberValue(settings.norhanContribution)
-    );
-}
-
-
-function getHomeBasicTotal() {
-    const settings = getSettings();
-
-    return (
-        numberValue(settings.generator) +
-        numberValue(settings.homeInternet) +
-        numberValue(settings.rent)
-    );
-}
-
-
-function getHomeOtherTotal() {
-    const month = getCurrentMonthData();
-
-    return month.homeExpenses.reduce(
-        (total, expense) => {
-            return total + numberValue(expense.amount);
-        },
-        0
-    );
-}
-
-
-function getHomeRemaining() {
-    return (
-        getHomeBudget() -
-        getHomeBasicTotal() -
-        getHomeOtherTotal()
-    );
-}
-
-
-/* =========================================================
-   CAR CALCULATIONS
-========================================================= */
-
-function getCarBudget() {
-    const settings = getSettings();
-
-    return numberValue(settings.fuelBudget);
-}
-
-
-/*
-    The fuel budget should only be reduced by FUEL expenses.
-
-    Maintenance and oil are still recorded in the car history,
-    but they do not reduce the monthly fuel budget.
-*/
-
-function getFuelSpentTotal() {
-    const month = getCurrentMonthData();
-
-    return month.carExpenses.reduce(
-        (total, expense) => {
-            if (expense.type !== "fuel") {
-                return total;
-            }
-
-            return total + numberValue(expense.amount);
-        },
-        0
-    );
-}
-
-
-function getCarSpentTotal() {
-    return getFuelSpentTotal();
-}
-
-
-function getCarRemaining() {
-    return getCarBudget() - getFuelSpentTotal();
-}
-
-
-/* =========================================================
-   RENDER
-========================================================= */
-
-function renderAll() {
-    updateMonthHeader();
-
-    renderPersonalExpenses();
-    renderCar();
-    renderHomeExpenses();
-
-    renderSettingsValues();
-
-    renderPersonalExpenseList();
-    renderCarExpenseList();
-    renderHomeExpenseList();
-}
-
-
-/* =========================================================
-   PERSONAL EXPENSES RENDER
-========================================================= */
-
-function renderPersonalExpenses() {
-    const settings = getSettings();
-
-    const basicTotal = getPersonalBasicTotal();
-    const otherTotal = getCustomPersonalTotal();
-    const grandTotal = basicTotal + otherTotal;
-
-    setText(
-        "basicLoanValue",
-        currency(settings.loan)
-    );
-
-    setText(
-        "basicMobileInternetValue",
-        currency(settings.mobileInternet)
-    );
-
-    setText(
-        "basicHomeContributionValue",
-        currency(settings.homeContribution)
-    );
-
-    setText(
-        "basicSavingsValue",
-        settings.savings === null ||
-        settings.savings === undefined
-            ? "غير محدد"
-            : currency(settings.savings)
-    );
-
-    setText(
-        "fuelBudgetInfo",
-        currency(settings.fuelBudget)
-    );
-
-    setText(
-        "fixedExpenseTotal",
-        currency(basicTotal)
-    );
-
-    setText(
-        "otherExpenseTotal",
-        currency(otherTotal)
-    );
-
-    setText(
-        "grandExpenseTotal",
-        currency(grandTotal)
-    );
-}
-
-
-/* =========================================================
-   CAR RENDER
-========================================================= */
-
-function renderCar() {
-    const budget = getCarBudget();
-    const spent = getFuelSpentTotal();
-    const remaining = budget - spent;
-
-    setText(
-        "carBudgetValue",
-        currency(budget)
-    );
-
-    setText(
-        "carSpentValue",
-        currency(spent)
-    );
-
-    setText(
-        "carRemainingValue",
-        currency(remaining)
-    );
-
-    const progress = $("carBudgetProgress");
-
-    if (progress) {
-        let percentage = 0;
-
-        if (budget > 0) {
-            percentage = (spent / budget) * 100;
-        }
-
-        percentage = Math.max(
-            0,
-            Math.min(100, percentage)
-        );
-
-        progress.style.width = `${percentage}%`;
-    }
-}
-
-
-/* =========================================================
-   HOME RENDER
-========================================================= */
-
-function renderHomeExpenses() {
-    const settings = getSettings();
-
-    const budget = getHomeBudget();
-    const basic = getHomeBasicTotal();
-    const other = getHomeOtherTotal();
-    const remaining = budget - basic - other;
-
-    setText(
-        "homeBudgetValue",
-        currency(budget)
-    );
-
-    setText(
-        "userHomeContribution",
-        currency(settings.homeContribution)
-    );
-
-    setText(
-        "norhanContribution",
-        currency(settings.norhanContribution)
-    );
-
-    setText(
-        "homeGeneratorValue",
-        currency(settings.generator)
-    );
-
-    setText(
-        "homeInternetValue",
-        currency(settings.homeInternet)
-    );
-
-    setText(
-        "homeRentValue",
-        currency(settings.rent)
-    );
-
-    setText(
-        "homeSummaryBudget",
-        currency(budget)
-    );
-
-    setText(
-        "homeBasicTotal",
-        currency(basic)
-    );
-
-    setText(
-        "homeOtherTotal",
-        currency(other)
-    );
-
-    setText(
-        "homeRemaining",
-        currency(remaining)
-    );
-}
-
-
-/* =========================================================
-   SETTINGS RENDER
-========================================================= */
-
-function renderSettingsValues() {
-    const settings = getSettings();
-
-    setInputValue(
-        "settingLoan",
-        settings.loan
-    );
-
-    setInputValue(
-        "settingFuelBudget",
-        settings.fuelBudget
-    );
-
-    setInputValue(
-        "settingMobileInternet",
-        settings.mobileInternet
-    );
-
-    setInputValue(
-        "settingHomeContribution",
-        settings.homeContribution
-    );
-
-    setInputValue(
-        "settingNorhanContribution",
-        settings.norhanContribution
-    );
-
-    setInputValue(
-        "settingGenerator",
-        settings.generator
-    );
-
-    setInputValue(
-        "settingHomeInternet",
-        settings.homeInternet
-    );
-
-    setInputValue(
-        "settingRent",
-        settings.rent
-    );
-}
-
-
-function setInputValue(id, value) {
-    const input = $(id);
-
-    if (input) {
-        input.value = numberValue(value);
-    }
-}
-
-
-/* =========================================================
-   PERSONAL EXPENSE LIST
-========================================================= */
-
-function renderPersonalExpenseList() {
-    const container = $("personalExpensesList");
-
-    if (!container) {
-        return;
-    }
-
-    const expenses = getCurrentMonthData().expenses;
-
-    container.innerHTML = "";
-
-    if (expenses.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                لا توجد مصاريف أخرى لهذا الشهر.
-            </div>
-        `;
-
-        return;
-    }
-
-    expenses.forEach((expense) => {
-        container.appendChild(
-            createExpenseElement(
-                expense,
-                "personal"
-            )
-        );
-    });
-}
-
-
-/* =========================================================
-   CAR EXPENSE LIST
-========================================================= */
-
-function renderCarExpenseList() {
-    const container = $("carExpensesList");
-
-    if (!container) {
-        return;
-    }
-
-    const expenses = getCurrentMonthData().carExpenses;
-
-    container.innerHTML = "";
-
-    if (expenses.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                لا توجد مصاريف سيارة لهذا الشهر.
-            </div>
-        `;
-
-        return;
-    }
-
-    const sorted = [...expenses].sort(
-        (a, b) => {
-            return String(b.date || "").localeCompare(
-                String(a.date || "")
-            );
-        }
-    );
-
-    sorted.forEach((expense) => {
-        container.appendChild(
-            createExpenseElement(
-                expense,
-                "car"
-            )
-        );
-    });
-}
-
-
-/* =========================================================
-   HOME EXPENSE LIST
-========================================================= */
-
-function renderHomeExpenseList() {
-    const container = $("homeExpensesList");
-
-    if (!container) {
-        return;
-    }
-
-    const expenses = getCurrentMonthData().homeExpenses;
-
-    container.innerHTML = "";
-
-    if (expenses.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                لا توجد مصاريف بيت أخرى لهذا الشهر.
-            </div>
-        `;
-
-        return;
-    }
-
-    const sorted = [...expenses].sort(
-        (a, b) => {
-            return String(b.date || "").localeCompare(
-                String(a.date || "")
-            );
-        }
-    );
-
-    sorted.forEach((expense) => {
-        container.appendChild(
-            createExpenseElement(
-                expense,
-                "home"
-            )
-        );
-    });
-}
-
-
-/* =========================================================
-   CREATE EXPENSE ELEMENT
-========================================================= */
-
-function createExpenseElement(expense, category) {
-    const wrapper = document.createElement("div");
-
-    wrapper.className = "custom-expense";
-
-    const dateText = formatDate(expense.date);
-
-    let typeText = "";
-
-    if (category === "car") {
-        if (expense.type === "fuel") {
-            typeText = "بانزين";
-        } else if (expense.type === "oil") {
-            typeText = "زيت";
-        } else if (expense.type === "maintenance") {
-            typeText = "صيانة";
-        } else {
-            typeText = "سيارة";
-        }
-    } else if (category === "home") {
-        typeText = "مصروف بيت";
-    } else {
-        typeText = "مصروف شخصي";
-    }
-
-    wrapper.innerHTML = `
-        <div class="custom-expense-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M6 4h12v16H6z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.7"
-                      stroke-linejoin="round"/>
-                <path d="M9 8h6M9 12h6M9 16h4"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.7"
-                      stroke-linecap="round"/>
-            </svg>
-        </div>
-
-        <div class="custom-expense-info">
-            <strong>${escapeHtml(expense.name || typeText)}</strong>
-            <span>${typeText}${dateText ? ` • ${dateText}` : ""}${expense.note ? ` • ${escapeHtml(expense.note)}` : ""}</span>
-        </div>
-
-        <strong class="custom-expense-amount">
-            ${currency(expense.amount)}
-        </strong>
-
-        <button
-            type="button"
-            class="delete-expense"
-            aria-label="حذف ${escapeHtml(expense.name || typeText)}">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 7h14M10 11v6M14 11v6M8 7l1-3h6l1 3M7 7l1 14h8l1-14"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.7"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"/>
-            </svg>
-        </button>
-    `;
-
-    const deleteButton =
-        wrapper.querySelector(".delete-expense");
-
-    deleteButton.addEventListener("click", () => {
-        deleteExpense(
-            expense.id,
-            category
-        );
-    });
-
-    return wrapper;
-}
-
-
-/* =========================================================
-   ADD PERSONAL EXPENSE
-========================================================= */
-
-function openPersonalExpenseModal() {
-    setText(
-        "expenseModalTitle",
-        "مصروف شخصي جديد"
-    );
-
-    $("expenseType").value = "personal";
-
-    $("expenseName").value = "";
-    $("expenseAmount").value = "";
-    $("expenseNote").value = "";
-
-    setTodayIfEmpty("expenseDate");
-
-    openModal("expenseModal");
-}
-
-
-/* =========================================================
-   ADD HOME EXPENSE
-========================================================= */
-
-function openHomeExpenseModal() {
-    setText(
-        "expenseModalTitle",
-        "مصروف بيت جديد"
-    );
-
-    $("expenseType").value = "home";
-
-    $("expenseName").value = "";
-    $("expenseAmount").value = "";
-    $("expenseNote").value = "";
-
-    setTodayIfEmpty("expenseDate");
-
-    openModal("expenseModal");
-}
-
-
-/* =========================================================
-   PERSONAL / HOME FORM
-========================================================= */
-
-function handleExpenseSubmit(event) {
-    event.preventDefault();
-
-    const name = $("expenseName").value.trim();
-
-    const amount = numberValue(
-        $("expenseAmount").value
-    );
-
-    const date = $("expenseDate").value;
-
-    const note = $("expenseNote").value.trim();
-
-    const type = $("expenseType").value;
-
-    if (!name) {
-        showToast("اكتب اسم المصروف");
-
-        return;
-    }
-
-    if (amount <= 0) {
-        showToast("أدخل مبلغاً صحيحاً");
-
-        return;
-    }
-
-    const expense = {
-        id: createId(),
-
-        name,
-
-        amount,
-
-        date: date || getTodayDate(),
-
-        note,
-
-        createdAt: new Date().toISOString()
-    };
-
-    const month = getCurrentMonthData();
-
-    if (type === "home") {
-        month.homeExpenses.push(expense);
-    } else {
-        month.expenses.push(expense);
-    }
-
+function commit() {
     saveDatabase();
-
-    closeModal("expenseModal");
-
     renderAll();
-
-    showToast("تم حفظ المصروف");
 }
-
-
-/* =========================================================
-   CAR FORM
-========================================================= */
-
-function openCarExpenseModal(type) {
-    const titleMap = {
-        fuel: "إضافة بانزين",
-        maintenance: "إضافة صيانة",
-        oil: "إضافة تغيير زيت"
-    };
-
-    const defaultNameMap = {
-        fuel: "تعبئة بانزين",
-        maintenance: "صيانة",
-        oil: "تغيير زيت"
-    };
-
-    const selectedType = titleMap[type]
-        ? type
-        : "fuel";
-
-    setText(
-        "carExpenseModalTitle",
-        titleMap[selectedType]
-    );
-
-    $("carExpenseType").value = selectedType;
-
-    $("carExpenseName").value =
-        defaultNameMap[selectedType];
-
-    $("carExpenseAmount").value = "";
-
-    $("carExpenseNote").value = "";
-
-    setTodayIfEmpty("carExpenseDate");
-
-    openModal("carExpenseModal");
-}
-
-
-function handleCarExpenseSubmit(event) {
-    event.preventDefault();
-
-    const name = $("carExpenseName").value.trim();
-
-    const amount = numberValue(
-        $("carExpenseAmount").value
-    );
-
-    const date = $("carExpenseDate").value;
-
-    const note = $("carExpenseNote").value.trim();
-
-    const type = $("carExpenseType").value;
-
-    if (!name) {
-        showToast("اكتب وصف المصروف");
-
-        return;
-    }
-
-    if (amount <= 0) {
-        showToast("أدخل مبلغاً صحيحاً");
-
-        return;
-    }
-
-    const expense = {
-        id: createId(),
-
-        name,
-
-        amount,
-
-        date: date || getTodayDate(),
-
-        note,
-
-        type,
-
-        createdAt: new Date().toISOString()
-    };
-
-    getCurrentMonthData().carExpenses.push(
-        expense
-    );
-
-    saveDatabase();
-
-    closeModal("carExpenseModal");
-
-    renderAll();
-
-    showToast("تم حفظ مصروف السيارة");
-}
-
-
-/* =========================================================
-   DELETE EXPENSE
-========================================================= */
-
-function deleteExpense(id, category) {
-    const confirmed = window.confirm(
-        "هل تريد حذف هذا المصروف؟"
-    );
-
-    if (!confirmed) {
-        return;
-    }
-
-    const month = getCurrentMonthData();
-
-    if (category === "personal") {
-        month.expenses =
-            month.expenses.filter(
-                (expense) => expense.id !== id
-            );
-    }
-
-    if (category === "car") {
-        month.carExpenses =
-            month.carExpenses.filter(
-                (expense) => expense.id !== id
-            );
-    }
-
-    if (category === "home") {
-        month.homeExpenses =
-            month.homeExpenses.filter(
-                (expense) => expense.id !== id
-            );
-    }
-
-    saveDatabase();
-
-    renderAll();
-
-    showToast("تم حذف المصروف");
-}
-
-
-/* =========================================================
-   BASIC SETTINGS
-========================================================= */
-
-function openSettingsModal() {
-    renderSettingsValues();
-
-    openModal("settingsModal");
-}
-
-
-function handleSettingsSubmit(event) {
-    event.preventDefault();
-
-    const settings = getSettings();
-
-    settings.loan = numberValue(
-        $("settingLoan").value
-    );
-
-    settings.fuelBudget = numberValue(
-        $("settingFuelBudget").value
-    );
-
-    settings.mobileInternet = numberValue(
-        $("settingMobileInternet").value
-    );
-
-    settings.homeContribution = numberValue(
-        $("settingHomeContribution").value
-    );
-
-    settings.norhanContribution = numberValue(
-        $("settingNorhanContribution").value
-    );
-
-    settings.generator = numberValue(
-        $("settingGenerator").value
-    );
-
-    settings.homeInternet = numberValue(
-        $("settingHomeInternet").value
-    );
-
-    settings.rent = numberValue(
-        $("settingRent").value
-    );
-
-    saveDatabase();
-
-    closeModal("settingsModal");
-
-    renderAll();
-
-    showToast("تم حفظ المصروفات الأساسية");
-}
-
-
-/* =========================================================
-   HOME BASIC SETTINGS
-========================================================= */
-
-function openHomeBasicSettings() {
-    renderSettingsValues();
-
-    openModal("settingsModal");
-}
-
-
-/* =========================================================
-   MODALS
-========================================================= */
-
-function openModal(id) {
-    const modal = $(id);
-
-    if (!modal) {
-        return;
-    }
-
-    modal.classList.add("open");
-    modal.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-    document.body.style.overflow = "hidden";
-}
-
-
-function closeModal(id) {
-    const modal = $(id);
-
-    if (!modal) {
-        return;
-    }
-
-    modal.classList.remove("open");
-
-    modal.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-    const anyOpenModal =
-        document.querySelector(
-            ".modal-backdrop.open"
-        );
-
-    if (!anyOpenModal) {
-        document.body.style.overflow = "";
-    }
-}
-
-
-function closeAllModals() {
-    document
-        .querySelectorAll(".modal-backdrop.open")
-        .forEach((modal) => {
-            modal.classList.remove("open");
-
-            modal.setAttribute(
-                "aria-hidden",
-                "true"
-            );
-        });
-
-    document.body.style.overflow = "";
-}
-
 
 /* =========================================================
    THEME
 ========================================================= */
 
-function loadTheme() {
-    try {
-        const theme =
-            localStorage.getItem(
-                "daftari_theme"
-            );
+function applyTheme(theme) {
+    document.body.classList.toggle(
+        "dark",
+        theme === "dark"
+    );
 
-        if (theme === "dark") {
-            document.body.classList.add("dark");
-        }
-    } catch (error) {
-        console.warn("Theme storage unavailable");
+    const button = $("themeButton");
+
+    if (button) {
+        button.textContent = theme === "dark" ? "☀" : "☾";
     }
 }
 
+function loadTheme() {
+    let theme = "light";
+
+    try {
+        theme = localStorage.getItem(THEME_KEY) || "light";
+
+    } catch (error) {
+        console.error("Daftari theme error:", error);
+    }
+
+    applyTheme(theme);
+}
 
 function toggleTheme() {
-    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+
+    const theme = isDark ? "light" : "dark";
+
+    applyTheme(theme);
 
     try {
-        localStorage.setItem(
-            "daftari_theme",
-            document.body.classList.contains("dark")
-                ? "dark"
-                : "light"
-        );
+        localStorage.setItem(THEME_KEY, theme);
+
     } catch (error) {
-        console.warn("Theme storage unavailable");
+        console.error("Daftari theme save error:", error);
     }
 }
-
 
 /* =========================================================
-   DATE HELPERS
+   HEADER / MONTH NAVIGATION
 ========================================================= */
 
-function getTodayDate() {
-    const date = new Date();
+function updateMonthHeader() {
+    const dateText =
+        `${WEEKDAY_NAMES[now.getDay()]} ` +
+        `${now.getDate()} ${MONTH_NAMES[now.getMonth()]} ${now.getFullYear()}`;
 
-    const year = date.getFullYear();
-
-    const month = String(
-        date.getMonth() + 1
-    ).padStart(2, "0");
-
-    const day = String(
-        date.getDate()
-    ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
+    setText("currentDate", dateText);
+    setText("monthName", `${MONTH_NAMES[currentMonth]} ${currentYear}`);
 }
 
+function setupMonthNavigation() {
+    $("previousMonth")?.addEventListener(
+        "click",
+        () => {
 
-function setTodayIfEmpty(id) {
-    const input = $(id);
+            currentMonth--;
 
-    if (!input) {
-        return;
-    }
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
 
-    if (!input.value) {
-        input.value = getTodayDate();
-    }
-}
+            ensureCurrentMonth();
+            updateMonthHeader();
+            renderAll();
 
+        }
+    );
 
-function formatDate(dateString) {
-    if (!dateString) {
-        return "";
-    }
+    $("nextMonth")?.addEventListener(
+        "click",
+        () => {
 
-    const parts = String(
-        dateString
-    ).split("-");
+            currentMonth++;
 
-    if (parts.length !== 3) {
-        return dateString;
-    }
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
 
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-}
+            ensureCurrentMonth();
+            updateMonthHeader();
+            renderAll();
 
-
-/* =========================================================
-   ID
-========================================================= */
-
-function createId() {
-    return (
-        Date.now().toString(36) +
-        Math.random()
-            .toString(36)
-            .slice(2, 8)
+        }
     );
 }
 
-
 /* =========================================================
-   HTML SAFETY
+   NAVIGATION
 ========================================================= */
 
-function escapeHtml(value) {
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+function showPage(pageId) {
+    activePage = pageId;
+
+    document
+        .querySelectorAll(".page")
+        .forEach((page) => {
+
+            page.classList.toggle(
+                "active",
+                page.id === pageId
+            );
+
+        });
+
+    document
+        .querySelectorAll(".nav-item")
+        .forEach((item) => {
+
+            item.classList.toggle(
+                "active",
+                item.dataset.page === pageId
+            );
+
+        });
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
+function setupNavigation() {
+    document
+        .querySelectorAll("[data-page]")
+        .forEach((button) => {
+
+            button.addEventListener(
+                "click",
+                () => {
+                    showPage(button.dataset.page);
+                }
+            );
+
+        });
+}
 
 /* =========================================================
-   TOAST
+   MODAL / TOAST
 ========================================================= */
+
+function openModal(html) {
+    const modal = $("modal");
+    const content = $("modalContent");
+
+    if (!modal || !content) {
+        return;
+    }
+
+    content.innerHTML = html;
+
+    modal.classList.remove("hidden");
+}
+
+function closeModal() {
+    $("modal")?.classList.add("hidden");
+}
+
+function setupModal() {
+    $("modalClose")?.addEventListener("click", closeModal);
+
+    $("modalOverlay")?.addEventListener("click", closeModal);
+
+    document.addEventListener(
+        "keydown",
+        (event) => {
+
+            if (event.key === "Escape") {
+                closeModal();
+            }
+
+        }
+    );
+}
 
 function showToast(message) {
     const toast = $("toast");
@@ -1450,235 +401,578 @@ function showToast(message) {
 
     toast.textContent = message;
 
-    toast.classList.add("show");
+    toast.classList.remove("hidden");
 
     clearTimeout(toastTimer);
 
-    toastTimer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2200);
+    toastTimer = setTimeout(
+        () => {
+            toast.classList.add("hidden");
+        },
+        2600
+    );
 }
-
 
 /* =========================================================
-   EVENT LISTENERS
+   MODAL FORM TEMPLATES
 ========================================================= */
 
-function setupNavigation() {
+function amountFormHtml({ title, label, value = "", submitLabel = "حفظ" }) {
+    return `
+        <h2 class="modal-title">${title}</h2>
 
-    document
-        .querySelectorAll("[data-open-page]")
-        .forEach((button) => {
+        <form id="genericForm">
 
-            button.addEventListener(
-                "click",
-                () => {
+            <div class="form-group">
 
-                    openPage(
-                        button.dataset.openPage
-                    );
+                <label for="genericAmount">
+                    ${label}
+                </label>
 
-                }
-            );
+                <input
+                    type="number"
+                    id="genericAmount"
+                    min="0"
+                    step="1000"
+                    inputmode="numeric"
+                    value="${value}"
+                    required
+                >
 
-        });
+            </div>
 
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                ${submitLabel}
+            </button>
 
-    document
-        .querySelectorAll("[data-back]")
-        .forEach((button) => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    goBack(
-                        button.dataset.back
-                    );
-
-                }
-            );
-
-        });
+        </form>
+    `;
 }
 
+function expenseFormHtml({ title, label }) {
+    return `
+        <h2 class="modal-title">${title}</h2>
 
-function setupMonthNavigation() {
+        <form id="genericForm">
 
-    $("prevMonth")?.addEventListener(
-        "click",
-        () => {
-            changeMonth(-1);
-        }
-    );
+            <div class="form-group">
 
-    $("nextMonth")?.addEventListener(
-        "click",
-        () => {
-            changeMonth(1);
-        }
-    );
+                <label for="genericTitle">
+                    ${label}
+                </label>
 
-    $("monthPickerButton")?.addEventListener(
-        "click",
-        openMonthPicker
-    );
+                <input
+                    type="text"
+                    id="genericTitle"
+                    placeholder="مثال: مصروف الطريق"
+                    required
+                >
 
-    $("prevYear")?.addEventListener(
-        "click",
-        () => {
+            </div>
 
-            currentYear--;
+            <div class="form-group">
 
-            ensureCurrentMonth();
+                <label for="genericAmount">
+                    المبلغ (د.ع)
+                </label>
 
-            renderMonthPicker();
-            updateMonthHeader();
-            renderAll();
+                <input
+                    type="number"
+                    id="genericAmount"
+                    min="0"
+                    step="250"
+                    inputmode="numeric"
+                    required
+                >
 
-        }
-    );
+            </div>
 
-    $("nextYear")?.addEventListener(
-        "click",
-        () => {
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                حفظ
+            </button>
 
-            currentYear++;
-
-            ensureCurrentMonth();
-
-            renderMonthPicker();
-            updateMonthHeader();
-            renderAll();
-
-        }
-    );
+        </form>
+    `;
 }
 
+function bindGenericForm(onSubmit) {
+    const form = $("genericForm");
 
-function setupModals() {
+    if (!form) {
+        return;
+    }
 
-    document
-        .querySelectorAll("[data-close-modal]")
-        .forEach((button) => {
-
-            button.addEventListener(
-                "click",
-                () => {
-
-                    closeModal(
-                        button.dataset.closeModal
-                    );
-
-                }
-            );
-
-        });
-
-
-    document
-        .querySelectorAll(".modal-backdrop")
-        .forEach((modal) => {
-
-            modal.addEventListener(
-                "click",
-                (event) => {
-
-                    if (
-                        event.target === modal
-                    ) {
-                        closeModal(
-                            modal.id
-                        );
-                    }
-
-                }
-            );
-
-        });
-
-
-    document.addEventListener(
-        "keydown",
+    form.addEventListener(
+        "submit",
         (event) => {
 
-            if (event.key === "Escape") {
-                closeAllModals();
+            event.preventDefault();
+
+            const amount = numberValue($("genericAmount")?.value);
+
+            if (amount <= 0) {
+                showToast("أدخل مبلغاً صحيحاً");
+                return;
             }
 
+            const title = $("genericTitle")?.value?.trim() || "";
+
+            onSubmit(amount, title);
+
         }
     );
 }
 
+/* =========================================================
+   ACTIONS (edit settings / savings / add expenses)
+========================================================= */
 
-function setupForms() {
+const EDITABLE_SETTINGS = {
+    loan: "السلفة",
+    fuelBudget: "ميزانية البنزين",
+    mobileInternet: "نت الموبايل",
+    homeContribution: "مصرف البيت",
+    generator: "المولد",
+    homeInternet: "نت البيت",
+    rent: "الإيجار"
+};
 
-    $("expenseForm")?.addEventListener(
-        "submit",
-        handleExpenseSubmit
+function openEditSettingModal(key) {
+    const month = currentMonthData();
+
+    const label = EDITABLE_SETTINGS[key];
+
+    if (!label) {
+        return;
+    }
+
+    openModal(
+        amountFormHtml({
+            title: `تعديل ${label}`,
+            label: `${label} (د.ع)`,
+            value: numberValue(month.settings[key])
+        })
     );
 
-    $("carExpenseForm")?.addEventListener(
-        "submit",
-        handleCarExpenseSubmit
-    );
+    bindGenericForm(
+        (amount) => {
 
-    $("settingsForm")?.addEventListener(
-        "submit",
-        handleSettingsSubmit
+            month.settings[key] = amount;
+
+            commit();
+            closeModal();
+            showToast("تم الحفظ");
+
+        }
     );
 }
 
+function openSavingModal() {
+    const month = currentMonthData();
+
+    openModal(
+        amountFormHtml({
+            title: "تحديد الادخار",
+            label: "مبلغ الادخار (د.ع)",
+            value: month.savings ? numberValue(month.savings) : ""
+        })
+    );
+
+    bindGenericForm(
+        (amount) => {
+
+            month.savings = amount;
+
+            commit();
+            closeModal();
+            showToast("تم حفظ الادخار");
+
+        }
+    );
+}
+
+function openPersonalExpenseModal() {
+    openModal(
+        expenseFormHtml({
+            title: "إضافة مصروف",
+            label: "اسم المصروف"
+        })
+    );
+
+    bindGenericForm(
+        (amount, title) => {
+
+            const month = currentMonthData();
+
+            month.expenses.push({
+                id: Date.now(),
+                title: title || "مصروف",
+                amount,
+                date: new Date().toISOString()
+            });
+
+            commit();
+            closeModal();
+            showToast("تمت إضافة المصروف");
+
+        }
+    );
+}
+
+function openHomeExpenseModal() {
+    openModal(
+        expenseFormHtml({
+            title: "إضافة مصروف بيت",
+            label: "اسم المصروف"
+        })
+    );
+
+    bindGenericForm(
+        (amount, title) => {
+
+            const month = currentMonthData();
+
+            month.homeExpenses.push({
+                id: Date.now(),
+                title: title || "مصروف بيت",
+                amount,
+                date: new Date().toISOString()
+            });
+
+            commit();
+            closeModal();
+            showToast("تمت إضافة المصروف");
+
+        }
+    );
+}
+
+function openCarExpenseModal(kind) {
+    const titles = {
+        fuel: "بنزين",
+        maintenance: "صيانة",
+        oil: "زيت"
+    };
+
+    const label = titles[kind] || "مصروف سيارة";
+
+    openModal(
+        expenseFormHtml({
+            title: `إضافة ${label}`,
+            label: "الوصف (اختياري)"
+        })
+    );
+
+    bindGenericForm(
+        (amount, title) => {
+
+            const month = currentMonthData();
+
+            month.carExpenses.push({
+                id: Date.now(),
+                kind,
+                title: title || label,
+                amount,
+                date: new Date().toISOString()
+            });
+
+            commit();
+            closeModal();
+            showToast(`تمت إضافة ${label}`);
+
+        }
+    );
+}
 
 function setupActions() {
+    $("themeButton")?.addEventListener("click", toggleTheme);
 
-    $("themeToggle")?.addEventListener(
+    $("setSavingButton")?.addEventListener("click", openSavingModal);
+
+    $("addExpenseButton")?.addEventListener("click", openPersonalExpenseModal);
+
+    $("addHomeExpenseButton")?.addEventListener("click", openHomeExpenseModal);
+
+    $("carFuelButton")?.addEventListener(
         "click",
-        toggleTheme
+        () => openCarExpenseModal("fuel")
     );
 
-    $("addPersonalExpense")?.addEventListener(
+    $("carMaintenanceButton")?.addEventListener(
         "click",
-        openPersonalExpenseModal
+        () => openCarExpenseModal("maintenance")
     );
 
-    $("addHomeExpense")?.addEventListener(
+    $("carOilButton")?.addEventListener(
         "click",
-        openHomeExpenseModal
+        () => openCarExpenseModal("oil")
     );
 
-    $("addFuelExpense")?.addEventListener(
+    document
+        .querySelectorAll("[data-edit-setting]")
+        .forEach((button) => {
+
+            button.addEventListener(
+                "click",
+                () => {
+                    openEditSettingModal(button.dataset.editSetting);
+                }
+            );
+
+        });
+
+    document.addEventListener(
         "click",
-        () => {
-            openCarExpenseModal("fuel");
+        (event) => {
+
+            const deleteButton = event.target.closest("[data-delete]");
+
+            if (!deleteButton) {
+                return;
+            }
+
+            deleteRecord(
+                deleteButton.dataset.delete,
+                deleteButton.dataset.deleteId
+            );
+
         }
-    );
-
-    $("addMaintenanceExpense")?.addEventListener(
-        "click",
-        () => {
-            openCarExpenseModal("maintenance");
-        }
-    );
-
-    $("addOilExpense")?.addEventListener(
-        "click",
-        () => {
-            openCarExpenseModal("oil");
-        }
-    );
-
-    $("editBasicExpenses")?.addEventListener(
-        "click",
-        openSettingsModal
-    );
-
-    $("editHomeBasicExpenses")?.addEventListener(
-        "click",
-        openHomeBasicSettings
     );
 }
 
+function deleteRecord(listName, recordId) {
+    const month = currentMonthData();
+
+    const id = Number(recordId);
+
+    month[listName] = month[listName].filter(
+        (record) => record.id !== id
+    );
+
+    commit();
+    showToast("تم الحذف");
+}
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function recordRowHtml({ listName, record, icon, note }) {
+    return `
+        <div class="record-row">
+
+            <span class="record-icon">
+                ${icon}
+            </span>
+
+            <div class="record-info">
+
+                <strong>
+                    ${record.title}
+                </strong>
+
+                <span>
+                    ${note}
+                </span>
+
+            </div>
+
+            <strong class="record-amount">
+                ${formatNumber(record.amount)}
+            </strong>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-delete="${listName}"
+                data-delete-id="${record.id}"
+                aria-label="حذف"
+            >
+                ×
+            </button>
+
+        </div>
+    `;
+}
+
+function emptyListHtml(message) {
+    return `
+        <div class="record-empty">
+            ${message}
+        </div>
+    `;
+}
+
+function sumOf(records) {
+    return records.reduce(
+        (total, record) => total + numberValue(record.amount),
+        0
+    );
+}
+
+function renderExpensesPage() {
+    const month = currentMonthData();
+    const settings = month.settings;
+
+    setText("loanValue", formatNumber(settings.loan));
+    setText("fuelBudgetValue", formatNumber(settings.fuelBudget));
+    setText("mobileInternetValue", formatNumber(settings.mobileInternet));
+    setText("homeContributionValue", formatNumber(settings.homeContribution));
+
+    setText(
+        "savingValue",
+        month.savings ? formatNumber(month.savings) : "غير محدد"
+    );
+
+    const fixedTotal =
+        numberValue(settings.loan) +
+        numberValue(settings.fuelBudget) +
+        numberValue(settings.mobileInternet) +
+        numberValue(settings.homeContribution);
+
+    setText("fixedExpenseTotal", currency(fixedTotal));
+
+    const list = $("customExpenseList");
+
+    if (list) {
+        list.innerHTML = month.expenses.length
+            ? month.expenses
+                .slice()
+                .reverse()
+                .map((record) => recordRowHtml({
+                    listName: "expenses",
+                    record,
+                    icon: "د.ع",
+                    note: "مصروف شخصي"
+                }))
+                .join("")
+            : emptyListHtml("لا توجد مصاريف إضافية بعد");
+    }
+}
+
+function renderCarPage() {
+    const month = currentMonthData();
+    const settings = month.settings;
+
+    const budget = numberValue(settings.fuelBudget);
+
+    const fuelSpent = sumOf(
+        month.carExpenses.filter((item) => item.kind === "fuel")
+    );
+
+    const total = sumOf(month.carExpenses);
+
+    setText("carBudgetDisplay", currency(budget));
+    setText("carSpentDisplay", currency(fuelSpent));
+    setText("carRemainingDisplay", currency(Math.max(budget - fuelSpent, 0)));
+    setText("carTotal", currency(total));
+
+    const icons = {
+        fuel: "⛽",
+        maintenance: "🔧",
+        oil: "◉"
+    };
+
+    const notes = {
+        fuel: "بنزين",
+        maintenance: "صيانة",
+        oil: "زيت"
+    };
+
+    const list = $("carExpensesList");
+
+    if (list) {
+        list.innerHTML = month.carExpenses.length
+            ? month.carExpenses
+                .slice()
+                .reverse()
+                .map((record) => recordRowHtml({
+                    listName: "carExpenses",
+                    record,
+                    icon: icons[record.kind] || "🚗",
+                    note: notes[record.kind] || "مصروف سيارة"
+                }))
+                .join("")
+            : emptyListHtml("لا توجد مصاريف سيارة بعد");
+    }
+}
+
+function renderHomeExpensesPage() {
+    const month = currentMonthData();
+    const settings = month.settings;
+
+    const budget =
+        numberValue(settings.homeContribution) +
+        numberValue(settings.norhanContribution);
+
+    const basic =
+        numberValue(settings.generator) +
+        numberValue(settings.homeInternet) +
+        numberValue(settings.rent);
+
+    const other = sumOf(month.homeExpenses);
+
+    setText("homeBudgetValue", currency(budget));
+    setText("homeContributionSummary", currency(settings.homeContribution));
+    setText("norhanContributionSummary", currency(settings.norhanContribution));
+    setText("homeBasicTotal", currency(basic));
+    setText("homeRemaining", currency(Math.max(budget - basic - other, 0)));
+
+    setText("generatorValue", formatNumber(settings.generator));
+    setText("homeInternetValue", formatNumber(settings.homeInternet));
+    setText("rentValue", formatNumber(settings.rent));
+
+    const list = $("homeExpensesList");
+
+    if (list) {
+        list.innerHTML = month.homeExpenses.length
+            ? month.homeExpenses
+                .slice()
+                .reverse()
+                .map((record) => recordRowHtml({
+                    listName: "homeExpenses",
+                    record,
+                    icon: "⌂",
+                    note: "مصروف بيت"
+                }))
+                .join("")
+            : emptyListHtml("لا توجد مصاريف بيت إضافية بعد");
+    }
+}
+
+function renderHomePage() {
+    const month = currentMonthData();
+
+    const total =
+        sumOf(month.expenses) +
+        sumOf(month.carExpenses) +
+        sumOf(month.homeExpenses);
+
+    setText("homeTotalExpenses", currency(total));
+
+    setText(
+        "homeSavings",
+        month.savings ? currency(month.savings) : "غير محدد"
+    );
+}
+
+function renderAll() {
+    ensureCurrentMonth();
+
+    renderHomePage();
+
+    renderExpensesPage();
+
+    renderCarPage();
+
+    renderHomeExpensesPage();
+}
 
 /* =========================================================
    INIT
@@ -1695,14 +989,19 @@ function init() {
 
     setupMonthNavigation();
 
-    setupModals();
-
-    setupForms();
+    setupModal();
 
     setupActions();
 
     renderAll();
 }
 
-
 init();
+
+
+
+
+
+
+
+

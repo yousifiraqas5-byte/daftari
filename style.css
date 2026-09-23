@@ -70,6 +70,37 @@ body {
 }
 
 
+/* SAFE AREA SUPPORT FOR iOS STANDALONE MODE */
+
+@supports (
+    padding:
+        max(0px)
+) {
+
+    body {
+
+        padding-top:
+            env(safe-area-inset-top);
+
+        padding-left:
+            env(safe-area-inset-left);
+
+        padding-right:
+            env(safe-area-inset-right);
+
+    }
+
+    .app {
+
+        padding-bottom:
+            calc(90px + env(safe-area-inset-bottom));
+
+    }
+
+}
+
+
+
 button,
 input,
 textarea,

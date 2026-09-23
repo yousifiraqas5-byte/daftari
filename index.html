@@ -14,6 +14,41 @@
         content="#0f9f92"
     >
 
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="دفتري"
+    >
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+    <link
+        rel="apple-touch-icon"
+        href="icon-180.png"
+    >
+
+    <link
+        rel="icon"
+        href="icon-192.png"
+    >
+
     <title>دفتري</title>
 
     <link
@@ -1254,6 +1289,22 @@
 
 
 <script src="script.js"></script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+        window.addEventListener(
+            "load",
+            () => {
+                navigator.serviceWorker
+                    .register("sw.js")
+                    .catch((error) => {
+                        console.error("SW registration failed:", error);
+                    });
+            }
+        );
+    }
+</script>
+
 
 </body>
 </html>
