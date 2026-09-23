@@ -1059,35 +1059,139 @@ function wireRecordRows(listElement, listName) {
 
 /* =========================================================
    SAVINGS & DEBTORS (permanent, same storage system)
+
+   IMPORTANT: savings are a CONTINUOUS CUMULATIVE balance
+   across ALL months, stored once at database level
+   (database.savingsLedger). Months never reset it.
+
+   Old per-month data (month.savingsAccount) is migrated
+   automatically on load - nothing is deleted.
 ========================================================= */
 
-function ensureSavings(month) {
-    if (!month.savingsAccount || typeof month.savingsAccount !== "object") {
-        month.savingsAccount = {
+/*
+    Migrates old per-month savings accounts into the single
+    cumulative ledger. Keeps original transaction dates.
+*/
+function migrateSavingsLedger() {
+
+    if (!database.savingsLedger || typeof database.savingsLedger !== "object") {
+        database.savingsLedger = {
             transactions: [],
             debtors: []
         };
     }
 
-    if (!Array.isArray(month.savingsAccount.transactions)) {
-        month.savingsAccount.transactions = [];
+    if (!Array.isArray(database.savingsLedger.transactions)) {
+        database.savingsLedger.transactions = [];
     }
 
-    if (!Array.isArray(month.savingsAccount.debtors)) {
-        month.savingsAccount.debtors = [];
+    if (!Array.isArray(database.savingsLedger.debtors)) {
+        database.savingsLedger.debtors = [];
     }
 
-    return month.savingsAccount;
+    Object.keys(database.months).forEach((key) => {
+
+        const month = database.months[key];
+
+        if (!month || typeof month !== "object") {
+            return;
+        }
+
+        // Migrate old simple monthly savings value (month.savings)
+
+        if (month.savings !== null && month.savings !== undefined) {
+
+            const value = numberValue(month.savings);
+
+            if (value > 0) {
+                database.savingsLedger.transactions.push({
+                    id: Date.now() + Math.floor(Math.random() * 100000),
+                    type: "deposit",
+                    amount: value,
+                    note: "رصيد قديم (ترحيل تلقائي)",
+                    date: new Date(
+                        month.year,
+                        month.month,
+                        1,
+                        12
+                    ).toISOString()
+                });
+            }
+
+            month.savings = null;
+
+        }
+
+        // Migrate old per-month savings account
+
+        const account = month.savingsAccount;
+
+        if (account && typeof account === "object") {
+
+            if (Array.isArray(account.transactions)) {
+                database.savingsLedger.transactions.push(
+                    ...account.transactions
+                );
+            }
+
+            if (Array.isArray(ledger.debtors)) {
+                database.savingsLedger.debtors.push(
+                    ...ledger.debtors
+                );
+            }
+
+            delete month.savingsAccount;
+
+        }
+
+    });
+
+    // Deduplicate by id (safe against repeated migrations)
+
+    const seen = new Set();
+
+    database.savingsLedger.transactions =
+        database.savingsLedger.transactions.filter((transaction) => {
+
+            if (!transaction || seen.has(transaction.id)) {
+                return false;
+            }
+
+            seen.add(transaction.id);
+
+            return true;
+
+        });
+
+    const debtorIds = new Set();
+
+    database.savingsLedger.debtors =
+        database.savingsLedger.debtors.filter((debtor) => {
+
+            if (!debtor || debtorIds.has(debtor.id)) {
+                return false;
+            }
+
+            debtorIds.add(debtor.id);
+
+            return true;
+
+        });
+
+}
+
+function getSavingsLedger() {
+    return database.savingsLedger;
 }
 
 function savingsStats() {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
     let deposits = 0;
     let withdrawals = 0;
     let fromExpenses = 0;
 
-    account.transactions.forEach((transaction) => {
+    ledger.transactions.forEach((transaction) => {
 
         const amount = numberValue(transaction.amount);
 
@@ -1105,9 +1209,11 @@ function savingsStats() {
 
     });
 
+    // Cumulative balance across ALL months since the beginning
+
     const balance = deposits + fromExpenses - withdrawals;
 
-    const debts = account.debtors.reduce(
+    const debts = ledger.debtors.reduce(
         (total, debtor) =>
             total +
             Math.max(
@@ -1128,20 +1234,71 @@ function savingsStats() {
 }
 
 function addSavingsTransaction({ type, amount, note = "", date = null }) {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
-    account.transactions.push({
+    ledger.transactions.push({
         id: Date.now() + Math.floor(Math.random() * 1000),
         type,
         amount: numberValue(amount),
         note,
-        date: date || new Date().toISOString()
+        date: date || new Date().toISOString(),
+        createdAt: new Date().toISOString()
     });
 }
 
 function getSavingsBalance() {
     return savingsStats().balance;
 }
+
+/*
+    Monthly savings report: groups cumulative-ledger
+    transactions by their transaction date's month.
+    The balance stays cumulative - this is a filter only.
+*/
+function savingsMonthlyReport(year, month) {
+    const ledger = getSavingsLedger();
+
+    let deposits = 0;
+    let withdrawals = 0;
+    let fromExpenses = 0;
+
+    ledger.transactions.forEach((transaction) => {
+
+        const date = new Date(transaction.date);
+
+        if (
+            Number.isNaN(date.getTime()) ||
+            date.getFullYear() !== year ||
+            date.getMonth() !== month
+        ) {
+            return;
+        }
+
+        const amount = numberValue(transaction.amount);
+
+        if (transaction.type === "deposit") {
+            deposits += amount;
+        }
+
+        if (transaction.type === "withdraw") {
+            withdrawals += amount;
+        }
+
+        if (transaction.type === "fromExpenses") {
+            fromExpenses += amount;
+        }
+
+    });
+
+    return {
+        deposits,
+        withdrawals,
+        fromExpenses,
+        net: deposits + fromExpenses - withdrawals
+    };
+}
+
+/* __APPEND__ */
 
 function formatDate(iso) {
     const date = new Date(iso);
@@ -1417,9 +1574,9 @@ function openAddDebtorModal() {
                 return;
             }
 
-            const account = ensureSavings(currentMonthData());
+            const ledger = getSavingsLedger();
 
-            account.debtors.push({
+            ledger.debtors.push({
                 id: Date.now(),
                 name,
                 required,
@@ -1437,9 +1594,9 @@ function openAddDebtorModal() {
 }
 
 function openDebtorPaymentModal(debtorId) {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
-    const debtor = account.debtors.find(
+    const debtor = ledger.debtors.find(
         (item) => item.id === Number(debtorId)
     );
 
@@ -1490,9 +1647,9 @@ function openDebtorPaymentModal(debtorId) {
 }
 
 function deleteDebtor(debtorId) {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
-    account.debtors = account.debtors.filter(
+    ledger.debtors = ledger.debtors.filter(
         (item) => item.id !== Number(debtorId)
     );
 
@@ -1503,6 +1660,8 @@ function deleteDebtor(debtorId) {
 function renderSavingsPage() {
     const stats = savingsStats();
 
+    // Cumulative balance - never resets between months
+
     setText("savingsBalance", currency(stats.balance));
     setText("savingsDepositsTotal", currency(stats.deposits));
     setText("savingsWithdrawalsTotal", currency(stats.withdrawals));
@@ -1510,13 +1669,30 @@ function renderSavingsPage() {
     setText("savingsDebtsTotal", currency(stats.debts));
     setText("savingsGrandTotal", currency(stats.grandTotal));
 
+    // Monthly report for the currently viewed month
+
+    const report = savingsMonthlyReport(currentYear, currentMonth);
+
+    setText(
+        "savingsMonthTitle",
+        `${MONTH_NAMES[currentMonth]} ${currentYear}`
+    );
+
+    setText("savingsMonthDeposits", currency(report.deposits));
+    setText("savingsMonthFromExpenses", currency(report.fromExpenses));
+    setText("savingsMonthWithdrawals", currency(report.withdrawals));
+    setText(
+        "savingsMonthNet",
+        `${report.net >= 0 ? "+" : "-"}${formatNumber(Math.abs(report.net))}`
+    );
+
     renderDebtorsList();
 
     renderSavingsLog();
 }
 
 function renderDebtorsList() {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
     const list = $("debtorsList");
 
@@ -1524,12 +1700,12 @@ function renderDebtorsList() {
         return;
     }
 
-    if (!account.debtors.length) {
+    if (!ledger.debtors.length) {
         list.innerHTML = emptyListHtml("لا يوجد مدينون بعد");
         return;
     }
 
-    list.innerHTML = account.debtors
+    list.innerHTML = ledger.debtors
         .slice()
         .reverse()
         .map((debtor) => {
@@ -1598,7 +1774,7 @@ function renderDebtorsList() {
 }
 
 function renderSavingsLog() {
-    const account = ensureSavings(currentMonthData());
+    const ledger = getSavingsLedger();
 
     const list = $("savingsLogList");
 
@@ -1895,6 +2071,13 @@ function renderAll() {
 
 function init() {
     ensureCurrentMonth();
+
+    // Migrate old per-month savings into the cumulative ledger
+    // (idempotent - safe to run on every load)
+
+    migrateSavingsLedger();
+
+    saveDatabase();
 
     loadTheme();
 
