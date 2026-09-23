@@ -301,10 +301,10 @@ function updateMonthLock() {
 /*
     Attaches long-press behavior to a rendered record row.
 
-    - locked month  : normal click is disabled; press-and-hold ~2s
-                      unlocks the row (visual state) and then a
-                      single tap triggers the action.
-    - current month : click works as before (no change).
+    - locked month  : normal click does nothing (with a hint toast);
+                      press-and-hold ~2s shows a visual progress and
+                      then opens the action sheet (edit / delete).
+    - current month : single click triggers the action directly.
 */
 function attachRecordPress(row, onAction) {
     if (!row) {
@@ -319,19 +319,24 @@ function attachRecordPress(row, onAction) {
     row.classList.add("locked-record");
 
     let pressTimer = null;
-    let unlocked = false;
+    let longPressDone = false;
     let startX = 0;
     let startY = 0;
 
     const clearProgress = () => {
         row.classList.remove("long-pressing");
--lg;
     };
 
     const cancelPress = () => {
+
+        if (longPressDone) {
+            return;
+        }
+
         clearTimeout(pressTimer);
         pressTimer = null;
         clearProgress();
+
     };
 
     row.addEventListener(
@@ -342,27 +347,25 @@ function attachRecordPress(row, onAction) {
                 return;
             }
 
-            if (unlocked) {
-                return;
-            }
+            longPressDone = false;
 
             startX = event.clientX;
             startY = event.clientY;
+
+            clearProgress();
 
             row.classList.add("long-pressing");
 
             pressTimer = setTimeout(
                 () => {
 
-                    unlocked = true;
+                    pressTimer = null;
+
+                    longPressDone = true;
 
                     clearProgress();
 
-                    row.classList.remove("locked-record");
-
-                    row.classList.add("unlocked-record");
-
-                    showToast("تم فتح التعديل مؤقتاً — اضغط على العملية");
+                    onAction();
 
                 },
                 LONG_PRESS_DURATION
@@ -380,8 +383,8 @@ function attachRecordPress(row, onAction) {
             }
 
             const moved =
-                Math.abs(event.clientX - startX) > 10 ||
-                Math.abs(event.clientY - startY) > 10;
+                Math.abs(event.clientX - startX) > 12 ||
+                Math.abs(event.clientY - startY) > 12;
 
             if (moved) {
                 cancelPress();
@@ -401,15 +404,12 @@ function attachRecordPress(row, onAction) {
             event.preventDefault();
             event.stopImmediatePropagation();
 
-            if (unlocked) {
-                unlocked = false;
-
-                row.classList.remove("unlocked-record");
-
-                row.classList.add("locked-record");
-
-                onAction(event);
+            if (longPressDone) {
+                longPressDone = false;
+                return;
             }
+
+            showToast("🔒 شهر مغلق — اضغط مطولاً على العملية للتعديل");
 
         }
     );
@@ -956,8 +956,16 @@ function setupActions() {
     );
 }
 
-function deleteRecord(listName, recordId) {
+function deleteRecord(listName, recordId, force = false) {
     const month = currentMonthData();
+
+    if (
+        !force &&
+        isMonthLocked(month.year, month.month)
+    ) {
+        showToast("🔒 شهر مغلق — استخدم الضغط المطول");
+        return;
+    }
 
     const id = Number(recordId);
 
@@ -967,6 +975,86 @@ function deleteRecord(listName, recordId) {
 
     commit();
     showToast("تم الحذف");
+}
+
+/*
+    After rendering record rows into a list container, this wires
+    every row:
+
+    - current month : delete button works normally.
+    - locked month  : delete button is blocked; long-press (~2s)
+                      on the row opens an action sheet that allows
+                      deleting the record (bypasses the lock).
+*/
+function wireRecordRows(listElement, listName) {
+    if (!listElement) {
+        return;
+    }
+
+    if (!isMonthLocked()) {
+        return;
+    }
+
+    Array.from(listElement.children).forEach((row) => {
+
+        const deleteButton = row.querySelector("[data-delete]");
+
+        if (!deleteButton) {
+            return;
+        }
+
+        const recordId = deleteButton.dataset.deleteId;
+
+        deleteButton.addEventListener(
+            "click",
+            (event) => {
+
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                showToast("🔒 شهر مغلق — اضغط مطولاً على العملية");
+
+            },
+            true
+        );
+
+        attachRecordPress(
+            row,
+            () => {
+
+                openModal(
+                    `
+                    <h2 class="modal-title">تعديل عملية شهر مغلق</h2>
+
+                    <p class="locked-hint">
+                        🔒 هذا الشهر مغلق. يمكنك حذف هذه العملية فقط.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="form-submit danger"
+                        id="forceDeleteButton"
+                    >
+                        حذف العملية
+                    </button>
+                    `
+                );
+
+                $("forceDeleteButton")?.addEventListener(
+                    "click",
+                    () => {
+
+                        closeModal();
+
+                        deleteRecord(listName, recordId, true);
+
+                    }
+                );
+
+            }
+        );
+
+    });
 }
 
 /* =========================================================
@@ -1672,6 +1760,8 @@ function renderExpensesPage() {
                 }))
                 .join("")
             : emptyListHtml("لا توجد مصاريف إضافية بعد");
+
+        wireRecordRows(list, "expenses");
     }
 }
 
@@ -1719,6 +1809,8 @@ function renderCarPage() {
                 }))
                 .join("")
             : emptyListHtml("لا توجد مصاريف سيارة بعد");
+
+        wireRecordRows(list, "carExpenses");
     }
 }
 
@@ -1762,6 +1854,8 @@ function renderHomeExpensesPage() {
                 }))
                 .join("")
             : emptyListHtml("لا توجد مصاريف بيت إضافية بعد");
+
+        wireRecordRows(list, "homeExpenses");
     }
 }
 
