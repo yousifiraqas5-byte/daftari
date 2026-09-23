@@ -1,15 +1,4 @@
-```javascript
 "use strict";
-
-/* =========================================================
-   دفتري — التطبيق المالي الشخصي
-   الإصدار الأول: إدارة الشهر والتنقل بين الأشهر
-   ========================================================= */
-
-
-/* =========================================================
-   أسماء الأشهر
-   ========================================================= */
 
 const MONTH_NAMES = [
   "يناير",
@@ -26,20 +15,10 @@ const MONTH_NAMES = [
   "ديسمبر"
 ];
 
-
-/* =========================================================
-   حالة التطبيق
-   ========================================================= */
-
 const appState = {
   currentDate: new Date(),
   monthlyData: {}
 };
-
-
-/* =========================================================
-   عناصر الصفحة
-   ========================================================= */
 
 const elements = {
   monthName: document.getElementById("monthName"),
@@ -48,33 +27,40 @@ const elements = {
   nextMonth: document.getElementById("nextMonth"),
 
   remaining: document.getElementById("remaining"),
-  balanceIncome: document.getElementById("balanceIncome"),
-  balanceExpenses: document.getElementById("balanceExpenses"),
+
+  balanceIncome:
+    document.getElementById("balanceIncome"),
+
+  balanceExpenses:
+    document.getElementById("balanceExpenses"),
 
   income: document.getElementById("income"),
-  expenses: document.getElementById("expenses"),
-  savings: document.getElementById("savings"),
-  owed: document.getElementById("owed")
+
+  expenses:
+    document.getElementById("expenses"),
+
+  savings:
+    document.getElementById("savings"),
+
+  owed:
+    document.getElementById("owed")
 };
 
 
-/* =========================================================
-   إنشاء مفتاح الشهر
-   مثال:
-   2026-09
-   ========================================================= */
+/* =========================
+   Month helpers
+========================= */
 
 function getMonthKey(date) {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
+
+  const month = String(
+    date.getMonth() + 1
+  ).padStart(2, "0");
 
   return `${year}-${month}`;
 }
 
-
-/* =========================================================
-   الحصول على بيانات الشهر
-   ========================================================= */
 
 function getMonthlyData(date) {
   const key = getMonthKey(date);
@@ -92,29 +78,33 @@ function getMonthlyData(date) {
 }
 
 
-/* =========================================================
-   تنسيق الأرقام
-   ========================================================= */
+/* =========================
+   Formatting
+========================= */
 
 function formatMoney(value) {
   const number = Number(value) || 0;
 
-  return new Intl.NumberFormat("ar-IQ").format(number);
+  return new Intl.NumberFormat("ar-IQ").format(
+    number
+  );
 }
 
 
-/* =========================================================
-   تحديث الشهر الظاهر
-   ========================================================= */
+/* =========================
+   Update month
+========================= */
 
 function updateMonth() {
-
   if (!elements.monthName) {
     return;
   }
 
-  const month = appState.currentDate.getMonth();
-  const year = appState.currentDate.getFullYear();
+  const month =
+    appState.currentDate.getMonth();
+
+  const year =
+    appState.currentDate.getFullYear();
 
   elements.monthName.textContent =
     `${MONTH_NAMES[month]} ${year}`;
@@ -123,23 +113,29 @@ function updateMonth() {
 }
 
 
-/* =========================================================
-   تحديث الملخص المالي
-   ========================================================= */
+/* =========================
+   Financial summary
+========================= */
 
 function updateFinancialSummary() {
+  const data =
+    getMonthlyData(appState.currentDate);
 
-  const data = getMonthlyData(appState.currentDate);
+  const income =
+    Number(data.income) || 0;
 
-  const income = Number(data.income) || 0;
-  const expenses = Number(data.expenses) || 0;
-  const savings = Number(data.savings) || 0;
-  const owed = Number(data.owed) || 0;
+  const expenses =
+    Number(data.expenses) || 0;
 
-  const remaining = income - expenses;
+  const savings =
+    Number(data.savings) || 0;
 
+  const owed =
+    Number(data.owed) || 0;
 
-  /* المتبقي */
+  const remaining =
+    income - expenses;
+
 
   if (elements.remaining) {
     elements.remaining.textContent =
@@ -147,12 +143,11 @@ function updateFinancialSummary() {
   }
 
 
-  /* الدخل */
-
   if (elements.income) {
     elements.income.textContent =
       formatMoney(income);
   }
+
 
   if (elements.balanceIncome) {
     elements.balanceIncome.textContent =
@@ -160,12 +155,11 @@ function updateFinancialSummary() {
   }
 
 
-  /* المصروفات */
-
   if (elements.expenses) {
     elements.expenses.textContent =
       formatMoney(expenses);
   }
+
 
   if (elements.balanceExpenses) {
     elements.balanceExpenses.textContent =
@@ -173,15 +167,11 @@ function updateFinancialSummary() {
   }
 
 
-  /* الادخار */
-
   if (elements.savings) {
     elements.savings.textContent =
       formatMoney(savings);
   }
 
-
-  /* المبالغ المطلوبة من الآخرين */
 
   if (elements.owed) {
     elements.owed.textContent =
@@ -190,12 +180,11 @@ function updateFinancialSummary() {
 }
 
 
-/* =========================================================
-   الشهر السابق
-   ========================================================= */
+/* =========================
+   Month navigation
+========================= */
 
 function goToPreviousMonth() {
-
   appState.currentDate.setMonth(
     appState.currentDate.getMonth() - 1
   );
@@ -204,12 +193,7 @@ function goToPreviousMonth() {
 }
 
 
-/* =========================================================
-   الشهر التالي
-   ========================================================= */
-
 function goToNextMonth() {
-
   appState.currentDate.setMonth(
     appState.currentDate.getMonth() + 1
   );
@@ -218,12 +202,7 @@ function goToNextMonth() {
 }
 
 
-/* =========================================================
-   أحداث أزرار الأشهر
-   ========================================================= */
-
 if (elements.previousMonth) {
-
   elements.previousMonth.addEventListener(
     "click",
     goToPreviousMonth
@@ -232,7 +211,6 @@ if (elements.previousMonth) {
 
 
 if (elements.nextMonth) {
-
   elements.nextMonth.addEventListener(
     "click",
     goToNextMonth
@@ -240,21 +218,108 @@ if (elements.nextMonth) {
 }
 
 
-/* =========================================================
-   تشغيل التطبيق
-   ========================================================= */
+/* =========================
+   Quick actions
+========================= */
+
+const addIncomeButton =
+  document.getElementById("addIncomeButton");
+
+const addExpenseButton =
+  document.getElementById("addExpenseButton");
+
+const addSavingsButton =
+  document.getElementById("addSavingsButton");
+
+const addOwedButton =
+  document.getElementById("addOwedButton");
+
+
+if (addIncomeButton) {
+  addIncomeButton.addEventListener(
+    "click",
+    () => {
+      alert(
+        "إضافة الدخل ستكون متاحة في الخطوة القادمة."
+      );
+    }
+  );
+}
+
+
+if (addExpenseButton) {
+  addExpenseButton.addEventListener(
+    "click",
+    () => {
+      alert(
+        "إضافة المصروفات ستكون متاحة في الخطوة القادمة."
+      );
+    }
+  );
+}
+
+
+if (addSavingsButton) {
+  addSavingsButton.addEventListener(
+    "click",
+    () => {
+      alert(
+        "إدارة الادخار ستكون متاحة في الخطوة القادمة."
+      );
+    }
+  );
+}
+
+
+if (addOwedButton) {
+  addOwedButton.addEventListener(
+    "click",
+    () => {
+      alert(
+        "إدارة المبالغ المطلوبة ستكون متاحة في الخطوة القادمة."
+      );
+    }
+  );
+}
+
+
+/* =========================
+   Bottom navigation
+========================= */
+
+const navItems =
+  document.querySelectorAll(".nav-item");
+
+
+navItems.forEach((item) => {
+
+  item.addEventListener(
+    "click",
+    () => {
+
+      navItems.forEach((navItem) => {
+        navItem.classList.remove("active");
+      });
+
+      item.classList.add("active");
+
+    }
+  );
+
+});
+
+
+/* =========================
+   Initialize
+========================= */
 
 function initializeApp() {
 
   console.log("دفتري بدأ التشغيل");
 
   updateMonth();
+
 }
 
 
-/* =========================================================
-   Start
-   ========================================================= */
-
 initializeApp();
-```
