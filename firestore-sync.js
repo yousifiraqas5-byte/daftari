@@ -90,6 +90,11 @@
     let pullChain = Promise.resolve();
     let unsubSnapshots = [];
 
+    let retryTimer = null;
+    let retryAttempts = 0;
+    const RETRY_BASE_MS = 5000;
+    const RETRY_MAX_MS = 300000;
+
     /* =========================================================
        SMALL HELPERS
     ========================================================= */
@@ -208,6 +213,30 @@
         };
 
         return messages[code] || (error && error.message) || "خطأ غير معروف في Firestore";
+    }
+
+    /* Detailed error logging for Firebase operations.
+       Logs operation name, error code, message, Firestore path and UID
+       to console.error for easy diagnosis. */
+    function logFirebaseError(operation, error, uid, path) {
+        const err = error || {};
+        const code = err.code || "unknown";
+        const message = err.message || String(err);
+        const uidLog = uid ? uid : "n/a";
+        const pathLog = path ? path : "n/a";
+
+        console.error(
+            `[Daftari Firebase] ${operation} — code: ${code}, path: ${pathLog}, uid: ${uidLog}, message: ${message}`,
+            err
+        );
+    }
+
+    /* Returns the full Firestore document path for a key, for logging. */
+    function docPathFor(uid, key) {
+        const col = key === LEDGER_KEY ? META_COLLECTION : MONTHS_COLLECTION;
+        const docId = key === LEDGER_KEY ? LEDGER_DOC : key;
+
+        return `users/${uid}/${col}/${docId}`;
     }
 
     /* Remove `undefined` values - Firestore rejects them. */
@@ -778,8 +807,22 @@
     async function readRemoteData(uid) {
         const base = userRef(uid);
 
-        const monthsSnap = await base.collection(MONTHS_COLLECTION).get();
-        const metaSnap = await base.collection(META_COLLECTION).get();
+        let monthsSnap;
+        let metaSnap;
+
+        try {
+            monthsSnap = await base.collection(MONTHS_COLLECTION).get();
+            metaSnap = await base.collection(META_COLLECTION).get();
+        } catch (error) {
+            logFirebaseError(
+                "readRemoteData",
+                error,
+                uid,
+                `users/${uid}/${MONTHS_COLLECTION} + users/${uid}/${META_COLLECTION}`
+            );
+
+            throw error;
+        }
 
         const output = snapshotsToMap(monthsSnap, metaSnap);
 
@@ -796,7 +839,12 @@
                 }
             });
         } catch (error) {
-            console.warn("Daftari legacy car data skipped:", error);
+            logFirebaseError(
+                "readLegacyCarData",
+                error,
+                uid,
+                `users/${uid}/${LEGACY_CAR_COLLECTION}`
+            );
         }
 
         return output;
@@ -812,14 +860,30 @@
             const batch = db.batch();
 
             chunk.forEach((key) => {
-                batch.set(docRefFor(uid, key), sanitize(map[key]));
+                const payload = sanitize(map[key]);
+
+                batch.set(docRefFor(uid, key), payload);
             });
 
-            await batch.commit();
+            try {
+                await batch.commit();
 
-            chunk.forEach((key) => {
-                syncedCache.set(cacheKey(uid, key), payloadJson(map[key]));
-            });
+                chunk.forEach((key) => {
+                    syncedCache.set(
+                        cacheKey(uid, key),
+                        payloadJson(map[key])
+                    );
+                });
+            } catch (error) {
+                logFirebaseError(
+                    "writeRemoteDocuments",
+                    error,
+                    uid,
+                    chunk.map((key) => docPathFor(uid, key)).join(", ")
+                );
+
+                throw error;
+            }
 
             index += chunk.length;
         }
@@ -837,7 +901,12 @@
                 { merge: true }
             );
         } catch (error) {
-            console.warn("Daftari account marker skipped:", error);
+            logFirebaseError(
+                "writeAccountMarker",
+                error,
+                uid,
+                `users/${uid}`
+            );
         }
     }
 
@@ -962,6 +1031,8 @@
             pushTimer = null;
         }
 
+        clearRetryTimer();
+
         flushChain = flushChain.then(doFlush, doFlush);
 
         return flushChain;
@@ -989,12 +1060,26 @@
 
         return writeRemoteDocuments(uid, map)
             .then(() => {
+                if (retryTimer) {
+                    clearTimeout(retryTimer);
+                    retryTimer = null;
+                }
+
+                retryAttempts = 0;
+
                 emitStatus({
                     phase: "synced",
                     message: "تم حفظ بياناتك"
                 });
             })
             .catch((error) => {
+                logFirebaseError(
+                    "doFlush/push",
+                    error,
+                    uid,
+                    Object.keys(map).map((key) => docPathFor(uid, key)).join(", ")
+                );
+
                 Object.keys(map).forEach((key) => {
                     if (!pendingPush.has(key)) {
                         pendingPush.set(key, map[key]);
@@ -1002,7 +1087,46 @@
                 });
 
                 emitStatus({ phase: "error", message: dbErrorText(error) });
+
+                scheduleRetry(uid);
             });
+    }
+
+    function scheduleRetry(uid) {
+        if (retryTimer) {
+            return;
+        }
+
+        const user = currentUser();
+
+        if (!user || !db || !pendingPush.size) {
+            return;
+        }
+
+        retryAttempts += 1;
+
+        const delay = Math.min(
+            RETRY_BASE_MS * Math.pow(2, Math.min(retryAttempts - 1, 5)),
+            RETRY_MAX_MS
+        );
+
+        retryTimer = setTimeout(
+            () => {
+                retryTimer = null;
+
+                flushPending();
+            },
+            delay
+        );
+    }
+
+    function clearRetryTimer() {
+        if (retryTimer) {
+            clearTimeout(retryTimer);
+            retryTimer = null;
+        }
+
+        retryAttempts = 0;
     }
 
     /* =========================================================
@@ -1022,9 +1146,11 @@
             return Promise.resolve(null);
         }
 
+        const uid = user.uid;
+
         emitStatus({ phase: "syncing", message: "جارٍ استرجاع بياناتك..." });
 
-        return readRemoteData(user.uid)
+        return readRemoteData(uid)
             .then((remote) => {
                 applyMerge(remote);
 
@@ -1036,6 +1162,13 @@
                 return true;
             })
             .catch((error) => {
+                logFirebaseError(
+                    "doPull/readRemoteData",
+                    error,
+                    uid,
+                    `users/${uid}/${MONTHS_COLLECTION} + users/${uid}/${META_COLLECTION}`
+                );
+
                 emitStatus({ phase: "error", message: dbErrorText(error) });
 
                 return null;
@@ -1180,6 +1313,7 @@
 
     function handleAuth(user) {
         stopSnapshot();
+        clearRetryTimer();
         pendingPush.clear();
 
         if (!user) {
@@ -1274,6 +1408,13 @@
                             pullNow();
                             flushPending();
                         }
+                    }
+                );
+
+                global.addEventListener(
+                    "offline",
+                    () => {
+                        clearRetryTimer();
                     }
                 );
             }

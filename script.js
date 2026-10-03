@@ -270,7 +270,7 @@ function saveDatabase() {
             DaftariSync.onLocalSave();
 
         } catch (error) {
-            console.error("Daftari sync save error:", error);
+            console.error("[Daftari] onLocalSave failed:", error);
         }
     }
 
@@ -281,7 +281,7 @@ function saveDatabase() {
         );
 
     } catch (error) {
-        console.error("Daftari save error:", error);
+        console.error("[Daftari] localStorage save failed:", error);
     }
 }
 
@@ -1829,58 +1829,6 @@ function setupActions() {
         }
     );
 
-    /*
-        Task search + filters. The toolbar is NOT re-rendered while
-        typing or picking a filter, so the search box keeps focus and
-        only the task list is refreshed.
-    */
-
-    document.addEventListener(
-        "input",
-        (event) => {
-
-            const search = event.target.closest("[data-task-search]");
-
-            if (!search) {
-                return;
-            }
-
-            const listKey = search.dataset.taskSearch;
-
-            if (!TASK_LISTS[listKey]) {
-                return;
-            }
-
-            taskViewState(listKey).search = search.value || "";
-
-            renderTaskList(listKey);
-
-        }
-    );
-
-    document.addEventListener(
-        "change",
-        (event) => {
-
-            const select = event.target.closest("[data-task-filter]");
-
-            if (!select) {
-                return;
-            }
-
-            const listKey = select.dataset.taskFilter;
-            const field = select.dataset.taskFilterField;
-
-            if (!TASK_LISTS[listKey] || !field) {
-                return;
-            }
-
-            taskViewState(listKey)[field] = select.value || "all";
-
-            renderTaskList(listKey);
-
-        }
-    );
 }
 
 function deleteRecord(listName, recordId, force = false) {
@@ -2334,18 +2282,34 @@ const TASK_CATEGORIES = {
     other: { label: "أخرى", icon: "📌" }
 };
 
-const TASK_DATE_FILTERS = {
-    all: "أي تاريخ",
-    today: "اليوم",
-    tomorrow: "غدًا",
-    week: "هذا الأسبوع",
-    overdue: "المتأخرة",
-    none: "بدون تاريخ"
+/* ---------------------------------------------------------
+   RECURRENCE (تكرار المهمة)
+
+   Stored on the task as an optional object:
+
+       task.repeat = { mode, interval, unit, active }
+
+   Legacy tasks have no `repeat` at all -> they behave exactly
+   as before (no recurrence), and nothing is rewritten.
+--------------------------------------------------------- */
+
+const TASK_REPEAT_MODES = {
+    daily: { label: "يوميًا" },
+    weekly: { label: "أسبوعيًا" },
+    monthly: { label: "شهريًا" },
+    yearly: { label: "سنويًا" },
+    custom: { label: "مخصص" }
+};
+
+const TASK_REPEAT_UNITS = {
+    day: { label: "أيام" },
+    week: { label: "أسابيع" },
+    month: { label: "أشهر" }
 };
 
 /*
-    Per-list view state (search + filters). Display-only:
-    it is never written to the saved database.
+    Per-list view state. Display-only: it is never written to the
+    saved database. Only the summary-card quick filter is kept.
 */
 
 const taskViewStateStore = {};
@@ -2353,12 +2317,7 @@ const taskViewStateStore = {};
 function taskViewState(listKey) {
     if (!taskViewStateStore[listKey]) {
         taskViewStateStore[listKey] = {
-            search: "",
-            quick: "all",
-            status: "all",
-            priority: "all",
-            category: "all",
-            date: "all"
+            quick: "all"
         };
     }
 
@@ -2526,6 +2485,278 @@ function taskDateBadge(task) {
     };
 }
 
+/* --- recurrence helpers --- */
+
+function taskDateISO(date) {
+    if (!date) {
+        return "";
+    }
+
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/*
+    Reads the optional recurrence settings. Returns null when the
+    task is not recurring (which is every legacy task), so old data
+    keeps working exactly as before.
+*/
+function taskRepeatValue(task) {
+    const raw = task && task.repeat;
+
+    if (!raw || typeof raw !== "object") {
+        return null;
+    }
+
+    if (!TASK_REPEAT_MODES[raw.mode]) {
+        return null;
+    }
+
+    if (raw.mode === "custom") {
+        let interval = parseInt(raw.interval, 10);
+
+        if (!Number.isFinite(interval) || interval < 1) {
+            interval = 1;
+        }
+
+        return {
+            mode: "custom",
+            interval,
+            unit: TASK_REPEAT_UNITS[raw.unit] ? raw.unit : "day",
+            active: raw.active !== false
+        };
+    }
+
+    const unit =
+        raw.mode === "daily" ? "day"
+            : raw.mode === "weekly" ? "week"
+                : raw.mode === "monthly" ? "month"
+                    : "year";
+
+    return {
+        mode: raw.mode,
+        interval: 1,
+        unit,
+        active: raw.active !== false
+    };
+}
+
+function isTaskRecurring(task) {
+    return taskRepeatValue(task) !== null;
+}
+
+function isTaskRepeatActive(task) {
+    const repeat = taskRepeatValue(task);
+
+    return Boolean(repeat && repeat.active);
+}
+
+/* Arabic dual / plural forms used by the recurrence badge */
+
+function taskRepeatUnitText(unit, count) {
+    if (unit === "week") {
+        if (count === 1) return "أسبوع";
+        if (count === 2) return "أسبوعين";
+        if (count >= 3 && count <= 10) return `${count} أسابيع`;
+        return `${count} أسبوعًا`;
+    }
+
+    if (unit === "month") {
+        if (count === 1) return "شهر";
+        if (count === 2) return "شهرين";
+        if (count >= 3 && count <= 10) return `${count} أشهر`;
+        return `${count} شهرًا`;
+    }
+
+    if (unit === "year") {
+        if (count === 1) return "سنة";
+        if (count === 2) return "سنتين";
+        if (count >= 3 && count <= 10) return `${count} سنوات`;
+        return `${count} سنة`;
+    }
+
+    if (count === 1) return "يوم";
+    if (count === 2) return "يومين";
+    if (count >= 3 && count <= 10) return `${count} أيام`;
+
+    return `${count} يومًا`;
+}
+
+function taskRepeatLabel(task) {
+    const repeat = taskRepeatValue(task);
+
+    if (!repeat) {
+        return "";
+    }
+
+    if (repeat.mode === "custom") {
+        return `كل ${taskRepeatUnitText(repeat.unit, repeat.interval)}`;
+    }
+
+    return TASK_REPEAT_MODES[repeat.mode].label;
+}
+
+/*
+    Adds months while clamping the day to the last valid day of the
+    target month: 31 Jan -> 28/29 Feb instead of spilling into March.
+*/
+function addMonthsTaskDate(date, months) {
+    const year = date.getFullYear();
+    const month = date.getMonth() + months;
+    const day = date.getDate();
+
+    const lastDay = new Date(year, month + 1, 0).getDate();
+
+    return new Date(year, month, Math.min(day, lastDay));
+}
+
+/* One single step inside the chosen pattern */
+
+function advanceTaskDate(date, repeat) {
+    if (!date || !repeat) {
+        return null;
+    }
+
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    if (repeat.mode === "daily") {
+        return new Date(year, month, day + 1);
+    }
+
+    if (repeat.mode === "weekly") {
+        return new Date(year, month, day + 7);
+    }
+
+    if (repeat.mode === "monthly") {
+        return addMonthsTaskDate(date, 1);
+    }
+
+    if (repeat.mode === "yearly") {
+        return addMonthsTaskDate(date, 12);
+    }
+
+    if (repeat.unit === "month") {
+        return addMonthsTaskDate(date, repeat.interval);
+    }
+
+    const step = repeat.unit === "week"
+        ? repeat.interval * 7
+        : repeat.interval;
+
+    return new Date(year, month, day + step);
+}
+
+/*
+    Next due date of a recurring task.
+
+    It always moves forward and catches up to today, so completing a
+    long overdue recurring task does not spawn a backlog of overdue
+    copies.
+*/
+function nextTaskDate(task) {
+    const repeat = taskRepeatValue(task);
+
+    if (!repeat || !repeat.active) {
+        return null;
+    }
+
+    const base = taskDateLocal(task);
+
+    if (!base) {
+        return null;
+    }
+
+    let next = advanceTaskDate(base, repeat);
+
+    if (!next) {
+        return null;
+    }
+
+    const today = todayLocal();
+
+    let guard = 0;
+
+    while (next.getTime() < today.getTime() && guard < 10000) {
+        next = advanceTaskDate(next, repeat);
+
+        if (!next) {
+            return null;
+        }
+
+        guard += 1;
+    }
+
+    return next;
+}
+
+/* Stable id shared by every occurrence of one series */
+
+function taskSeriesId(task) {
+    return task && task.repeatId ? task.repeatId : task.id;
+}
+
+/*
+    Called when a recurring task is completed. The completed task is
+    kept as history and the next occurrence is scheduled.
+*/
+function spawnNextRecurringTask(task) {
+    const repeat = taskRepeatValue(task);
+
+    if (!repeat || !repeat.active) {
+        return false;
+    }
+
+    const next = nextTaskDate(task);
+
+    if (!next) {
+        return false;
+    }
+
+    const nextIso = taskDateISO(next);
+    const month = currentMonthData();
+    const tasks = ensureTasks(month);
+    const seriesId = taskSeriesId(task);
+
+    // Never stack two open occurrences of the same series.
+
+    const alreadyScheduled = tasks.some((item) =>
+        item !== task &&
+        taskSeriesId(item) === seriesId &&
+        !isTaskCompleted(item) &&
+        taskDateOnly(item) >= nextIso
+    );
+
+    if (alreadyScheduled) {
+        return false;
+    }
+
+    tasks.push({
+        id: Date.now(),
+        listKey: task.listKey,
+        repeatId: seriesId,
+        title: task.title,
+        note: task.note || "",
+        time: task.time || "",
+        priority: task.priority,
+        category: task.category,
+        status: "new",
+        done: false,
+        date: nextIso,
+        repeat: {
+            mode: repeat.mode,
+            interval: repeat.interval,
+            unit: repeat.unit,
+            active: repeat.active
+        }
+    });
+
+    return true;
+}
+
 /* --- statistics --- */
 
 function taskStats(tasks) {
@@ -2562,11 +2793,7 @@ function taskStats(tasks) {
     return stats;
 }
 
-/* --- search + filters --- */
-
-function taskSearchText(task) {
-    return `${task.title || ""} ${task.note || ""}`.toLowerCase();
-}
+/* --- summary-card quick filter (kept from the current design) --- */
 
 function taskMatchesQuick(task, quick) {
     switch (quick) {
@@ -2587,77 +2814,12 @@ function taskMatchesQuick(task, quick) {
     }
 }
 
-function taskMatchesDateFilter(task, filter) {
-    const diff = taskDayDiff(task);
-
-    switch (filter) {
-        case "today":
-            return isTaskToday(task);
-
-        case "tomorrow":
-            return !isTaskCompleted(task) && diff === 1;
-
-        case "week":
-            return (
-                !isTaskCompleted(task) &&
-                diff !== null &&
-                diff >= 0 &&
-                diff <= 7
-            );
-
-        case "overdue":
-            return isTaskOverdue(task);
-
-        case "none":
-            return diff === null;
-
-        default:
-            return true;
+function applyQuickFilter(tasks, quick) {
+    if (!quick || quick === "all") {
+        return tasks;
     }
-}
 
-/*
-    Folds the quick card filter together with the search box and the
-    four dropdowns. Every active condition must pass, so filters work
-    together (e.g. البيت + عالية + غير مكتملة).
-*/
-function filterTasks(tasks, state) {
-    const query = String(state.search || "").trim().toLowerCase();
-
-    return tasks.filter((task) => {
-
-        if (query && taskSearchText(task).indexOf(query) === -1) {
-            return false;
-        }
-
-        if (!taskMatchesQuick(task, state.quick)) {
-            return false;
-        }
-
-        if (
-            state.status !== "all" &&
-            taskStatusValue(task) !== state.status
-        ) {
-            return false;
-        }
-
-        if (
-            state.priority !== "all" &&
-            taskPriorityValue(task) !== state.priority
-        ) {
-            return false;
-        }
-
-        if (
-            state.category !== "all" &&
-            taskCategoryValue(task) !== state.category
-        ) {
-            return false;
-        }
-
-        return taskMatchesDateFilter(task, state.date);
-
-    });
+    return tasks.filter((task) => taskMatchesQuick(task, quick));
 }
 
 /* --- display ordering (view only, never changes saved data) ---
@@ -2753,6 +2915,9 @@ function taskOptionHtml(value, label, selected) {
 function taskFormHtml({ title, task, listKey }) {
     const meta = TASK_LISTS[listKey] || TASK_LISTS.personalTasks;
 
+    const repeat = taskRepeatValue(task);
+    const custom = repeat && repeat.mode === "custom";
+
     const values = {
         title: task ? String(task.title || "") : "",
         note: task ? String(task.note || "") : "",
@@ -2760,7 +2925,11 @@ function taskFormHtml({ title, task, listKey }) {
         time: task ? taskTimeValue(task) : "",
         priority: task ? taskPriorityValue(task) : "medium",
         category: task ? taskCategoryValue(task) : meta.defaultCategory,
-        status: task ? taskStatusValue(task) : "new"
+        status: task ? taskStatusValue(task) : "new",
+        repeat: repeat ? repeat.mode : "none",
+        repeatInterval: custom ? repeat.interval : 1,
+        repeatUnit: custom ? repeat.unit : "day",
+        repeatStopped: repeat ? !repeat.active : false
     };
 
     const priorityOptions = Object.keys(TASK_PRIORITIES)
@@ -2784,6 +2953,23 @@ function taskFormHtml({ title, task, listKey }) {
             key,
             TASK_STATUSES[key].label,
             values.status
+        ))
+        .join("");
+
+    const repeatOptions = ["none"]
+        .concat(Object.keys(TASK_REPEAT_MODES))
+        .map((key) => taskOptionHtml(
+            key,
+            key === "none" ? "بدون تكرار" : TASK_REPEAT_MODES[key].label,
+            values.repeat
+        ))
+        .join("");
+
+    const unitOptions = Object.keys(TASK_REPEAT_UNITS)
+        .map((key) => taskOptionHtml(
+            key,
+            TASK_REPEAT_UNITS[key].label,
+            values.repeatUnit
         ))
         .join("");
 
@@ -2883,6 +3069,94 @@ function taskFormHtml({ title, task, listKey }) {
 
             <div class="form-group">
 
+                <label for="taskRepeat">
+                    تكرار المهمة
+                </label>
+
+                <select id="taskRepeat">
+                    ${repeatOptions}
+                </select>
+
+                <span
+                    class="task-repeat-hint"
+                    id="taskRepeatStartHint"
+                ></span>
+
+            </div>
+
+            <div
+                class="form-row task-repeat-custom"
+                id="taskRepeatCustom"
+                style="display: none;"
+            >
+
+                <div class="form-group">
+
+                    <label for="taskRepeatInterval">
+                        تكرار كل (عدد)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="taskRepeatInterval"
+                        min="1"
+                        step="1"
+                        inputmode="numeric"
+                        value="${values.repeatInterval}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskRepeatUnit">
+                        الوحدة
+                    </label>
+
+                    <select id="taskRepeatUnit">
+                        ${unitOptions}
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div
+                class="form-row task-repeat-extra"
+                id="taskRepeatExtra"
+                style="display: none;"
+            >
+
+                <div class="form-group">
+
+                    <label for="taskRepeatStop">
+                        حالة التكرار
+                    </label>
+
+                    <select id="taskRepeatStop">
+                        ${taskOptionHtml("no", "التكرار مفعل", values.repeatStopped ? "yes" : "no")}
+                        ${taskOptionHtml("yes", "إيقاف التكرار", values.repeatStopped ? "yes" : "no")}
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskEditScope">
+                        نطاق التعديل
+                    </label>
+
+                    <select id="taskEditScope">
+                        ${taskOptionHtml("one", "هذه المهمة فقط", "one")}
+                        ${taskOptionHtml("series", "هذه والتكرارات القادمة", "one")}
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
                 <label for="taskNote">
                     ملاحظات (اختياري)
                 </label>
@@ -2947,12 +3221,87 @@ function openEditTaskModal(taskId) {
     });
 }
 
+/*
+    Reads the recurrence fields of the add/edit form.
+    Returns a plain object, or null for "بدون تكرار".
+*/
+function readTaskRepeatForm() {
+    const mode = $("taskRepeat")?.value;
+
+    if (!mode || mode === "none") {
+        return null;
+    }
+
+    const stopped = $("taskRepeatStop")?.value === "yes";
+
+    if (mode === "custom") {
+        let interval = parseInt($("taskRepeatInterval")?.value, 10);
+
+        if (!Number.isFinite(interval) || interval < 1) {
+            interval = 1;
+        }
+
+        const unit = $("taskRepeatUnit")?.value;
+
+        return {
+            mode: "custom",
+            interval,
+            unit: TASK_REPEAT_UNITS[unit] ? unit : "day",
+            active: !stopped
+        };
+    }
+
+    const unit =
+        mode === "daily" ? "day"
+            : mode === "weekly" ? "week"
+                : mode === "monthly" ? "month"
+                    : "year";
+
+    return { mode, interval: 1, unit, active: !stopped };
+}
+
 function bindTaskForm({ mode, listKey, taskId }) {
     const form = $("taskForm");
 
     if (!form) {
         return;
     }
+
+    /* Recurrence UI: custom fields, scope/stop row and start date. */
+
+    const refreshRepeatUI = () => {
+        const selected = $("taskRepeat")?.value || "none";
+
+        const customGroup = $("taskRepeatCustom");
+
+        if (customGroup) {
+            customGroup.style.display =
+                selected === "custom" ? "" : "none";
+        }
+
+        const extraGroup = $("taskRepeatExtra");
+
+        if (extraGroup) {
+            // Only an existing task can be stopped / edited in bulk.
+            extraGroup.style.display =
+                mode === "edit" && selected !== "none" ? "" : "none";
+        }
+
+        const hint = $("taskRepeatStartHint");
+
+        if (hint) {
+            const start = $("taskDate")?.value || "";
+
+            hint.textContent = selected === "none"
+                ? ""
+                : `تاريخ بداية التكرار: ${start || "بدون تاريخ"}`;
+        }
+    };
+
+    $("taskRepeat")?.addEventListener("change", refreshRepeatUI);
+    $("taskDate")?.addEventListener("change", refreshRepeatUI);
+
+    refreshRepeatUI();
 
     form.addEventListener(
         "submit",
@@ -2975,6 +3324,8 @@ function bindTaskForm({ mode, listKey, taskId }) {
                 ? statusSelect
                 : "new";
 
+            const repeat = readTaskRepeatForm();
+
             const data = {
                 title,
                 note: String($("taskNote")?.value || "").trim(),
@@ -2989,7 +3340,8 @@ function bindTaskForm({ mode, listKey, taskId }) {
                     ? categorySelect
                     : "other",
                 status,
-                done: status === "completed"
+                done: status === "completed",
+                repeat
             };
 
             const month = currentMonthData();
@@ -3005,7 +3357,59 @@ function bindTaskForm({ mode, listKey, taskId }) {
                     return;
                 }
 
+                const previousRepeat = taskRepeatValue(task);
+                const scope = $("taskEditScope")?.value;
+                const stopping = !repeat || !repeat.active;
+
                 Object.assign(task, data);
+
+                if (repeat && !task.repeatId) {
+                    task.repeatId = task.id;
+                }
+
+                if (previousRepeat) {
+
+                    // Open occurrences of this series only - the ones
+                    // already completed are history and stay untouched.
+
+                    const members = tasks.filter((item) =>
+                        item !== task &&
+                        !isTaskCompleted(item) &&
+                        taskSeriesId(item) === taskSeriesId(task)
+                    );
+
+                    const applyRepeat = () => {
+                        members.forEach((item) => {
+                            item.repeat = repeat
+                                ? {
+                                    mode: repeat.mode,
+                                    interval: repeat.interval,
+                                    unit: repeat.unit,
+                                    active: repeat.active
+                                }
+                                : null;
+                        });
+                    };
+
+                    if (scope === "series") {
+
+                        members.forEach((item) => {
+                            item.title = data.title;
+                            item.note = data.note;
+                            item.time = data.time;
+                            item.priority = data.priority;
+                            item.category = data.category;
+                        });
+
+                        applyRepeat();
+
+                    } else if (stopping) {
+
+                        // Stopping the pattern stops the whole series
+                        // but keeps every record already completed.
+                        applyRepeat();
+                    }
+                }
 
                 commit();
                 closeModal();
@@ -3014,15 +3418,19 @@ function bindTaskForm({ mode, listKey, taskId }) {
                 return;
             }
 
-            tasks.push(
-                Object.assign(
-                    {
-                        id: Date.now(),
-                        listKey
-                    },
-                    data
-                )
+            const newTask = Object.assign(
+                {
+                    id: Date.now(),
+                    listKey
+                },
+                data
             );
+
+            if (repeat) {
+                newTask.repeatId = newTask.id;
+            }
+
+            tasks.push(newTask);
 
             commit();
             closeModal();
@@ -3079,6 +3487,12 @@ function requestDeleteTask(taskId, force = false) {
         <p class="modal-hint">
             ${escapeTaskHtml(task.title || "")}
         </p>
+
+        ${isTaskRecurring(task) ? `
+        <p class="modal-hint">
+            🔄 ستُحذف هذه المهمة فقط — يبقى سجل المهام السابقة المكتملة.
+        </p>
+        ` : ""}
 
         ${locked ? `
         <p class="locked-hint">
@@ -3146,6 +3560,11 @@ function toggleTask(taskId) {
     } else {
         task.status = "completed";
         task.done = true;
+
+        // Recurring: keep this one as history and schedule the next
+        // occurrence automatically (unless the pattern was stopped).
+
+        spawnNextRecurringTask(task);
     }
 
     commit();
@@ -3183,6 +3602,9 @@ function taskRowHtml(task) {
 
     const dateBadge = taskDateBadge(task);
     const note = String(task.note || "").trim();
+
+    const repeatLabel = taskRepeatLabel(task);
+    const repeatActive = isTaskRepeatActive(task);
 
     return `
         <div
@@ -3222,6 +3644,12 @@ function taskRowHtml(task) {
                     <span class="task-badge task-state task-state-${status}">
                         ${statusMeta.label}
                     </span>
+
+                    ${repeatLabel ? `
+                    <span class="task-badge task-repeat ${repeatActive ? "" : "task-repeat-off"}">
+                        ${repeatActive ? "🔄" : "⏸️"} ${repeatLabel}
+                    </span>
+                    ` : ""}
 
                 </div>
 
@@ -3294,26 +3722,6 @@ function taskStatCardsHtml(listKey, stats, quick) {
     `).join("");
 }
 
-function taskFilterSelectHtml(listKey, field, label, options, selected) {
-    const optionHtml = options.map((option) => `
-        <option value="${option.value}" ${option.value === selected ? "selected" : ""}>
-            ${option.label}
-        </option>
-    `).join("");
-
-    return `
-        <select
-            class="task-filter"
-            aria-label="${label}"
-            title="${label}"
-            data-task-filter="${listKey}"
-            data-task-filter-field="${field}"
-        >
-            ${optionHtml}
-        </select>
-    `;
-}
-
 function renderTaskToolbar(listKey) {
     const meta = TASK_LISTS[listKey];
     const container = meta ? $(meta.toolbarId) : null;
@@ -3325,72 +3733,9 @@ function renderTaskToolbar(listKey) {
     const stats = taskStats(taskListTasks(listKey));
     const state = taskViewState(listKey);
 
-    const statusOptions = [
-        { value: "all", label: "كل الحالات" },
-        { value: "new", label: TASK_STATUSES.new.label },
-        { value: "inProgress", label: TASK_STATUSES.inProgress.label },
-        { value: "completed", label: TASK_STATUSES.completed.label }
-    ];
-
-    const priorityOptions = [
-        { value: "all", label: "كل الأولويات" }
-    ].concat(
-        Object.keys(TASK_PRIORITIES).map((key) => ({
-            value: key,
-            label: TASK_PRIORITIES[key].label
-        }))
-    );
-
-    const categoryOptions = [
-        { value: "all", label: "كل التصنيفات" }
-    ].concat(
-        Object.keys(TASK_CATEGORIES).map((key) => ({
-            value: key,
-            label: `${TASK_CATEGORIES[key].icon} ${TASK_CATEGORIES[key].label}`
-        }))
-    );
-
-    const dateOptions = Object.keys(TASK_DATE_FILTERS).map((key) => ({
-        value: key,
-        label: TASK_DATE_FILTERS[key]
-    }));
-
     container.innerHTML = `
         <div class="task-stats">
             ${taskStatCardsHtml(listKey, stats, state.quick)}
-        </div>
-
-        <div class="task-tools">
-
-            <div class="task-search">
-
-                <span class="task-search-icon" aria-hidden="true">
-                    🔍
-                </span>
-
-                <input
-                    type="search"
-                    id="${listKey}Search"
-                    data-task-search="${listKey}"
-                    placeholder="ابحث باسم المهمة أو تفاصيلها..."
-                    value="${escapeTaskHtml(state.search)}"
-                    autocomplete="off"
-                >
-
-            </div>
-
-            <div class="task-filters">
-
-                ${taskFilterSelectHtml(listKey, "status", "الحالة", statusOptions, state.status)}
-
-                ${taskFilterSelectHtml(listKey, "priority", "الأولوية", priorityOptions, state.priority)}
-
-                ${taskFilterSelectHtml(listKey, "category", "التصنيف", categoryOptions, state.category)}
-
-                ${taskFilterSelectHtml(listKey, "date", "التاريخ", dateOptions, state.date)}
-
-            </div>
-
         </div>
     `;
 }
@@ -3411,12 +3756,12 @@ function renderTaskList(listKey) {
     }
 
     const state = taskViewState(listKey);
-    const visible = sortTasksForDisplay(filterTasks(all, state));
+    const visible = sortTasksForDisplay(
+        applyQuickFilter(all, state.quick)
+    );
 
     if (!visible.length) {
-        list.innerHTML = emptyListHtml(
-            "لا توجد مهام مطابقة للبحث أو الفلاتر"
-        );
+        list.innerHTML = emptyListHtml("لا توجد مهام مطابقة");
         return;
     }
 

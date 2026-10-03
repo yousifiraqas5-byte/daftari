@@ -249,7 +249,7 @@ function createApp(storageSeed = {}) {
             monthKey,
             ensureTasks,
             taskStats,
-            filterTasks,
+            applyQuickFilter,
             sortTasksForDisplay,
             taskSortRank,
             isTaskOverdue,
@@ -269,15 +269,28 @@ function createApp(storageSeed = {}) {
             openAddTaskModal,
             openEditTaskModal,
             bindTaskForm,
+            readTaskRepeatForm,
             toggleTask,
             deleteTask,
             requestDeleteTask,
             toggleTaskStat,
+            taskRepeatValue,
+            isTaskRecurring,
+            isTaskRepeatActive,
+            taskRepeatLabel,
+            taskRepeatUnitText,
+            taskDateISO,
+            addMonthsTaskDate,
+            advanceTaskDate,
+            nextTaskDate,
+            taskSeriesId,
+            spawnNextRecurringTask,
             TASK_PRIORITIES,
             TASK_STATUSES,
             TASK_CATEGORIES,
             TASK_LISTS,
-            TASK_DATE_FILTERS,
+            TASK_REPEAT_MODES,
+            TASK_REPEAT_UNITS,
             todayDateInputValue,
             formatDate
         };
@@ -318,15 +331,19 @@ function dayOffset(offset) {
     return `${d.getFullYear()}-${month}-${day}`;
 }
 
-function baseState(overrides = {}) {
+function makeTask(overrides = {}) {
     return Object.assign(
         {
-            search: "",
-            quick: "all",
-            status: "all",
-            priority: "all",
-            category: "all",
-            date: "all"
+            id: 1,
+            listKey: "personalTasks",
+            title: "مهمة",
+            note: "",
+            done: false,
+            status: "new",
+            date: dayOffset(0),
+            time: "",
+            priority: "medium",
+            category: "personal"
         },
         overrides
     );
@@ -426,64 +443,122 @@ function testStats(app) {
 }
 
 /* =========================================================
-   4) البحث والفلاتر (تعمل مع بعضها)
+   4) نظام التكرار (التسمية + التاريخ التالي)
 ========================================================= */
 
-function testFilters(app) {
-    console.log("\n4) البحث والفلاتر");
+function testRecurrenceRules(app) {
+    console.log("\n4) نظام التكرار");
 
-    const tasks = [
-        { id: 1, title: "شراء حليب", note: "من السوق", done: false, priority: "high", category: "shopping", date: dayOffset(0) },
-        { id: 2, title: "تنظيف البيت", note: "", done: false, priority: "high", category: "home", date: dayOffset(2) },
-        { id: 3, title: "صيانة السيارة", note: "الزيت", done: false, priority: "low", category: "car", date: dayOffset(-1) },
-        { id: 4, title: "تقرير العمل", note: "", done: true, priority: "medium", category: "work", date: dayOffset(1) }
-    ];
+    /* --- بدون تكرار + المهام القديمة --- */
 
-    check(app.filterTasks(tasks, baseState()).length === 4, "بدون فلاتر: كل المهام");
+    const plain = makeTask({ id: 1, date: dayOffset(0) });
+
+    check(app.taskRepeatValue(plain) === null, "بدون تكرار -> null");
+    check(app.isTaskRecurring(plain) === false, "المهمة العادية غير متكررة");
+    check(app.taskRepeatLabel(plain) === "", "لا شارة تكرار للمهمة العادية");
+    check(app.nextTaskDate(plain) === null, "لا تاريخ تالية بدون تكرار");
+
+    const legacy = { id: 2, title: "قديمة", done: false, date: dayOffset(0) };
+
+    check(app.taskRepeatValue(legacy) === null, "مهمة قديمة بلا حقل repeat -> بدون تكرار");
+    check(app.nextTaskDate(legacy) === null, "المهمة القديمة لا تولّد تكرارًا");
+
+    /* --- التسميات --- */
+
+    check(app.taskRepeatLabel(makeTask({ repeat: { mode: "daily" } })) === "يوميًا", "تسمية: يوميًا");
+    check(app.taskRepeatLabel(makeTask({ repeat: { mode: "weekly" } })) === "أسبوعيًا", "تسمية: أسبوعيًا");
+    check(app.taskRepeatLabel(makeTask({ repeat: { mode: "monthly" } })) === "شهريًا", "تسمية: شهريًا");
+    check(app.taskRepeatLabel(makeTask({ repeat: { mode: "yearly" } })) === "سنويًا", "تسمية: سنويًا");
+    check(
+        app.taskRepeatLabel(makeTask({ repeat: { mode: "custom", interval: 2, unit: "day" } })) === "كل يومين",
+        "تسمية: كل يومين"
+    );
+    check(
+        app.taskRepeatLabel(makeTask({ repeat: { mode: "custom", interval: 3, unit: "week" } })) === "كل 3 أسابيع",
+        "تسمية: كل 3 أسابيع"
+    );
+    check(
+        app.taskRepeatLabel(makeTask({ repeat: { mode: "custom", interval: 2, unit: "month" } })) === "كل شهرين",
+        "تسمية: كل شهرين"
+    );
+
+    /* --- التكرار المخصص يقبل قيماً غير صالحة بأمان --- */
+
+    const badCustom = app.taskRepeatValue(
+        makeTask({ repeat: { mode: "custom", interval: 0, unit: "rock" } })
+    );
+
+    check(badCustom.interval === 1 && badCustom.unit === "day", "مخصص غير صالح -> قيم افتراضية آمنة");
+
+    /* --- التكرار الموقوف --- */
+
+    const weekly = makeTask({ id: 3, date: dayOffset(0), repeat: { mode: "weekly" } });
+    const stopped = makeTask({ id: 4, date: dayOffset(0), repeat: { mode: "weekly", active: false } });
+
+    check(app.isTaskRepeatActive(weekly) === true, "حالة التكرار: مفعل");
+    check(app.isTaskRepeatActive(stopped) === false, "حالة التكرار: موقوف");
+    check(app.nextTaskDate(stopped) === null, "التكرار الموقوف لا يولّد تاريخ تالية");
+
+    /* --- التاريخ التالي لكل نمط --- */
 
     check(
-        app.filterTasks(tasks, baseState({ search: "حليب" })).length === 1,
-        "البحث باسم المهمة"
+        app.taskDateISO(app.nextTaskDate(makeTask({ date: dayOffset(0), repeat: { mode: "daily" } }))) === dayOffset(1),
+        "يوميًا: +1 يوم"
     );
 
     check(
-        app.filterTasks(tasks, baseState({ search: "الزيت" })).length === 1,
-        "البحث داخل الملاحظات"
+        app.taskDateISO(app.nextTaskDate(weekly)) === dayOffset(7),
+        "أسبوعيًا: +7 أيام بنفس اليوم"
     );
 
     check(
-        app.filterTasks(tasks, baseState({ category: "home", priority: "high" })).length === 1,
-        "الفلاتر معاً: البيت + عالية"
+        app.taskDateISO(app.nextTaskDate(makeTask({ date: dayOffset(0), repeat: { mode: "custom", interval: 2, unit: "day" } }))) === dayOffset(2),
+        "مخصص: كل يومين"
     );
 
     check(
-        app.filterTasks(tasks, baseState({ priority: "high", status: "completed" })).length === 0,
-        "عالية + مكتملة = لا نتائج"
+        app.taskDateISO(app.nextTaskDate(makeTask({ date: dayOffset(0), repeat: { mode: "custom", interval: 3, unit: "week" } }))) === dayOffset(21),
+        "مخصص: كل 3 أسابيع"
+    );
+
+    const today = new Date();
+    const baseMonth = makeTask({ date: dayOffset(0), repeat: { mode: "custom", interval: 2, unit: "month" } });
+    const expectedMonth = app.addMonthsTaskDate(
+        new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+        2
     );
 
     check(
-        app.filterTasks(tasks, baseState({ quick: "overdue" })).length === 1,
-        "الفلتر السريع: المتأخرة"
+        app.taskDateISO(app.nextTaskDate(baseMonth)) === app.taskDateISO(expectedMonth),
+        "مخصص: كل شهرين"
+    );
+
+    /* --- الشهر والسنة مع أيام غير موجودة (تطبيع التاريخ) --- */
+
+    const jan31 = new Date(2026, 0, 31);
+
+    check(
+        app.taskDateISO(app.addMonthsTaskDate(jan31, 1)) === "2026-02-28",
+        "شهريًا: 31 يناير -> 28 فبراير (بدون خطأ)"
     );
 
     check(
-        app.filterTasks(tasks, baseState({ quick: "completed" })).length === 1,
-        "الفلتر السريع: المكتملة"
+        app.taskDateISO(app.addMonthsTaskDate(jan31, 12)) === "2027-01-31",
+        "سنويًا: 31 يناير -> 31 يناير التالي"
     );
 
     check(
-        app.filterTasks(tasks, baseState({ status: "completed" })).length === 1,
-        "فلتر الحالة: مكتملة"
+        app.taskDateISO(app.addMonthsTaskDate(new Date(2028, 1, 29), 12)) === "2029-02-28",
+        "سنويًا: 29 فبراير كبيس -> 28 فبراير"
     );
 
-    check(
-        app.filterTasks(tasks, baseState({ date: "none" })).length === 0,
-        "فلتر التاريخ: بدون تاريخ"
-    );
+    /* --- لحاق الموعد إذا تأخر التكرار عن اليوم --- */
+
+    const lateDaily = makeTask({ date: dayOffset(-5), repeat: { mode: "daily" } });
 
     check(
-        app.filterTasks(tasks, baseState({ date: "today" })).length === 1,
-        "فلتر التاريخ: اليوم"
+        app.taskDateISO(app.nextTaskDate(lateDaily)) >= dayOffset(0),
+        "تكرار متأخر يتم لحاقه حتى اليوم"
     );
 }
 
@@ -733,9 +808,17 @@ function testRendering(app) {
     check(toolbar.indexOf("المتأخرة") !== -1, "بطاقة المتأخرة تظهر");
     check(toolbar.indexOf("قيد التنفيذ") !== -1, "بطاقة قيد التنفيذ تظهر");
     check(toolbar.indexOf("المكتملة") !== -1, "بطاقة المكتملة تظهر");
-    check(toolbar.indexOf("data-task-search") !== -1, "شريط البحث يظهر");
-    check(toolbar.indexOf("data-task-filter") !== -1, "الفلاتر تظهر");
     check(toolbar.indexOf("data-task-stat") !== -1, "البطاقات قابلة للضغط");
+
+    /* --- البحث والفلاتر محذوفة بالكامل --- */
+
+    check(toolbar.indexOf("data-task-search") === -1, "لا يوجد بحث داخل الشريط");
+    check(toolbar.indexOf("data-task-filter") === -1, "لا توجد فلاتر داخل الشريط");
+    check(toolbar.indexOf("task-search") === -1, "لا يوجد عنصر بحث في HTML");
+    check(toolbar.indexOf("task-tools") === -1, "لا توجد حاوية أدوات بحث/فلترة");
+    check(toolbar.indexOf("task-filters") === -1, "لا توجد حاوية فلاتر");
+    check(toolbar.indexOf("🔍") === -1, "أيقونة البحث اختفت");
+    check(toolbar.indexOf("ابحث") === -1, "نص البحث اختفى");
 
     const list = app.getElement("personalTasksList").innerHTML;
 
