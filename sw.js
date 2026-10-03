@@ -2,13 +2,15 @@
    DAFTARI - Service Worker
 ========================================================= */
 
-const CACHE_NAME = "daftari-v2";
+const CACHE_NAME = "daftari-v6";
 
 const ASSETS = [
     "./",
     "./index.html",
     "./style.css",
     "./script.js",
+    "./firebase-config.js",
+    "./firestore-sync.js",
     "./manifest.json",
     "./icon-180.png",
     "./icon-192.png",
@@ -52,6 +54,22 @@ self.addEventListener(
     (event) => {
 
         if (event.request.method !== "GET") {
+            return;
+        }
+
+        /*
+            Firebase/Auth/Firestore traffic must never be cached -
+            only the app shell and the Firebase SDK bundles are.
+        */
+
+        const url = new URL(event.request.url);
+
+        const isSameOrigin = url.origin === self.location.origin;
+        const isSdkBundle =
+            url.hostname === "www.gstatic.com" &&
+            url.pathname.indexOf("/firebasejs/") === 0;
+
+        if (!isSameOrigin && !isSdkBundle) {
             return;
         }
 

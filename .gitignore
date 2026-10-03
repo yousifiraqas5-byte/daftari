@@ -1,0 +1,10 @@
+# Firebase CLI artifacts
+.firebase/
+firebase-debug.log
+
+# Node (tests run with plain node - no deps required)
+node_modules/
+
+# Editor / OS noise
+Thumbs.db
+.DS_Store

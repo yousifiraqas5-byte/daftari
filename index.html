@@ -78,16 +78,37 @@
                 >
                     خلينا نرتب يومك.
                 </div>
+
+                <div
+                    class="sync-status"
+                    id="syncStatus"
+                    data-tone="off"
+                >
+                    💾 محفوظ على هذا الجهاز
+                </div>
             </div>
 
-            <button
-                type="button"
-                class="theme-button"
-                id="themeButton"
-                aria-label="تغيير المظهر"
-            >
-                ☾
-            </button>
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="account-button"
+                    id="accountButton"
+                    aria-label="تسجيل الدخول"
+                >
+                    👤
+                </button>
+
+                <button
+                    type="button"
+                    class="theme-button"
+                    id="themeButton"
+                    aria-label="تغيير المظهر"
+                >
+                    ☾
+                </button>
+
+            </div>
 
         </div>
 
@@ -344,17 +365,17 @@
                 <button
                     type="button"
                     class="page-tab active"
-                    data-tab="personalTasksTab"
+                    data-tab="personalMoneyTab"
                 >
-                    🗒 المهام
+                    💰 مالي
                 </button>
 
                 <button
                     type="button"
                     class="page-tab"
-                    data-tab="personalMoneyTab"
+                    data-tab="personalTasksTab"
                 >
-                    💰 مالي
+                    🗒 المهام
                 </button>
 
             </div>
@@ -363,7 +384,7 @@
             <!-- TAB: TASKS -->
 
             <div
-                class="tab-panel active"
+                class="tab-panel"
                 id="personalTasksTab"
             >
 
@@ -386,14 +407,22 @@
                         class="small-action"
                         id="addPersonalTaskButton"
                     >
-                        + إضافة
+                        + إضافة مهمة
                     </button>
 
                 </div>
 
 
+                <!-- SUMMARY + SEARCH + FILTERS -->
+
                 <div
-                    class="record-list"
+                    class="task-toolbar"
+                    id="personalTasksToolbar"
+                ></div>
+
+
+                <div
+                    class="record-list task-list"
                     id="personalTasksList"
                 ></div>
 
@@ -403,7 +432,7 @@
             <!-- TAB: MONEY -->
 
             <div
-                class="tab-panel"
+                class="tab-panel active"
                 id="personalMoneyTab"
             >
 
@@ -429,7 +458,7 @@
                             </strong>
 
                             <span>
-                                البنزين والصيانة والزيت
+                                البنزين والصيانة والزيوت والفلاتر والبطارية
                             </span>
 
                         </div>
@@ -1199,6 +1228,35 @@
             </div>
 
 
+            <div class="fuel-summary">
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        إجمالي اللترات
+                    </span>
+
+                    <strong id="fuelTotalLiters">
+                        0 لتر
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        إجمالي المبلغ
+                    </span>
+
+                    <strong id="fuelTotalAmount">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
             <div class="quick-actions">
 
                 <button
@@ -1234,6 +1292,38 @@
 
                 </button>
 
+            </div>
+
+
+            <!-- =================================================
+                 الزيوت والفلاتر والبطارية
+            ================================================== -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        صيانة دورية
+                    </span>
+
+                    <h2>
+                        الزيوت والفلاتر والبطارية
+                    </h2>
+
+                </div>
+
+                <span
+                    class="section-total"
+                    id="carPartsTotal"
+                >
+                    0 د.ع
+                </span>
+
+            </div>
+
+
+            <div class="quick-actions">
 
                 <button
                     type="button"
@@ -1242,14 +1332,134 @@
                 >
 
                     <span>
-                        ◉
+                        🛢️
                     </span>
 
                     <strong>
-                        زيت
+                        الزيوت
                     </strong>
 
                 </button>
+
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="carFilterButton"
+                >
+
+                    <span>
+                        🔧
+                    </span>
+
+                    <strong>
+                        الفلاتر
+                    </strong>
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="quick-action"
+                    id="carBatteryButton"
+                >
+
+                    <span>
+                        🔋
+                    </span>
+
+                    <strong>
+                        البطارية
+                    </strong>
+
+                </button>
+
+            </div>
+
+
+            <div class="fuel-summary">
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        🛢️ الزيوت
+                    </span>
+
+                    <strong id="oilTotalAmount">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        آخر تغيير زيت
+                    </span>
+
+                    <strong
+                        class="parts-last-change"
+                        id="oilLastChange"
+                    >
+                        لا يوجد سجل بعد
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        🔧 الفلاتر
+                    </span>
+
+                    <strong id="filterTotalAmount">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        آخر تغيير فلتر
+                    </span>
+
+                    <strong
+                        class="parts-last-change"
+                        id="filterLastChange"
+                    >
+                        لا يوجد سجل بعد
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        🔋 البطارية
+                    </span>
+
+                    <strong id="batteryTotalAmount">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        آخر تغيير بطارية
+                    </span>
+
+                    <strong
+                        class="parts-last-change"
+                        id="batteryLastChange"
+                    >
+                        لا يوجد سجل بعد
+                    </strong>
+
+                </div>
 
             </div>
 
@@ -1373,14 +1583,22 @@
                         class="small-action"
                         id="addHomeTaskButton"
                     >
-                        + إضافة
+                        + إضافة مهمة
                     </button>
 
                 </div>
 
 
+                <!-- SUMMARY + SEARCH + FILTERS -->
+
                 <div
-                    class="record-list"
+                    class="task-toolbar"
+                    id="homeTasksToolbar"
+                ></div>
+
+
+                <div
+                    class="record-list task-list"
                     id="homeTasksList"
                 ></div>
 
@@ -1763,6 +1981,14 @@
 ></div>
 
 
+<!-- Firebase (Auth + Firestore) - compat builds -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
+<script src="firebase-config.js"></script>
+<script src="firestore-sync.js"></script>
 <script src="script.js"></script>
 
 <script>

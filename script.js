@@ -41,6 +41,86 @@ const MONTH_NAMES = [
     "كانون الأول"
 ];
 
+const FUEL_PRICES = {
+    normal: 450,
+    premium: 850
+};
+
+const FUEL_TYPE_LABELS = {
+    normal: "عادي",
+    premium: "محسن",
+    other: "آخر"
+};
+
+/*
+    الزيوت والفلاتر والبطارية (car parts)
+
+    كل نوع يحفظ سجله داخل month.carExpenses بنفس بنية سجلات
+    السيارة (kind / title / amount / date) مع حقول إضافية:
+
+        oil      -> itemType + quantity (لتر)
+        filter   -> itemType
+        battery  -> itemType
+*/
+
+const CAR_PART_TYPES = {
+    oil: {
+        kind: "oil",
+        label: "الزيوت",
+        icon: "🛢️",
+        title: "تغيير زيت",
+        typeLabel: "نوع الزيت",
+        quantity: true,
+        quantityLabel: "الكمية (لتر)",
+        unit: "لتر",
+        typeOptions: [
+            "زيت محرك 10W-30",
+            "زيت محرك 10W-40",
+            "زيت محرك 5W-30",
+            "زيت محرك 20W-50",
+            "زيت جير",
+            "زيت فرامل"
+        ]
+    },
+
+    filter: {
+        kind: "filter",
+        label: "الفلاتر",
+        icon: "🔧",
+        title: "تغيير فلتر",
+        typeLabel: "نوع الفلتر",
+        quantity: false,
+        quantityLabel: "",
+        unit: "",
+        typeOptions: [
+            "فلتر زيت",
+            "فلتر هواء",
+            "فلتر بنزين",
+            "فلتر مكيف",
+            "فلتر ديزل"
+        ]
+    },
+
+    battery: {
+        kind: "battery",
+        label: "البطارية",
+        icon: "🔋",
+        title: "تغيير بطارية",
+        typeLabel: "نوع البطارية",
+        quantity: false,
+        quantityLabel: "",
+        unit: "",
+        typeOptions: [
+            "بطارية 60 أمبير",
+            "بطارية 70 أمبير",
+            "بطارية 80 أمبير",
+            "بطارية 100 أمبير",
+            "بطارية سائلة",
+            "بطارية دراي"
+        ]
+    }
+};
+
 const WEEKDAY_NAMES = [
     "الأحد",
     "الإثنين",
@@ -99,6 +179,32 @@ function numberValue(value) {
     return Math.round(number);
 }
 
+function parseDecimal(value) {
+    const number = parseFloat(String(value ?? ""));
+
+    if (!Number.isFinite(number) || number < 0) {
+        return 0;
+    }
+
+    return number;
+}
+
+function roundDecimals(value, decimals) {
+    const number = parseDecimal(value);
+    const factor = Math.pow(10, decimals);
+
+    return Math.round(number * factor) / factor;
+}
+
+function formatDecimals(value, decimals) {
+    const number = roundDecimals(value, decimals);
+
+    return number.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: decimals
+    });
+}
+
 function monthKey(year = currentYear, month = currentMonth) {
     return `${year}-${String(month + 1).padStart(2, "0")}`;
 }
@@ -154,6 +260,20 @@ function loadDatabase() {
 }
 
 function saveDatabase() {
+    /*
+        Cloud hook first: it may refresh car sync timestamps so
+        that the localStorage snapshot below already contains them.
+    */
+
+    if (typeof DaftariSync !== "undefined" && DaftariSync) {
+        try {
+            DaftariSync.onLocalSave();
+
+        } catch (error) {
+            console.error("Daftari sync save error:", error);
+        }
+    }
+
     try {
         localStorage.setItem(
             STORAGE_KEY,
@@ -854,7 +974,9 @@ function openCarExpenseModal(kind) {
     const titles = {
         fuel: "بنزين",
         maintenance: "صيانة",
-        oil: "زيت"
+        oil: "زيت",
+        filter: "فلتر",
+        battery: "بطارية"
     };
 
     const label = titles[kind] || "مصروف سيارة";
@@ -887,6 +1009,686 @@ function openCarExpenseModal(kind) {
     );
 }
 
+/* =========================================================
+    FUEL (بنزين) DETAILED RECORDS
+    Stored per-month in month.carExpenses (kind === "fuel")
+    with fuelType / pricePerLiter / liters / total. The `amount`
+    field always equals the total price, so the existing budget
+    math (fuelSpent, carTotal) keeps working unchanged.
+========================================================= */
+
+function fuelFormHtml() {
+    return `
+        <h2 class="modal-title">تعبئة بنزين</h2>
+
+        <form id="fuelForm" class="fuel-form" autocomplete="off">
+
+            <div class="form-group">
+
+                <label for="fuelTypeSelect">
+                    نوع البنزين
+                </label>
+
+                <select id="fuelTypeSelect">
+
+                    <option value="normal">
+                        عادي — 450 د.ع/لتر
+                    </option>
+
+                    <option value="premium">
+                        محسن — 850 د.ع/لتر
+                    </option>
+
+                    <option value="other">
+                        آخر
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="fuelLiters">
+                        عدد اللترات
+                    </label>
+
+                    <input
+                        type="number"
+                        id="fuelLiters"
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="fuelPricePerLiter">
+                        سعر اللتر (د.ع)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="fuelPricePerLiter"
+                        min="0"
+                        step="1"
+                        placeholder="0"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="fuelTotal">
+                    السعر الإجمالي (د.ع)
+                </label>
+
+                <input
+                    type="number"
+                    id="fuelTotal"
+                    min="0"
+                    step="1"
+                    placeholder="0"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="fuelDate">
+                    التاريخ
+                </label>
+
+                <input
+                    type="date"
+                    id="fuelDate"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                حفظ التعبئة
+            </button>
+
+        </form>
+    `;
+}
+
+function todayDateInputValue() {
+    const d = new Date();
+
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+}
+
+function openFuelModal() {
+    if (isMonthClosed()) {
+        showToast("🔒 شهر مغلق");
+        return;
+    }
+
+    openModal(fuelFormHtml());
+
+    const typeSelect = $("fuelTypeSelect");
+    const dateInput = $("fuelDate");
+
+    if (typeSelect) {
+        typeSelect.value = "normal";
+    }
+
+    onFuelTypeChange();
+
+    if (dateInput && !dateInput.value) {
+        dateInput.value = todayDateInputValue();
+    }
+
+    bindFuelForm();
+}
+
+function onFuelTypeChange() {
+    const type = $("fuelTypeSelect")?.value || "normal";
+
+    const priceInput = $("fuelPricePerLiter");
+
+    if (!priceInput) {
+        return;
+    }
+
+    if (type === "other") {
+        priceInput.disabled = false;
+        priceInput.value = priceInput.value || "";
+    } else {
+        priceInput.disabled = true;
+        priceInput.value = FUEL_PRICES[type];
+    }
+
+    recomputeFuelTotal();
+}
+
+function fuelPricePerLiter() {
+    return parseDecimal($("fuelPricePerLiter")?.value);
+}
+
+function recomputeFuelTotal() {
+    const liters = parseDecimal($("fuelLiters")?.value);
+    const price = fuelPricePerLiter();
+
+    const totalInput = $("fuelTotal");
+
+    if (!totalInput) {
+        return;
+    }
+
+    if (liters > 0 && price > 0) {
+        totalInput.value = Math.round(liters * price);
+    } else if (liters <= 0) {
+        totalInput.value = "";
+    }
+}
+
+function recomputeFuelLiters() {
+    const total = parseDecimal($("fuelTotal")?.value);
+    const price = fuelPricePerLiter();
+
+    const litersInput = $("fuelLiters");
+
+    if (!litersInput) {
+        return;
+    }
+
+    if (total > 0 && price > 0) {
+        litersInput.value = roundDecimals(total / price, 2);
+    } else if (total <= 0) {
+        litersInput.value = "";
+    }
+}
+
+function bindFuelForm() {
+    $("fuelTypeSelect")?.addEventListener("change", onFuelTypeChange);
+
+    $("fuelLiters")?.addEventListener("input", recomputeFuelTotal);
+
+    $("fuelPricePerLiter")?.addEventListener("input", recomputeFuelTotal);
+
+    $("fuelTotal")?.addEventListener("input", recomputeFuelLiters);
+
+    $("fuelForm")?.addEventListener(
+        "submit",
+        (event) => {
+
+            event.preventDefault();
+
+            const type = $("fuelTypeSelect")?.value || "normal";
+
+            const liters = parseDecimal($("fuelLiters")?.value);
+
+            const price = fuelPricePerLiter();
+
+            if (liters <= 0) {
+                showToast("أدخل عدد اللترات");
+                return;
+            }
+
+            if (price <= 0) {
+                showToast("أدخل سعر اللتر");
+                return;
+            }
+
+            const total = Math.round(liters * price);
+
+            const month = currentMonthData();
+
+            month.carExpenses.push({
+                id: Date.now(),
+                kind: "fuel",
+                title: "تعبئة بنزين",
+                amount: total,
+                date: fuelDateISO(),
+                note: "",
+                fuelType: type,
+                pricePerLiter: Math.round(price),
+                liters: roundDecimals(liters, 2),
+                total: total
+            });
+
+            commit();
+            closeModal();
+            showToast("تم حفظ تعبئة البنزين");
+        }
+    );
+}
+
+function fuelDateISO() {
+    const value = $("fuelDate")?.value;
+
+    if (!value) {
+        return new Date().toISOString();
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? new Date().toISOString()
+        : date.toISOString();
+}
+
+function getFuelRecords() {
+    return currentMonthData().carExpenses.filter(
+        (item) => item.kind === "fuel"
+    );
+}
+
+function fuelRecordRowHtml({ listName, record }) {
+    const typeLabel =
+        FUEL_TYPE_LABELS[record.fuelType] ||
+        record.fuelType ||
+        "بنزين";
+
+    const liters = record.liters != null
+        ? formatDecimals(record.liters, 2)
+        : "";
+
+    const price = record.pricePerLiter != null
+        ? formatNumber(record.pricePerLiter)
+        : "";
+
+    return `
+        <div class="record-row fuel-row">
+
+            <span class="record-icon">
+                ⛽
+            </span>
+
+            <div class="record-info">
+
+                <strong>
+                    تعبئة بنزين — ${typeLabel}
+                </strong>
+
+                <span class="fuel-meta">
+                    ${formatDate(record.date)}
+                    ${liters ? ` • ${liters} لتر` : ""}
+                    ${price ? ` • ${price} د.ع/لتر` : ""}
+                </span>
+
+            </div>
+
+            <strong class="record-amount">
+                ${currency(record.amount)}
+            </strong>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-delete="${listName}"
+                data-delete-id="${record.id}"
+                aria-label="حذف"
+            >
+                ×
+            </button>
+
+        </div>
+    `;
+}
+
+/* =========================================================
+    CAR PARTS (الزيوت والفلاتر والبطارية) DETAILED RECORDS
+
+    Stored per-month in month.carExpenses with
+    kind === "oil" | "filter" | "battery".
+
+    كل سجل يحمل نوعه وتاريخه (والكمية للزيوت) فيظهر داخل
+    سجلات الشهر مع بقية مصاريف السيارة، وتبقى السجلات القديمة
+    ظاهرة لأن التصفية تعتمد على kind فقط.
+========================================================= */
+
+function carPartMeta(kind) {
+    if (!kind) {
+        return null;
+    }
+
+    if (!Object.prototype.hasOwnProperty.call(CAR_PART_TYPES, kind)) {
+        return null;
+    }
+
+    return CAR_PART_TYPES[kind];
+}
+
+function carPartFormHtml(kind) {
+    const meta = carPartMeta(kind);
+
+    if (!meta) {
+        return "";
+    }
+
+    const typeOptions = meta.typeOptions
+        .map((option) => `<option value="${option}"></option>`)
+        .join("");
+
+    return `
+        <h2 class="modal-title">${meta.title}</h2>
+
+        <form id="carPartForm" class="fuel-form" autocomplete="off">
+
+            <div class="form-group">
+
+                <label for="carPartType">
+                    ${meta.typeLabel}
+                </label>
+
+                <input
+                    type="text"
+                    id="carPartType"
+                    list="carPartTypeOptions"
+                    placeholder="${meta.typeOptions[0]}"
+                    autocomplete="off"
+                    required
+                >
+
+                <datalist id="carPartTypeOptions">
+                    ${typeOptions}
+                </datalist>
+
+            </div>
+
+            ${meta.quantity ? `
+            <div class="form-group">
+
+                <label for="carPartQuantity">
+                    ${meta.quantityLabel}
+                </label>
+
+                <input
+                    type="number"
+                    id="carPartQuantity"
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    autocomplete="off"
+                >
+
+            </div>
+            ` : ""}
+
+            <div class="form-group">
+
+                <label for="carPartAmount">
+                    السعر (د.ع)
+                </label>
+
+                <input
+                    type="number"
+                    id="carPartAmount"
+                    min="0"
+                    step="250"
+                    inputmode="numeric"
+                    placeholder="0"
+                    autocomplete="off"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="carPartNote">
+                    ملاحظة (اختياري)
+                </label>
+
+                <input
+                    type="text"
+                    id="carPartNote"
+                    placeholder="مثال: تغيير دوري"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="carPartDate">
+                    التاريخ
+                </label>
+
+                <input
+                    type="date"
+                    id="carPartDate"
+                    required
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                حفظ
+            </button>
+
+        </form>
+    `;
+}
+
+function openCarPartModal(kind) {
+    const meta = carPartMeta(kind);
+
+    if (!meta) {
+        return;
+    }
+
+    if (isMonthClosed()) {
+        showToast("🔒 شهر مغلق");
+        return;
+    }
+
+    openModal(carPartFormHtml(kind));
+
+    const dateInput = $("carPartDate");
+
+    if (dateInput && !dateInput.value) {
+        dateInput.value = todayDateInputValue();
+    }
+
+    bindCarPartForm(kind);
+}
+
+function carPartDateISO() {
+    const value = $("carPartDate")?.value;
+
+    if (!value) {
+        return new Date().toISOString();
+    }
+
+    const date = new Date(value);
+
+    return Number.isNaN(date.getTime())
+        ? new Date().toISOString()
+        : date.toISOString();
+}
+
+function bindCarPartForm(kind) {
+    const meta = carPartMeta(kind);
+
+    if (!meta) {
+        return;
+    }
+
+    $("carPartForm")?.addEventListener(
+        "submit",
+        (event) => {
+
+            event.preventDefault();
+
+            const itemType = String(
+                $("carPartType")?.value || ""
+            ).trim();
+
+            const amount = numberValue($("carPartAmount")?.value);
+
+            const quantity = meta.quantity
+                ? roundDecimals(
+                    parseDecimal($("carPartQuantity")?.value),
+                    2
+                )
+                : 0;
+
+            if (!itemType) {
+                showToast(`أدخل ${meta.typeLabel}`);
+                return;
+            }
+
+            if (meta.quantity && quantity <= 0) {
+                showToast("أدخل الكمية");
+                return;
+            }
+
+            if (amount <= 0) {
+                showToast("أدخل السعر");
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                kind: meta.kind,
+                title: `${meta.title} — ${itemType}`,
+                amount,
+                total: amount,
+                date: carPartDateISO(),
+                note: String($("carPartNote")?.value || "").trim(),
+                itemType
+            };
+
+            if (meta.quantity) {
+                record.quantity = quantity;
+                record.unit = meta.unit;
+            }
+
+            const month = currentMonthData();
+
+            month.carExpenses.push(record);
+
+            commit();
+            closeModal();
+            showToast(`تم حفظ ${meta.title} — ${meta.label}`);
+        }
+    );
+}
+
+/*
+    سجلات نوع واحد من قطع السيارة داخل الشهر الحالي.
+    التصفية تعتمد على kind فقط، لذلك تبقى السجلات القديمة
+    (زيت / فلتر / بطارية) ظاهرة ولا تُحذف.
+*/
+function getCarPartRecords(kind) {
+    return currentMonthData().carExpenses.filter(
+        (item) => item.kind === kind
+    );
+}
+
+function carRecordTime(record) {
+    const time = new Date(record?.date || 0).getTime();
+
+    return Number.isNaN(time) ? 0 : time;
+}
+
+/* الأحدث أولاً - ترتيب ثابت عند تساوي التواريخ */
+function sortCarRecordsDesc(records) {
+    return records
+        .map((record, index) => ({ record, index }))
+        .sort((a, b) => {
+
+            const diff = carRecordTime(b.record) - carRecordTime(a.record);
+
+            return diff !== 0 ? diff : b.index - a.index;
+        })
+        .map((item) => item.record);
+}
+
+function carPartLastChangeText(kind) {
+    const records = getCarPartRecords(kind);
+
+    if (!records.length) {
+        return "لا يوجد سجل بعد";
+    }
+
+    return formatDate(sortCarRecordsDesc(records)[0].date) ||
+        "لا يوجد سجل بعد";
+}
+
+function carPartRecordRowHtml({ listName, record, kind }) {
+    const meta = carPartMeta(kind) || CAR_PART_TYPES.oil;
+
+    const typeLabel =
+        record.itemType ||
+        record.oilType ||
+        record.filterType ||
+        record.batteryType ||
+        record.title ||
+        meta.label;
+
+    const quantity = record.quantity != null && record.quantity !== ""
+        ? formatDecimals(record.quantity, 2)
+        : "";
+
+    const quantityText = quantity
+        ? ` • ${quantity}${record.unit ? ` ${record.unit}` : ""}`
+        : "";
+
+    const noteText = record.note ? ` • ${record.note}` : "";
+
+    return `
+        <div class="record-row car-part-row">
+
+            <span class="record-icon">
+                ${meta.icon}
+            </span>
+
+            <div class="record-info">
+
+                <strong>
+                    ${meta.title} — ${typeLabel}
+                </strong>
+
+                <span class="fuel-meta">
+                    ${formatDate(record.date)}${quantityText}${noteText}
+                </span>
+
+            </div>
+
+            <strong class="record-amount">
+                ${currency(record.amount)}
+            </strong>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-delete="${listName}"
+                data-delete-id="${record.id}"
+                aria-label="حذف"
+            >
+                ×
+            </button>
+
+        </div>
+    `;
+}
+
 function setupActions() {
     $("themeButton")?.addEventListener("click", toggleTheme);
 
@@ -898,7 +1700,7 @@ function setupActions() {
 
     $("carFuelButton")?.addEventListener(
         "click",
-        () => openCarExpenseModal("fuel")
+        openFuelModal
     );
 
     $("carMaintenanceButton")?.addEventListener(
@@ -908,7 +1710,22 @@ function setupActions() {
 
     $("carOilButton")?.addEventListener(
         "click",
-        () => openCarExpenseModal("oil")
+        () => openCarPartModal("oil")
+    );
+
+    $("carFilterButton")?.addEventListener(
+        "click",
+        () => openCarPartModal("filter")
+    );
+
+    $("carBatteryButton")?.addEventListener(
+        "click",
+        () => openCarPartModal("battery")
+    );
+
+    $("accountButton")?.addEventListener(
+        "click",
+        openAccountModal
     );
 
     $("savingsDepositButton")?.addEventListener(
@@ -986,12 +1803,81 @@ function setupActions() {
                 return;
             }
 
+            const taskEditButton =
+                event.target.closest("[data-task-edit]");
+
+            if (taskEditButton) {
+                openEditTaskModal(taskEditButton.dataset.taskEdit);
+                return;
+            }
+
             const taskDeleteButton =
                 event.target.closest("[data-task-delete]");
 
             if (taskDeleteButton) {
-                deleteTask(taskDeleteButton.dataset.taskDelete);
+                requestDeleteTask(taskDeleteButton.dataset.taskDelete);
+                return;
             }
+
+            const taskStatButton =
+                event.target.closest("[data-task-stat]");
+
+            if (taskStatButton) {
+                toggleTaskStat(taskStatButton.dataset.taskStat);
+            }
+
+        }
+    );
+
+    /*
+        Task search + filters. The toolbar is NOT re-rendered while
+        typing or picking a filter, so the search box keeps focus and
+        only the task list is refreshed.
+    */
+
+    document.addEventListener(
+        "input",
+        (event) => {
+
+            const search = event.target.closest("[data-task-search]");
+
+            if (!search) {
+                return;
+            }
+
+            const listKey = search.dataset.taskSearch;
+
+            if (!TASK_LISTS[listKey]) {
+                return;
+            }
+
+            taskViewState(listKey).search = search.value || "";
+
+            renderTaskList(listKey);
+
+        }
+    );
+
+    document.addEventListener(
+        "change",
+        (event) => {
+
+            const select = event.target.closest("[data-task-filter]");
+
+            if (!select) {
+                return;
+            }
+
+            const listKey = select.dataset.taskFilter;
+            const field = select.dataset.taskFilterField;
+
+            if (!TASK_LISTS[listKey] || !field) {
+                return;
+            }
+
+            taskViewState(listKey)[field] = select.value || "all";
+
+            renderTaskList(listKey);
 
         }
     );
@@ -1175,9 +2061,9 @@ function migrateSavingsLedger() {
                 );
             }
 
-            if (Array.isArray(ledger.debtors)) {
+            if (Array.isArray(account.debtors)) {
                 database.savingsLedger.debtors.push(
-                    ...ledger.debtors
+                    ...account.debtors
                 );
             }
 
@@ -1394,9 +2280,90 @@ function setupPageTabs() {
 
 /* =========================================================
    TASKS (personal + home)
+
    Stored per month in the same database:
-   month.tasks = [{ id, listKey, title, note, done, date }]
+       month.tasks = [{
+           id, listKey, title, note,
+           date, time, priority, category, status, done
+       }]
+
+   Backward compatibility:
+   - Tasks created by older versions only carry
+     { id, listKey, title, note, done, date }. Every new field is
+     read with a safe default (priority = متوسطة, category = أخرى,
+     status = جديدة / مكتملة حسب done) so old tasks never break.
+   - Nothing is deleted or rewritten just by opening the page.
+   - `done` stays in sync with `status` (completed) so both the old
+     and the new shape remain valid.
 ========================================================= */
+
+const TASK_LISTS = {
+    personalTasks: {
+        listId: "personalTasksList",
+        toolbarId: "personalTasksToolbar",
+        defaultCategory: "personal"
+    },
+
+    homeTasks: {
+        listId: "homeTasksList",
+        toolbarId: "homeTasksToolbar",
+        defaultCategory: "home"
+    }
+};
+
+const TASK_PRIORITIES = {
+    low: { label: "منخفضة", order: 0 },
+    medium: { label: "متوسطة", order: 1 },
+    high: { label: "عالية", order: 2 },
+    urgent: { label: "عاجلة", order: 3 }
+};
+
+const TASK_STATUSES = {
+    new: { label: "جديدة" },
+    inProgress: { label: "قيد التنفيذ" },
+    completed: { label: "مكتملة" }
+};
+
+const TASK_CATEGORIES = {
+    home: { label: "البيت", icon: "🏠" },
+    work: { label: "العمل", icon: "💼" },
+    car: { label: "السيارة", icon: "🚗" },
+    personal: { label: "شخصي", icon: "👤" },
+    shopping: { label: "مشتريات", icon: "🛒" },
+    appointments: { label: "مواعيد", icon: "📅" },
+    other: { label: "أخرى", icon: "📌" }
+};
+
+const TASK_DATE_FILTERS = {
+    all: "أي تاريخ",
+    today: "اليوم",
+    tomorrow: "غدًا",
+    week: "هذا الأسبوع",
+    overdue: "المتأخرة",
+    none: "بدون تاريخ"
+};
+
+/*
+    Per-list view state (search + filters). Display-only:
+    it is never written to the saved database.
+*/
+
+const taskViewStateStore = {};
+
+function taskViewState(listKey) {
+    if (!taskViewStateStore[listKey]) {
+        taskViewStateStore[listKey] = {
+            search: "",
+            quick: "all",
+            status: "all",
+            priority: "all",
+            category: "all",
+            date: "all"
+        };
+    }
+
+    return taskViewStateStore[listKey];
+}
 
 function ensureTasks(month) {
     if (!Array.isArray(month.tasks)) {
@@ -1406,52 +2373,525 @@ function ensureTasks(month) {
     return month.tasks;
 }
 
-function taskFormHtml({ title }) {
+function escapeTaskHtml(value) {
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+/* --- field readers (safe defaults keep legacy tasks valid) --- */
+
+function taskStatusValue(task) {
+    if (task && TASK_STATUSES[task.status]) {
+        return task.status;
+    }
+
+    return task && task.done ? "completed" : "new";
+}
+
+function taskPriorityValue(task) {
+    return task && TASK_PRIORITIES[task.priority]
+        ? task.priority
+        : "medium";
+}
+
+function taskCategoryValue(task) {
+    return task && TASK_CATEGORIES[task.category]
+        ? task.category
+        : "other";
+}
+
+function taskTimeValue(task) {
+    return task && task.time ? String(task.time) : "";
+}
+
+function isTaskCompleted(task) {
+    return taskStatusValue(task) === "completed";
+}
+
+/* --- date helpers (local time, no UTC surprises) --- */
+
+function taskDateOnly(task) {
+    const raw = task && task.date ? String(task.date) : "";
+    const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(raw);
+
+    return match ? match[0] : "";
+}
+
+function taskDateLocal(task) {
+    const iso = taskDateOnly(task);
+
+    if (!iso) {
+        return null;
+    }
+
+    const parts = iso.split("-");
+
+    return new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+    );
+}
+
+function todayLocal() {
+    const d = new Date();
+
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+
+/*
+    Whole-day difference between the task date and today:
+        negative -> the task is in the past
+        0        -> today
+        positive -> days ahead
+        null     -> no (valid) date
+*/
+function taskDayDiff(task) {
+    const date = taskDateLocal(task);
+
+    if (!date) {
+        return null;
+    }
+
+    return Math.round(
+        (date.getTime() - todayLocal().getTime()) / 86400000
+    );
+}
+
+/*
+    A task is overdue only when it is NOT completed and its due
+    date is before today. Completed tasks are never overdue.
+*/
+function isTaskOverdue(task) {
+    if (isTaskCompleted(task)) {
+        return false;
+    }
+
+    const diff = taskDayDiff(task);
+
+    return diff !== null && diff < 0;
+}
+
+function isTaskToday(task) {
+    if (isTaskCompleted(task)) {
+        return false;
+    }
+
+    return taskDayDiff(task) === 0;
+}
+
+function taskDateBadge(task) {
+    const diff = taskDayDiff(task);
+
+    if (diff === null) {
+        return { text: "بدون تاريخ", tone: "none" };
+    }
+
+    const time = taskTimeValue(task);
+    const completed = isTaskCompleted(task);
+
+    let text;
+
+    if (completed) {
+        text = formatDate(taskDateLocal(task));
+    } else if (diff === 0) {
+        text = "اليوم";
+    } else if (diff === 1) {
+        text = "غدًا";
+    } else if (diff < 0) {
+        text = "متأخرة";
+    } else {
+        text = formatDate(taskDateLocal(task));
+    }
+
+    let tone = "upcoming";
+
+    if (completed) {
+        tone = "done";
+    } else if (diff < 0) {
+        tone = "overdue";
+    } else if (diff === 0) {
+        tone = "today";
+    } else if (diff === 1) {
+        tone = "tomorrow";
+    }
+
+    return {
+        text: time ? `${text} · ${time}` : text,
+        tone
+    };
+}
+
+/* --- statistics --- */
+
+function taskStats(tasks) {
+    const stats = {
+        all: tasks.length,
+        today: 0,
+        overdue: 0,
+        inProgress: 0,
+        completed: 0
+    };
+
+    tasks.forEach((task) => {
+
+        if (isTaskToday(task)) {
+            stats.today += 1;
+        }
+
+        if (isTaskOverdue(task)) {
+            stats.overdue += 1;
+        }
+
+        const status = taskStatusValue(task);
+
+        if (status === "inProgress") {
+            stats.inProgress += 1;
+        }
+
+        if (status === "completed") {
+            stats.completed += 1;
+        }
+
+    });
+
+    return stats;
+}
+
+/* --- search + filters --- */
+
+function taskSearchText(task) {
+    return `${task.title || ""} ${task.note || ""}`.toLowerCase();
+}
+
+function taskMatchesQuick(task, quick) {
+    switch (quick) {
+        case "today":
+            return isTaskToday(task);
+
+        case "overdue":
+            return isTaskOverdue(task);
+
+        case "inProgress":
+            return taskStatusValue(task) === "inProgress";
+
+        case "completed":
+            return isTaskCompleted(task);
+
+        default:
+            return true;
+    }
+}
+
+function taskMatchesDateFilter(task, filter) {
+    const diff = taskDayDiff(task);
+
+    switch (filter) {
+        case "today":
+            return isTaskToday(task);
+
+        case "tomorrow":
+            return !isTaskCompleted(task) && diff === 1;
+
+        case "week":
+            return (
+                !isTaskCompleted(task) &&
+                diff !== null &&
+                diff >= 0 &&
+                diff <= 7
+            );
+
+        case "overdue":
+            return isTaskOverdue(task);
+
+        case "none":
+            return diff === null;
+
+        default:
+            return true;
+    }
+}
+
+/*
+    Folds the quick card filter together with the search box and the
+    four dropdowns. Every active condition must pass, so filters work
+    together (e.g. البيت + عالية + غير مكتملة).
+*/
+function filterTasks(tasks, state) {
+    const query = String(state.search || "").trim().toLowerCase();
+
+    return tasks.filter((task) => {
+
+        if (query && taskSearchText(task).indexOf(query) === -1) {
+            return false;
+        }
+
+        if (!taskMatchesQuick(task, state.quick)) {
+            return false;
+        }
+
+        if (
+            state.status !== "all" &&
+            taskStatusValue(task) !== state.status
+        ) {
+            return false;
+        }
+
+        if (
+            state.priority !== "all" &&
+            taskPriorityValue(task) !== state.priority
+        ) {
+            return false;
+        }
+
+        if (
+            state.category !== "all" &&
+            taskCategoryValue(task) !== state.category
+        ) {
+            return false;
+        }
+
+        return taskMatchesDateFilter(task, state.date);
+
+    });
+}
+
+/* --- display ordering (view only, never changes saved data) ---
+   1) overdue
+   2) high / urgent priority
+   3) today
+   4) upcoming, by date
+   5) no date
+   6) completed (always last)
+------------------------------------------------------------- */
+
+function taskSortRank(task) {
+    if (isTaskCompleted(task)) {
+        return 5;
+    }
+
+    if (isTaskOverdue(task)) {
+        return 0;
+    }
+
+    const priority = taskPriorityValue(task);
+
+    if (priority === "urgent" || priority === "high") {
+        return 1;
+    }
+
+    const diff = taskDayDiff(task);
+
+    if (diff === 0) {
+        return 2;
+    }
+
+    if (diff !== null) {
+        return 3;
+    }
+
+    return 4;
+}
+
+function sortTasksForDisplay(tasks) {
+    return tasks.slice().sort((a, b) => {
+
+        const rankA = taskSortRank(a);
+        const rankB = taskSortRank(b);
+
+        if (rankA !== rankB) {
+            return rankA - rankB;
+        }
+
+        const diffA = taskDayDiff(a);
+        const diffB = taskDayDiff(b);
+
+        const hasA = diffA !== null;
+        const hasB = diffB !== null;
+
+        if (hasA !== hasB) {
+            return hasA ? -1 : 1;
+        }
+
+        if (hasA && diffA !== diffB) {
+            // completed tasks: newest first, others: nearest first
+            return rankA === 5 ? diffB - diffA : diffA - diffB;
+        }
+
+        const prioA = TASK_PRIORITIES[taskPriorityValue(a)].order;
+        const prioB = TASK_PRIORITIES[taskPriorityValue(b)].order;
+
+        if (prioA !== prioB) {
+            return prioB - prioA;
+        }
+
+        const timeA = taskTimeValue(a);
+        const timeB = taskTimeValue(b);
+
+        if (timeA !== timeB) {
+            return timeA < timeB ? -1 : 1;
+        }
+
+        return String(a.title || "").localeCompare(
+            String(b.title || ""),
+            "ar"
+        );
+
+    });
+}
+
+/* --- add / edit form --- */
+
+function taskOptionHtml(value, label, selected) {
+    return `<option value="${value}" ${value === selected ? "selected" : ""}>${label}</option>`;
+}
+
+function taskFormHtml({ title, task, listKey }) {
+    const meta = TASK_LISTS[listKey] || TASK_LISTS.personalTasks;
+
+    const values = {
+        title: task ? String(task.title || "") : "",
+        note: task ? String(task.note || "") : "",
+        date: task ? taskDateOnly(task) : todayDateInputValue(),
+        time: task ? taskTimeValue(task) : "",
+        priority: task ? taskPriorityValue(task) : "medium",
+        category: task ? taskCategoryValue(task) : meta.defaultCategory,
+        status: task ? taskStatusValue(task) : "new"
+    };
+
+    const priorityOptions = Object.keys(TASK_PRIORITIES)
+        .map((key) => taskOptionHtml(
+            key,
+            TASK_PRIORITIES[key].label,
+            values.priority
+        ))
+        .join("");
+
+    const categoryOptions = Object.keys(TASK_CATEGORIES)
+        .map((key) => taskOptionHtml(
+            key,
+            `${TASK_CATEGORIES[key].icon} ${TASK_CATEGORIES[key].label}`,
+            values.category
+        ))
+        .join("");
+
+    const statusOptions = Object.keys(TASK_STATUSES)
+        .map((key) => taskOptionHtml(
+            key,
+            TASK_STATUSES[key].label,
+            values.status
+        ))
+        .join("");
+
     return `
         <h2 class="modal-title">${title}</h2>
 
-        <form id="genericForm">
+        <form id="taskForm" class="task-form" autocomplete="off">
 
             <div class="form-group">
 
-                <label for="genericTitle">
-                    نص المهمة
+                <label for="taskTitle">
+                    اسم المهمة <span class="required-mark">*</span>
                 </label>
 
                 <input
                     type="text"
-                    id="genericTitle"
+                    id="taskTitle"
                     placeholder="مثال: دفع فاتورة الكهرباء"
+                    value="${escapeTaskHtml(values.title)}"
+                    autocomplete="off"
                     required
                 >
 
             </div>
 
-            <div class="form-group">
+            <div class="form-row">
 
-                <label for="genericNote">
-                    ملاحظة (اختياري)
-                </label>
+                <div class="form-group">
 
-                <input
-                    type="text"
-                    id="genericNote"
-                    placeholder="ملاحظة..."
-                >
+                    <label for="taskCategory">
+                        التصنيف
+                    </label>
+
+                    <select id="taskCategory">
+                        ${categoryOptions}
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskPriority">
+                        الأولوية
+                    </label>
+
+                    <select id="taskPriority">
+                        ${priorityOptions}
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="taskDate">
+                        تاريخ الاستحقاق
+                    </label>
+
+                    <input
+                        type="date"
+                        id="taskDate"
+                        value="${values.date}"
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="taskTime">
+                        الوقت (اختياري)
+                    </label>
+
+                    <input
+                        type="time"
+                        id="taskTime"
+                        value="${values.time}"
+                    >
+
+                </div>
 
             </div>
 
             <div class="form-group">
 
-                <label for="genericDate">
-                    التاريخ
+                <label for="taskStatus">
+                    الحالة
                 </label>
 
-                <input
-                    type="date"
-                    id="genericDate"
-                    required
-                >
+                <select id="taskStatus">
+                    ${statusOptions}
+                </select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="taskNote">
+                    ملاحظات (اختياري)
+                </label>
+
+                <textarea
+                    id="taskNote"
+                    rows="3"
+                    placeholder="تفاصيل إضافية..."
+                >${escapeTaskHtml(values.note)}</textarea>
 
             </div>
 
@@ -1469,11 +2909,46 @@ function taskFormHtml({ title }) {
 function openAddTaskModal(listKey, modalTitle) {
     openModal(
         taskFormHtml({
-            title: modalTitle
+            title: modalTitle,
+            task: null,
+            listKey
         })
     );
 
-    const form = $("genericForm");
+    bindTaskForm({
+        mode: "add",
+        listKey
+    });
+}
+
+function openEditTaskModal(taskId) {
+    const month = currentMonthData();
+
+    const task = ensureTasks(month).find(
+        (item) => item.id === Number(taskId)
+    );
+
+    if (!task) {
+        return;
+    }
+
+    openModal(
+        taskFormHtml({
+            title: "تعديل المهمة",
+            task,
+            listKey: task.listKey
+        })
+    );
+
+    bindTaskForm({
+        mode: "edit",
+        listKey: task.listKey,
+        taskId: task.id
+    });
+}
+
+function bindTaskForm({ mode, listKey, taskId }) {
+    const form = $("taskForm");
 
     if (!form) {
         return;
@@ -1485,31 +2960,167 @@ function openAddTaskModal(listKey, modalTitle) {
 
             event.preventDefault();
 
-            const title = $("genericTitle")?.value?.trim();
+            const title = String($("taskTitle")?.value || "").trim();
 
             if (!title) {
-                showToast("أدخل نص المهمة");
+                showToast("أدخل اسم المهمة");
                 return;
             }
 
-            const month = currentMonthData();
+            const statusSelect = $("taskStatus")?.value;
+            const prioritySelect = $("taskPriority")?.value;
+            const categorySelect = $("taskCategory")?.value;
 
+            const status = TASK_STATUSES[statusSelect]
+                ? statusSelect
+                : "new";
+
+            const data = {
+                title,
+                note: String($("taskNote")?.value || "").trim(),
+                date: taskDateOnly({
+                    date: $("taskDate")?.value || ""
+                }),
+                time: String($("taskTime")?.value || ""),
+                priority: TASK_PRIORITIES[prioritySelect]
+                    ? prioritySelect
+                    : "medium",
+                category: TASK_CATEGORIES[categorySelect]
+                    ? categorySelect
+                    : "other",
+                status,
+                done: status === "completed"
+            };
+
+            const month = currentMonthData();
             const tasks = ensureTasks(month);
 
-            tasks.push({
-                id: Date.now(),
-                listKey,
-                title,
-                note: getFormNote(),
-                done: false,
-                date: getFormDate()
-            });
+            if (mode === "edit") {
+
+                const task = tasks.find(
+                    (item) => item.id === Number(taskId)
+                );
+
+                if (!task) {
+                    return;
+                }
+
+                Object.assign(task, data);
+
+                commit();
+                closeModal();
+                showToast("تم تحديث المهمة");
+
+                return;
+            }
+
+            tasks.push(
+                Object.assign(
+                    {
+                        id: Date.now(),
+                        listKey
+                    },
+                    data
+                )
+            );
 
             commit();
             closeModal();
             showToast("تمت إضافة المهمة");
 
         }
+    );
+}
+
+/* Clicking a summary card filters the list; clicking it again
+   (or any other card) switches / clears the quick filter. */
+
+function toggleTaskStat(value) {
+    const parts = String(value || "").split(":");
+    const listKey = parts[0];
+
+    if (!TASK_LISTS[listKey]) {
+        return;
+    }
+
+    const quick = parts[1] || "all";
+    const state = taskViewState(listKey);
+
+    state.quick = state.quick === quick ? "all" : quick;
+
+    renderTaskToolbar(listKey);
+    renderTaskList(listKey);
+}
+
+/* Delete always goes through a confirmation step so a stray tap
+   never removes a task. Closed months keep the old rule: a normal
+   click is blocked, a long-press forces the delete. */
+
+function requestDeleteTask(taskId, force = false) {
+    const month = currentMonthData();
+    const locked = isMonthClosed(month.year, month.month);
+
+    if (locked && !force) {
+        showToast("🔒 شهر مغلق — اضغط مطولاً لحذف المهمة");
+        return;
+    }
+
+    const task = ensureTasks(month).find(
+        (item) => item.id === Number(taskId)
+    );
+
+    if (!task) {
+        return;
+    }
+
+    openModal(`
+        <h2 class="modal-title">حذف المهمة</h2>
+
+        <p class="modal-hint">
+            ${escapeTaskHtml(task.title || "")}
+        </p>
+
+        ${locked ? `
+        <p class="locked-hint">
+            🔒 هذا الشهر مغلق. سيتم حذف المهمة نهائيًا.
+        </p>
+        ` : ""}
+
+        <div class="form-row">
+
+            <button
+                type="button"
+                class="form-submit danger"
+                id="confirmDeleteTaskButton"
+            >
+                حذف
+            </button>
+
+            <button
+                type="button"
+                class="form-submit ghost"
+                id="cancelDeleteTaskButton"
+            >
+                إلغاء
+            </button>
+
+        </div>
+    `);
+
+    $("confirmDeleteTaskButton")?.addEventListener(
+        "click",
+        () => {
+
+            closeModal();
+
+            deleteTask(taskId, locked);
+
+        }
+    );
+
+    $("cancelDeleteTaskButton")?.addEventListener(
+        "click",
+        closeModal
     );
 }
 
@@ -1526,7 +3137,16 @@ function toggleTask(taskId) {
         return;
     }
 
-    task.done = !task.done;
+    // Completing keeps the task (never deletes it) so it can be
+    // reopened later; `done` is kept in sync with `status`.
+
+    if (isTaskCompleted(task)) {
+        task.status = "new";
+        task.done = false;
+    } else {
+        task.status = "completed";
+        task.done = true;
+    }
 
     commit();
 }
@@ -1553,67 +3173,256 @@ function deleteTask(taskId, force = false) {
 }
 
 function taskRowHtml(task) {
+    const status = taskStatusValue(task);
+    const priority = taskPriorityValue(task);
+    const category = taskCategoryValue(task);
+
+    const priorityMeta = TASK_PRIORITIES[priority];
+    const statusMeta = TASK_STATUSES[status];
+    const categoryMeta = TASK_CATEGORIES[category];
+
+    const dateBadge = taskDateBadge(task);
+    const note = String(task.note || "").trim();
+
     return `
-        <div class="record-row task-row ${task.done ? "task-done" : ""}">
+        <div
+            class="record-row task-row task-status-${status} task-priority-${priority}"
+            data-task-row="${task.id}"
+        >
 
             <button
                 type="button"
                 class="task-check"
                 data-task-toggle="${task.id}"
-                aria-label="إكمال"
+                aria-label="${status === "completed" ? "إعادة فتح المهمة" : "إكمال المهمة"}"
             >
-                ${task.done ? "✓" : ""}
+                ${status === "completed" ? "✓" : ""}
             </button>
 
-            <div class="record-info">
+            <div class="record-info task-info">
 
-                <strong>
-                    ${task.title}
+                <strong class="task-title">
+                    ${escapeTaskHtml(task.title || "")}
                 </strong>
 
-                <span>
-                    ${formatDate(task.date)}
-                    ${task.note ? ` - ${task.note}` : ""}
-                </span>
+                <div class="task-meta">
+
+                    <span class="task-badge task-cat">
+                        ${categoryMeta.icon} ${categoryMeta.label}
+                    </span>
+
+                    <span class="task-badge task-pri task-pri-${priority}">
+                        ${priorityMeta.label}
+                    </span>
+
+                    <span class="task-badge task-date task-date-${dateBadge.tone}">
+                        ${dateBadge.text}
+                    </span>
+
+                    <span class="task-badge task-state task-state-${status}">
+                        ${statusMeta.label}
+                    </span>
+
+                </div>
+
+                ${note ? `
+                <p class="task-note">
+                    ${escapeTaskHtml(note)}
+                </p>
+                ` : ""}
 
             </div>
 
-            <button
-                type="button"
-                class="delete-record"
-                data-task-delete="${task.id}"
-                aria-label="حذف"
-            >
-                ×
-            </button>
+            <div class="task-actions">
+
+                <button
+                    type="button"
+                    class="task-action"
+                    data-task-edit="${task.id}"
+                    aria-label="تعديل المهمة"
+                    title="تعديل"
+                >
+                    ✎
+                </button>
+
+                <button
+                    type="button"
+                    class="delete-record"
+                    data-task-delete="${task.id}"
+                    aria-label="حذف المهمة"
+                    title="حذف"
+                >
+                    ×
+                </button>
+
+            </div>
 
         </div>
     `;
 }
 
-function renderTaskList(listId, listKey) {
-    const month = currentMonthData();
+function taskListTasks(listKey) {
+    return ensureTasks(currentMonthData()).filter(
+        (task) => task.listKey === listKey
+    );
+}
 
-    const list = $(listId);
+function taskStatCardsHtml(listKey, stats, quick) {
+    const cards = [
+        { key: "all", label: "كل المهام", value: stats.all, icon: "📋" },
+        { key: "today", label: "مهام اليوم", value: stats.today, icon: "📅" },
+        { key: "overdue", label: "المتأخرة", value: stats.overdue, icon: "⏰" },
+        { key: "inProgress", label: "قيد التنفيذ", value: stats.inProgress, icon: "⏳" },
+        { key: "completed", label: "المكتملة", value: stats.completed, icon: "✅" }
+    ];
+
+    return cards.map((card) => `
+        <button
+            type="button"
+            class="task-stat ${quick === card.key ? "active" : ""}"
+            data-task-stat="${listKey}:${card.key}"
+            aria-pressed="${quick === card.key ? "true" : "false"}"
+        >
+            <span class="task-stat-value">
+                ${card.value}
+            </span>
+
+            <span class="task-stat-label">
+                ${card.icon} ${card.label}
+            </span>
+        </button>
+    `).join("");
+}
+
+function taskFilterSelectHtml(listKey, field, label, options, selected) {
+    const optionHtml = options.map((option) => `
+        <option value="${option.value}" ${option.value === selected ? "selected" : ""}>
+            ${option.label}
+        </option>
+    `).join("");
+
+    return `
+        <select
+            class="task-filter"
+            aria-label="${label}"
+            title="${label}"
+            data-task-filter="${listKey}"
+            data-task-filter-field="${field}"
+        >
+            ${optionHtml}
+        </select>
+    `;
+}
+
+function renderTaskToolbar(listKey) {
+    const meta = TASK_LISTS[listKey];
+    const container = meta ? $(meta.toolbarId) : null;
+
+    if (!container) {
+        return;
+    }
+
+    const stats = taskStats(taskListTasks(listKey));
+    const state = taskViewState(listKey);
+
+    const statusOptions = [
+        { value: "all", label: "كل الحالات" },
+        { value: "new", label: TASK_STATUSES.new.label },
+        { value: "inProgress", label: TASK_STATUSES.inProgress.label },
+        { value: "completed", label: TASK_STATUSES.completed.label }
+    ];
+
+    const priorityOptions = [
+        { value: "all", label: "كل الأولويات" }
+    ].concat(
+        Object.keys(TASK_PRIORITIES).map((key) => ({
+            value: key,
+            label: TASK_PRIORITIES[key].label
+        }))
+    );
+
+    const categoryOptions = [
+        { value: "all", label: "كل التصنيفات" }
+    ].concat(
+        Object.keys(TASK_CATEGORIES).map((key) => ({
+            value: key,
+            label: `${TASK_CATEGORIES[key].icon} ${TASK_CATEGORIES[key].label}`
+        }))
+    );
+
+    const dateOptions = Object.keys(TASK_DATE_FILTERS).map((key) => ({
+        value: key,
+        label: TASK_DATE_FILTERS[key]
+    }));
+
+    container.innerHTML = `
+        <div class="task-stats">
+            ${taskStatCardsHtml(listKey, stats, state.quick)}
+        </div>
+
+        <div class="task-tools">
+
+            <div class="task-search">
+
+                <span class="task-search-icon" aria-hidden="true">
+                    🔍
+                </span>
+
+                <input
+                    type="search"
+                    id="${listKey}Search"
+                    data-task-search="${listKey}"
+                    placeholder="ابحث باسم المهمة أو تفاصيلها..."
+                    value="${escapeTaskHtml(state.search)}"
+                    autocomplete="off"
+                >
+
+            </div>
+
+            <div class="task-filters">
+
+                ${taskFilterSelectHtml(listKey, "status", "الحالة", statusOptions, state.status)}
+
+                ${taskFilterSelectHtml(listKey, "priority", "الأولوية", priorityOptions, state.priority)}
+
+                ${taskFilterSelectHtml(listKey, "category", "التصنيف", categoryOptions, state.category)}
+
+                ${taskFilterSelectHtml(listKey, "date", "التاريخ", dateOptions, state.date)}
+
+            </div>
+
+        </div>
+    `;
+}
+
+function renderTaskList(listKey) {
+    const meta = TASK_LISTS[listKey];
+    const list = meta ? $(meta.listId) : null;
 
     if (!list) {
         return;
     }
 
-    const tasks = ensureTasks(month).filter(
-        (task) => task.listKey === listKey
-    );
+    const all = taskListTasks(listKey);
 
-    if (!tasks.length) {
+    if (!all.length) {
         list.innerHTML = emptyListHtml("لا توجد مهام بعد");
         return;
     }
 
-    list.innerHTML = tasks
-        .slice()
-        .reverse()
-        .map(taskRowHtml)
-        .join("");
+    const state = taskViewState(listKey);
+    const visible = sortTasksForDisplay(filterTasks(all, state));
+
+    if (!visible.length) {
+        list.innerHTML = emptyListHtml(
+            "لا توجد مهام مطابقة للبحث أو الفلاتر"
+        );
+        return;
+    }
+
+    list.innerHTML = visible.map(taskRowHtml).join("");
+
+    // Closed month: rows are read-only except for a long-press delete.
 
     if (isMonthClosed()) {
         Array.from(list.children).forEach((row) => {
@@ -1627,38 +3436,7 @@ function renderTaskList(listId, listKey) {
 
             attachRecordPress(
                 row,
-                () => {
-
-                    openModal(
-                        `
-                        <h2 class="modal-title">حذف مهمة شهر مغلق</h2>
-
-                        <p class="locked-hint">
-                            🔒 هذا الشهر مغلق. يمكنك حذف هذه المهمة فقط.
-                        </p>
-
-                        <button
-                            type="button"
-                            class="form-submit danger"
-                            id="forceDeleteTaskButton"
-                        >
-                            حذف المهمة
-                        </button>
-                        `
-                    );
-
-                    $("forceDeleteTaskButton")?.addEventListener(
-                        "click",
-                        () => {
-
-                            closeModal();
-
-                            deleteTask(taskId, true);
-
-                        }
-                    );
-
-                }
+                () => requestDeleteTask(taskId, true)
             );
 
         });
@@ -1666,8 +3444,10 @@ function renderTaskList(listId, listKey) {
 }
 
 function renderTasks() {
-    renderTaskList("personalTasksList", "personalTasks");
-    renderTaskList("homeTasksList", "homeTasks");
+    Object.keys(TASK_LISTS).forEach((listKey) => {
+        renderTaskToolbar(listKey);
+        renderTaskList(listKey);
+    });
 }
 
 /* TASK RENDER APPEND */
@@ -2332,31 +4112,78 @@ function renderCarPage() {
     setText("carRemainingDisplay", currency(Math.max(budget - fuelSpent, 0)));
     setText("carTotal", currency(total));
 
+    /* ---- الزيوت والفلاتر والبطارية ---- */
+
+    const partsTotal =
+        sumOf(getCarPartRecords("oil")) +
+        sumOf(getCarPartRecords("filter")) +
+        sumOf(getCarPartRecords("battery"));
+
+    setText("carPartsTotal", currency(partsTotal));
+
+    setText("oilTotalAmount", currency(sumOf(getCarPartRecords("oil"))));
+    setText("filterTotalAmount", currency(sumOf(getCarPartRecords("filter"))));
+    setText("batteryTotalAmount", currency(sumOf(getCarPartRecords("battery"))));
+
+    setText("oilLastChange", carPartLastChangeText("oil"));
+    setText("filterLastChange", carPartLastChangeText("filter"));
+    setText("batteryLastChange", carPartLastChangeText("battery"));
+
     const icons = {
-        fuel: "⛽",
         maintenance: "🔧",
-        oil: "◉"
+        oil: CAR_PART_TYPES.oil.icon,
+        filter: CAR_PART_TYPES.filter.icon,
+        battery: CAR_PART_TYPES.battery.icon
     };
 
     const notes = {
-        fuel: "بنزين",
         maintenance: "صيانة",
-        oil: "زيت"
+        oil: CAR_PART_TYPES.oil.label,
+        filter: CAR_PART_TYPES.filter.label,
+        battery: CAR_PART_TYPES.battery.label
     };
+
+    const fuelRecords = getFuelRecords();
+
+    const fuelLiters = fuelRecords.reduce(
+        (total, record) => {
+            return total + parseDecimal(record.liters);
+        },
+        0
+    );
+
+    setText("fuelTotalLiters", `${formatDecimals(fuelLiters, 2)} لتر`);
+    setText("fuelTotalAmount", currency(sumOf(fuelRecords)));
 
     const list = $("carExpensesList");
 
     if (list) {
         list.innerHTML = month.carExpenses.length
-            ? month.carExpenses
-                .slice()
-                .reverse()
-                .map((record) => recordRowHtml({
-                    listName: "carExpenses",
-                    record,
-                    icon: icons[record.kind] || "🚗",
-                    note: notes[record.kind] || "مصروف سيارة"
-                }))
+            ? sortCarRecordsDesc(month.carExpenses)
+                .map((record) => {
+
+                    if (record.kind === "fuel") {
+                        return fuelRecordRowHtml({
+                            listName: "carExpenses",
+                            record
+                        });
+                    }
+
+                    if (carPartMeta(record.kind)) {
+                        return carPartRecordRowHtml({
+                            listName: "carExpenses",
+                            record,
+                            kind: record.kind
+                        });
+                    }
+
+                    return recordRowHtml({
+                        listName: "carExpenses",
+                        record,
+                        icon: icons[record.kind] || "🚗",
+                        note: notes[record.kind] || "مصروف سيارة"
+                    });
+                })
                 .join("")
             : emptyListHtml("لا توجد مصاريف سيارة بعد");
 
@@ -2442,6 +4269,432 @@ function renderAll() {
 }
 
 /* =========================================================
+   CLOUD SYNC (Firebase Auth + Firestore)
+
+    All app data (expenses, car, home, tasks, savings,
+    settings) is stored under the signed-in account. localStorage stays
+    as an offline cache - nothing is deleted on logout.
+========================================================= */
+
+function syncStatusView(status) {
+    const phase = status && status.phase;
+
+    if (phase === "syncing") {
+        return { text: "⏳ جارٍ المزامنة...", tone: "busy" };
+    }
+
+    if (phase === "synced") {
+        return { text: "✅ مزامن مع الحساب", tone: "ok" };
+    }
+
+    if (phase === "error") {
+        return {
+            text: `⚠️ ${status.message || "تعذّر المزامنة"}`,
+            tone: "warn"
+        };
+    }
+
+    if (phase === "unconfigured") {
+        return { text: "⚙️ وضع محلي — بلا Firebase", tone: "off" };
+    }
+
+    return { text: "💾 محفوظ على هذا الجهاز", tone: "off" };
+}
+
+function renderSyncStatus(status) {
+    const view = syncStatusView(status);
+
+    const element = $("syncStatus");
+
+    if (element) {
+        element.textContent = view.text;
+        element.dataset.tone = view.tone;
+    }
+
+    const button = $("accountButton");
+
+    if (button) {
+        const signedIn = Boolean(status && status.signedIn);
+
+        button.classList.toggle("signed-in", signedIn);
+        button.setAttribute(
+            "aria-label",
+            signedIn ? "حسابي" : "تسجيل الدخول"
+        );
+    }
+
+    const modalStatus = $("authStatus");
+
+    if (modalStatus) {
+        modalStatus.textContent = view.text;
+        modalStatus.dataset.tone = view.tone;
+    }
+
+    const emailLabel = $("authAccountEmail");
+
+    if (emailLabel && status && status.email) {
+        emailLabel.textContent = status.email;
+    }
+}
+
+function syncExplainHtml() {
+    return `
+        <p class="modal-hint">
+            كل بياناتك (المصاريف، السيارة، البيت، المهام، الادخار
+            والإعدادات) تُحفظ باسم حسابك في Firestore، فتُسترجع تلقائياً
+            عند الدخول من أي جهاز أو بعد إعادة إضافة الموقع إلى الشاشة.
+        </p>
+    `;
+}
+
+function signedOutAccountHtml() {
+    return `
+        <h2 class="modal-title" id="authFormTitle">
+            الحساب والمزامنة
+        </h2>
+
+        ${syncExplainHtml()}
+
+        <div class="account-status" id="authStatus"></div>
+
+        <form id="authForm" class="auth-form" autocomplete="off">
+
+            <div class="form-group">
+
+                <label for="authEmail">
+                    البريد الإلكتروني
+                </label>
+
+                <input
+                    type="email"
+                    id="authEmail"
+                    placeholder="name@example.com"
+                    required
+                    autocomplete="email"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="authPassword">
+                    كلمة المرور
+                </label>
+
+                <input
+                    type="password"
+                    id="authPassword"
+                    minlength="6"
+                    required
+                    autocomplete="current-password"
+                >
+
+            </div>
+
+            <p class="form-error hidden" id="authError"></p>
+
+            <button
+                type="submit"
+                class="form-submit"
+                id="authSubmit"
+            >
+                تسجيل الدخول
+            </button>
+
+            <button
+                type="button"
+                class="form-link"
+                id="authToggle"
+            >
+                إنشاء حساب جديد
+            </button>
+
+        </form>
+    `;
+}
+
+function signedInAccountHtml(user) {
+    return `
+        <h2 class="modal-title">حسابي</h2>
+
+        ${syncExplainHtml()}
+
+        <div class="account-card">
+
+            <strong id="authAccountEmail">
+                ${user.email || ""}
+            </strong>
+
+            <div class="account-status" id="authStatus"></div>
+
+            <button
+                type="button"
+                class="form-submit"
+                id="authSyncNow"
+            >
+                مزامنة الآن
+            </button>
+
+            <button
+                type="button"
+                class="form-submit danger"
+                id="authSignOut"
+            >
+                تسجيل الخروج
+            </button>
+
+            <p class="modal-hint">
+                عند تسجيل الخروج تبقى البيانات محفوظة على هذا الجهاز.
+            </p>
+
+        </div>
+    `;
+}
+
+function unconfiguredAccountHtml() {
+    return `
+        <h2 class="modal-title">الحساب والمزامنة</h2>
+
+        <div class="account-status" id="authStatus"></div>
+
+        <p class="modal-hint">
+            المزامنة مع Firebase غير مفعّلة بعد. أضف إعدادات مشروعك في
+            الملف <code>firebase-config.js</code> ثم فعّل
+            Email/Password في Authentication واضبط قواعد Firestore
+            (التعليمات موجودة داخل الملف نفسه).
+        </p>
+
+        <p class="modal-hint">
+            حتى ذلك الحين تبقى جميع البيانات محفوظة محلياً على هذا
+            الجهاز ولن تُحذف.
+        </p>
+    `;
+}
+
+function wireAuthForm() {
+    let mode = "signin";
+
+    const form = $("authForm");
+    const toggle = $("authToggle");
+    const submit = $("authSubmit");
+    const title = $("authFormTitle");
+    const errorBox = $("authError");
+
+    const label = () => (mode === "signin" ? "تسجيل الدخول" : "إنشاء الحساب");
+
+    toggle?.addEventListener(
+        "click",
+        () => {
+            mode = mode === "signin" ? "signup" : "signin";
+
+            if (title) {
+                title.textContent = mode === "signin"
+                    ? "تسجيل الدخول"
+                    : "إنشاء حساب جديد";
+            }
+
+            if (toggle) {
+                toggle.textContent = mode === "signin"
+                    ? "إنشاء حساب جديد"
+                    : "لدي حساب — تسجيل الدخول";
+            }
+
+            if (submit) {
+                submit.textContent = label();
+            }
+
+            errorBox?.classList.add("hidden");
+        }
+    );
+
+    form?.addEventListener(
+        "submit",
+        (event) => {
+            event.preventDefault();
+
+            const email = $("authEmail")?.value.trim() || "";
+            const password = $("authPassword")?.value || "";
+
+            if (submit) {
+                submit.disabled = true;
+                submit.textContent = "جارٍ التنفيذ...";
+            }
+
+            errorBox?.classList.add("hidden");
+
+            const action = mode === "signin"
+                ? DaftariSync.signIn(email, password)
+                : DaftariSync.signUp(email, password);
+
+            action
+                .then(
+                    () => {
+                        closeModal();
+                        showToast("تم تسجيل الدخول — جارٍ استرجاع بياناتك");
+                    }
+                )
+                .catch(
+                    (error) => {
+                        if (errorBox) {
+                            errorBox.textContent =
+                                error && error.message
+                                    ? error.message
+                                    : "تعذّرت العملية";
+                            errorBox.classList.remove("hidden");
+                        }
+                    }
+                )
+                .then(
+                    () => {
+                        if (submit) {
+                            submit.disabled = false;
+                            submit.textContent = label();
+                        }
+                    }
+                );
+        }
+    );
+}
+
+function wireSignedInAccount() {
+    $("authSyncNow")?.addEventListener(
+        "click",
+        () => {
+            const button = $("authSyncNow");
+
+            if (button) {
+                button.disabled = true;
+                button.textContent = "جارٍ المزامنة...";
+            }
+
+            DaftariSync.pullNow()
+                .then(() => DaftariSync.flushPending())
+                .then(() => showToast("تمت مزامنة بياناتك"))
+                .catch((error) => {
+                    showToast(
+                        error && error.message
+                            ? error.message
+                            : "تعذّرت المزامنة"
+                    );
+                })
+                .then(
+                    () => {
+                        if (button) {
+                            button.disabled = false;
+                            button.textContent = "مزامنة الآن";
+                        }
+                    }
+                );
+        }
+    );
+
+    $("authSignOut")?.addEventListener(
+        "click",
+        () => {
+            DaftariSync.signOut()
+                .then(() => {
+                    closeModal();
+                    showToast("تم تسجيل الخروج — البيانات بقيت على هذا الجهاز");
+                })
+                .catch((error) => {
+                    showToast(
+                        error && error.message
+                            ? error.message
+                            : "تعذّر تسجيل الخروج"
+                    );
+                });
+        }
+    );
+}
+function openAccountModal() {
+    if (typeof DaftariSync === "undefined") {
+        openModal(`
+            <h2 class="modal-title">الحساب والمزامنة</h2>
+            <p class="modal-hint">وحدة المزامنة غير مثبتة.</p>
+        `);
+
+        return;
+    }
+
+    if (!DaftariSync.isConfigured()) {
+        openModal(unconfiguredAccountHtml());
+        renderSyncStatus(DaftariSync.getStatus());
+
+        return;
+    }
+
+    const user = DaftariSync.getUser();
+
+    if (user) {
+        openModal(signedInAccountHtml(user));
+        wireSignedInAccount();
+
+    } else {
+        openModal(signedOutAccountHtml());
+        wireAuthForm();
+    }
+
+    renderSyncStatus(DaftariSync.getStatus());
+}
+
+function setupCloudSync() {
+    if (typeof DaftariSync === "undefined") {
+        renderSyncStatus({ phase: "local" });
+
+        return;
+    }
+
+    DaftariSync
+        .init({
+            getDatabase: () => database,
+
+            createMonth,
+
+            defaultSettings: DEFAULT_MONTH_SETTINGS,
+
+            persistLocal: () => {
+                try {
+                    localStorage.setItem(
+                        STORAGE_KEY,
+                        JSON.stringify(database)
+                    );
+
+                } catch (error) {
+                    console.error("Daftari persist error:", error);
+                }
+            },
+
+            onStatus: renderSyncStatus,
+
+            onAuthChange: (user) => {
+                renderSyncStatus(DaftariSync.getStatus());
+
+                if (user) {
+                    showToast("جارٍ استرجاع بياناتك من حسابك...");
+                }
+
+                renderAll();
+            },
+
+            onRemoteChange: () => {
+                renderAll();
+            }
+        })
+        .then(
+            (user) => {
+                if (user) {
+                    renderAll();
+                }
+            }
+        )
+        .catch(
+            (error) => {
+                console.error("Daftari sync init error:", error);
+            }
+        );
+}
+
+/* =========================================================
    INIT
 ========================================================= */
 
@@ -2470,6 +4723,8 @@ function init() {
     setupActions();
 
     renderAll();
+
+    setupCloudSync();
 }
 
 init();
