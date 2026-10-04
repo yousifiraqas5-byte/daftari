@@ -3057,3 +3057,14 @@ body.dark .modal-overlay {
 
 }
 
+.maintenance-actions {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.salary-summary {
+    margin-top: 12px;
+}
+
+.is-negative {
+    color: #c0392b;
+}

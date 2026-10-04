@@ -439,37 +439,6 @@
                 <div class="personal-options">
 
 
-                    <!-- CAR -->
-
-                    <button
-                        type="button"
-                        class="option-card"
-                        data-page="carPage"
-                    >
-
-                        <div class="option-icon">
-                            🚗
-                        </div>
-
-                        <div class="option-content">
-
-                            <strong>
-                                السيارة
-                            </strong>
-
-                            <span>
-                                البنزين والصيانة والزيوت والفلاتر والبطارية
-                            </span>
-
-                        </div>
-
-                        <span class="option-arrow">
-                            ‹
-                        </span>
-
-                    </button>
-
-
                     <!-- EXPENSES -->
 
                     <button
@@ -490,6 +459,37 @@
 
                             <span>
                                 المصروفات الأساسية والشخصية
+                            </span>
+
+                        </div>
+
+                        <span class="option-arrow">
+                            ‹
+                        </span>
+
+                    </button>
+
+
+                    <!-- CAR -->
+
+                    <button
+                        type="button"
+                        class="option-card"
+                        data-page="carPage"
+                    >
+
+                        <div class="option-icon">
+                            🚗
+                        </div>
+
+                        <div class="option-content">
+
+                            <strong>
+                                السيارة
+                            </strong>
+
+                            <span>
+                                البنزين والصيانة والزيوت والفلاتر والبطارية
                             </span>
 
                         </div>
@@ -858,6 +858,60 @@
 
             </div>
 
+
+            <!-- SALARY -->
+
+            <article class="expense-card salary-card">
+
+                <div class="expense-icon saving">
+                    💵
+                </div>
+
+                <div class="expense-info">
+                    <h3>
+                        الراتب الشهري
+                    </h3>
+                    <p>
+                        يتكرر كل شهر حتى تغيّره
+                    </p>
+                </div>
+
+                <div class="expense-value">
+                    <strong id="salaryValue">
+                        0
+                    </strong>
+                    <small>
+                        د.ع
+                    </small>
+                    <button
+                        type="button"
+                        class="edit-expense"
+                        data-edit-setting="salary"
+                    >
+                        تعديل
+                    </button>
+                </div>
+
+            </article>
+
+            <div class="fuel-summary salary-summary">
+                <div class="fuel-summary-row">
+                    <span>
+                        المصروف
+                    </span>
+                    <strong id="monthSpentTotal">
+                        0 د.ع
+                    </strong>
+                </div>
+                <div class="fuel-summary-row">
+                    <span>
+                        المتبقي
+                    </span>
+                    <strong id="monthRemaining">
+                        0 د.ع
+                    </strong>
+                </div>
+            </div>
 
             <!-- BASIC EXPENSES -->
 
@@ -1276,6 +1330,41 @@
                 </button>
 
 
+                
+
+            </div>
+
+
+            <!-- =================================================
+                 الزيوت والفلاتر والبطارية
+            ================================================== -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        الزيوت والفلاتر والبطارية
+                    </span>
+
+                    <h2>
+                        الصيانة
+                    </h2>
+
+                </div>
+
+                <span
+                    class="section-total"
+                    id="carPartsTotal"
+                >
+                    0 د.ع
+                </span>
+
+            </div>
+
+
+            <div class="quick-actions maintenance-actions">
+
                 <button
                     type="button"
                     class="quick-action"
@@ -1291,39 +1380,6 @@
                     </strong>
 
                 </button>
-
-            </div>
-
-
-            <!-- =================================================
-                 الزيوت والفلاتر والبطارية
-            ================================================== -->
-
-            <div class="section-heading section-heading-space">
-
-                <div>
-
-                    <span class="eyebrow">
-                        صيانة دورية
-                    </span>
-
-                    <h2>
-                        الزيوت والفلاتر والبطارية
-                    </h2>
-
-                </div>
-
-                <span
-                    class="section-total"
-                    id="carPartsTotal"
-                >
-                    0 د.ع
-                </span>
-
-            </div>
-
-
-            <div class="quick-actions">
 
                 <button
                     type="button"
@@ -1541,17 +1597,17 @@
                 <button
                     type="button"
                     class="page-tab active"
-                    data-tab="homeTasksTab"
+                    data-tab="homeMoneyTab"
                 >
-                    📝 مهام
+                    💰 مالي
                 </button>
 
                 <button
                     type="button"
                     class="page-tab"
-                    data-tab="homeMoneyTab"
+                    data-tab="homeTasksTab"
                 >
-                    💰 مالي
+                    📝 مهام
                 </button>
 
             </div>
@@ -1560,7 +1616,7 @@
             <!-- TAB: TASKS -->
 
             <div
-                class="tab-panel active"
+                class="tab-panel"
                 id="homeTasksTab"
             >
 
@@ -1608,7 +1664,7 @@
             <!-- TAB: MONEY -->
 
             <div
-                class="tab-panel"
+                class="tab-panel active"
                 id="homeMoneyTab"
             >
 

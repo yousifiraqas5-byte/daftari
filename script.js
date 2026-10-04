@@ -836,6 +836,7 @@ function bindGenericForm(onSubmit) {
 ========================================================= */
 
 const EDITABLE_SETTINGS = {
+    salary: "الراتب الشهري",
     loan: "السلفة",
     fuelBudget: "ميزانية البنزين",
     mobileInternet: "نت الموبايل",
@@ -844,6 +845,37 @@ const EDITABLE_SETTINGS = {
     homeInternet: "نت البيت",
     rent: "الإيجار"
 };
+
+/*
+    Monthly salary: a month that never set its own salary follows the
+    latest earlier month that did (nothing is copied or stored until the
+    user edits it).
+*/
+
+function getSalary(month) {
+    const own = month.settings && month.settings.salary;
+
+    if (typeof own === "number" && isFinite(own)) {
+        return own;
+    }
+
+    const thisKey = monthKey(month.year, month.month);
+
+    const earlier = Object.keys(database.months)
+        .filter((key) => key < thisKey)
+        .sort()
+        .reverse();
+
+    for (const key of earlier) {
+        const value = database.months[key]?.settings?.salary;
+
+        if (typeof value === "number" && isFinite(value)) {
+            return value;
+        }
+    }
+
+    return 0;
+}
 
 function openEditSettingModal(key) {
     const month = currentMonthData();
@@ -858,7 +890,9 @@ function openEditSettingModal(key) {
         amountFormHtml({
             title: `تعديل ${label}`,
             label: `${label} (د.ع)`,
-            value: numberValue(month.settings[key])
+            value: key === "salary"
+                ? getSalary(month)
+                : numberValue(month.settings[key])
         })
     );
 
@@ -4419,6 +4453,15 @@ function renderExpensesPage() {
         numberValue(settings.homeContribution);
 
     setText("fixedExpenseTotal", currency(fixedTotal));
+
+    const salary = getSalary(month);
+    const spent = fixedTotal + sumOf(month.expenses);
+    const left = salary - spent;
+
+    setText("salaryValue", formatNumber(salary));
+    setText("monthSpentTotal", currency(spent));
+    setText("monthRemaining", currency(left));
+    $("monthRemaining")?.classList.toggle("is-negative", left < 0);
 
     const list = $("customExpenseList");
 

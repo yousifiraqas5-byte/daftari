@@ -205,6 +205,7 @@
 
         const messages = {
             "permission-denied": "صلاحيات Firestore مرفوضة — راجع قواعد الحماية",
+            "unauthenticated": "انتهت جلسة الدخول — سجّل الدخول من جديد",
             "unavailable": "تعذّر الوصول إلى Firestore (بدون اتصال؟)",
             "failed-precondition": "تعذّر تجهيز Firestore",
             "not-found":
@@ -1031,7 +1032,10 @@
             pushTimer = null;
         }
 
-        clearRetryTimer();
+        // Only cancel the pending timer: the attempt counter must survive
+        // so the backoff keeps growing (5s, 10s, 20s ... 5min) until a
+        // flush really succeeds.
+        cancelRetryTimer();
 
         flushChain = flushChain.then(doFlush, doFlush);
 
@@ -1080,6 +1084,15 @@
                     Object.keys(map).map((key) => docPathFor(uid, key)).join(", ")
                 );
 
+                const stillSameUser = currentUser() && currentUser().uid === uid;
+
+                if (!stillSameUser) {
+                    // Signed out / switched account while the write was in
+                    // flight: never queue this data for another account.
+                    // (It is still safe in localStorage.)
+                    return;
+                }
+
                 Object.keys(map).forEach((key) => {
                     if (!pendingPush.has(key)) {
                         pendingPush.set(key, map[key]);
@@ -1099,14 +1112,19 @@
 
         const user = currentUser();
 
-        if (!user || !db || !pendingPush.size) {
+        if (!user || user.uid !== uid || !db || !pendingPush.size) {
+            return;
+        }
+
+        // Offline: the "online" event triggers the flush, no point spinning.
+        if (typeof navigator !== "undefined" && navigator.onLine === false) {
             return;
         }
 
         retryAttempts += 1;
 
         const delay = Math.min(
-            RETRY_BASE_MS * Math.pow(2, Math.min(retryAttempts - 1, 5)),
+            RETRY_BASE_MS * Math.pow(2, Math.min(retryAttempts - 1, 10)),
             RETRY_MAX_MS
         );
 
@@ -1120,11 +1138,16 @@
         );
     }
 
-    function clearRetryTimer() {
+    function cancelRetryTimer() {
         if (retryTimer) {
             clearTimeout(retryTimer);
             retryTimer = null;
         }
+    }
+
+    // Full reset (logout / offline / successful flush).
+    function clearRetryTimer() {
+        cancelRetryTimer();
 
         retryAttempts = 0;
     }
@@ -1314,6 +1337,12 @@
     function handleAuth(user) {
         stopSnapshot();
         clearRetryTimer();
+
+        if (pushTimer) {
+            clearTimeout(pushTimer);
+            pushTimer = null;
+        }
+
         pendingPush.clear();
 
         if (!user) {
