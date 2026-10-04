@@ -1086,7 +1086,7 @@ function expenseFormHtml({ title, label, withSavingsOption = false }) {
     `;
 }
 
-function bindGenericForm(onSubmit) {
+function bindGenericForm(onSubmit, { allowZero = false } = {}) {
     const form = $("genericForm");
 
     if (!form) {
@@ -1101,7 +1101,7 @@ function bindGenericForm(onSubmit) {
 
             const amount = numberValue($("genericAmount")?.value);
 
-            if (amount <= 0) {
+            if (amount < 0 || (!allowZero && amount <= 0)) {
                 showToast("أدخل مبلغاً صحيحاً");
                 return;
             }
@@ -1192,27 +1192,68 @@ function openEditSettingModal(key) {
     );
 }
 
+/*
+    تعديل الادخار من بطاقة «المصروفات الأساسية».
+
+    يغيّر رقم الادخار المخصوم للشهر مرة واحدة فقط: يقارن القيمة
+    الجديدة بالحالية ويسجّل الفرق حركة واحدة (إيداع أو سحب)،
+    فلا تُحسب القيمة مرتين ولا تبقى معلّقة في الحقل القديم
+    month.savings الذي كان يرحّله التطبيق إلى حركة إضافية.
+*/
 function openSavingModal() {
     const month = currentMonthData();
 
+    const current = savingsReserved(month.year, month.month);
+
+    /* تاريخ داخل الشهر المعروض حتى يعدّل الاستقطاع شهره لا شهر اليوم */
+    const date = new Date(month.year, month.month, 1, 12).toISOString();
+
     openModal(
         amountFormHtml({
-            title: "تحديد الادخار",
-            label: "مبلغ الادخار (د.ع)",
-            value: month.savings ? numberValue(month.savings) : ""
+            title: "تعديل الادخار",
+            label: "مبلغ الادخار المخصوم من المتبقي (د.ع)",
+            value: current,
+            hint: current > 0
+                ? `مخصوم حالياً: ${currency(current)}`
+                : "لا يوجد ادخار مخصوم من هذا الشهر"
         })
     );
 
     bindGenericForm(
         (amount) => {
 
-            month.savings = amount;
+            const delta = amount - current;
+
+            if (delta > 0) {
+                addSavingsTransaction({
+                    type: "deposit",
+                    amount: delta,
+                    note: "تعديل الادخار من المصروفات الأساسية",
+                    source: "basicExpensesCard",
+                    date
+                });
+            } else if (delta < 0) {
+                addSavingsTransaction({
+                    type: "withdraw",
+                    amount: Math.abs(delta),
+                    note: "تعديل الادخار من المصروفات الأساسية",
+                    source: "basicExpensesCard",
+                    date
+                });
+            }
+
+            /* لا نكتب month.savings أبداً حتى لا يرحّله التطبيق حركة زائدة */
+            month.savings = null;
 
             commit();
             closeModal();
-            showToast("تم حفظ الادخار");
 
-        }
+            showToast(
+                delta === 0 ? "الادخار كما هو" : "تم تعديل الادخار"
+            );
+
+        },
+        { allowZero: true }
     );
 }
 
