@@ -905,6 +905,14 @@
                 </div>
                 <div class="fuel-summary-row">
                     <span>
+                        المتبقي
+                    </span>
+                    <strong id="monthRemaining">
+                        0 د.ع
+                    </strong>
+                </div>
+                <div class="fuel-summary-row">
+                    <span>
                         محفظتي (صافي هذا الشهر)
                     </span>
                     <strong id="monthWalletNet">
@@ -1115,40 +1123,6 @@
                 </article>
 
 
-                <!-- WALLET -->
-                <article class="expense-card wallet-card">
-
-                    <div class="expense-icon saving">
-                        👛
-                    </div>
-
-                    <div class="expense-info">
-                        <h3>
-                            محفظتي
-                        </h3>
-                        <p>
-                            رصيد وإيداع وسحب
-                        </p>
-                    </div>
-
-                    <div class="expense-value">
-                        <strong id="walletCardBalance">
-                            0
-                        </strong>
-                        <small>
-                            د.ع
-                        </small>
-                        <button
-                            type="button"
-                            class="edit-expense"
-                            data-page="walletPage"
-                        >
-                            فتح
-                        </button>
-                    </div>
-
-                </article>
-
                 <!-- SAVINGS -->
 
                 <article class="expense-card saving-card">
@@ -1320,14 +1294,6 @@
                     </strong>
 
                 </div>
-                <div class="budget-row">
-                    <span>
-                        إجمالي مصاريف السيارة
-                    </span>
-                    <strong id="carTotal">
-                        0 د.ع
-                    </strong>
-                </div>
 
             </div>
 
@@ -1383,33 +1349,6 @@
                 
 
             </div>
-
-            <!-- =================================================
-                 سجل البنزين (داخل قسم البنزين)
-            ================================================== -->
-
-            <div class="section-heading section-heading-space">
-                <div>
-                    <span class="eyebrow">
-                        البنزين
-                    </span>
-                    <h2>
-                        سجل البنزين
-                    </h2>
-                </div>
-                <span
-                    class="section-total"
-                    id="fuelLogTotal"
-                >
-                    0 د.ع
-                </span>
-            </div>
-
-            <div
-                class="record-list"
-                id="fuelRecordsList"
-            ></div>
-
 
 
             <!-- =================================================
@@ -1606,14 +1545,14 @@
                     </span>
 
                     <h2>
-                        سجل الصيانة
+                        مصاريف السيارة
                     </h2>
 
                 </div>
 
                 <span
                     class="section-total"
-                    id="carMaintenanceLogTotal"
+                    id="carTotal"
                 >
                     0 د.ع
                 </span>
@@ -1624,6 +1563,32 @@
             <div
                 class="record-list"
                 id="carExpensesList"
+            ></div>
+
+            <!-- =================================================
+                 سجل البنزين (داخل قسم البنزين)
+            ================================================== -->
+
+            <div class="section-heading section-heading-space">
+                <div>
+                    <span class="eyebrow">
+                        البنزين
+                    </span>
+                    <h2>
+                        سجل البنزين
+                    </h2>
+                </div>
+                <span
+                    class="section-total"
+                    id="fuelLogTotal"
+                >
+                    0 د.ع
+                </span>
+            </div>
+
+            <div
+                class="record-list"
+                id="fuelRecordsList"
             ></div>
 
         </section>
@@ -1973,34 +1938,6 @@
 
             </div>
 
-            <!-- HOME GROCERIES -->
-            <div class="personal-options groceries-entry">
-                <button
-                    type="button"
-                    class="option-card"
-                    data-page="groceriesPage"
-                >
-                    <div class="option-icon">
-                        🛒
-                    </div>
-                    <div class="option-content">
-                        <strong>
-                            المواد المنزلية
-                        </strong>
-                        <span>
-                            فواكه وخضروات ولحوم ومواد منزلية
-                        </span>
-                    </div>
-                    <strong id="homeGroceriesTotal">
-                        0 د.ع
-                    </strong>
-                    <span class="option-arrow">
-                        ‹
-                    </span>
-                </button>
-            </div>
-
-
 
             <!-- OTHER HOME EXPENSES -->
 
@@ -2038,230 +1975,6 @@
 
         </section>
 
-
-        <!-- =================================================
-             WALLET (محفظتي)
-        ================================================== -->
-        <section
-            class="page"
-            id="walletPage"
-        >
-            <div class="page-header">
-                <button
-                    type="button"
-                    class="back-button"
-                    data-page="expensesPage"
-                >
-                    ‹
-                </button>
-                <div>
-                    <span class="eyebrow">
-                        المصروفات الأساسية
-                    </span>
-                    <h1>
-                        محفظتي
-                    </h1>
-                </div>
-            </div>
-
-            <div class="car-budget-box">
-                <div class="budget-main">
-                    <span>
-                        رصيد محفظتي
-                    </span>
-                    <strong id="walletBalanceValue">
-                        0 د.ع
-                    </strong>
-                </div>
-                <div class="budget-row">
-                    <span>
-                        المتاح للمصروف هذا الشهر
-                    </span>
-                    <strong id="walletAvailableValue">
-                        0 د.ع
-                    </strong>
-                </div>
-            </div>
-
-            <div class="quick-actions maintenance-actions">
-                <button
-                    type="button"
-                    class="quick-action"
-                    id="walletDepositButton"
-                >
-                    <span>
-                        ⬇️
-                    </span>
-                    <strong>
-                        إيداع
-                    </strong>
-                </button>
-                <button
-                    type="button"
-                    class="quick-action"
-                    id="walletWithdrawButton"
-                >
-                    <span>
-                        ⬆️
-                    </span>
-                    <strong>
-                        سحب
-                    </strong>
-                </button>
-            </div>
-
-            <div class="section-heading section-heading-space">
-                <div>
-                    <span class="eyebrow">
-                        السجل
-                    </span>
-                    <h2>
-                        عمليات المحفظة
-                    </h2>
-                </div>
-            </div>
-
-            <div
-                class="record-list"
-                id="walletLogList"
-            ></div>
-        </section>
-
-        <!-- =================================================
-             GROCERIES (المواد المنزلية)
-        ================================================== -->
-        <section
-            class="page"
-            id="groceriesPage"
-        >
-            <div class="page-header">
-                <button
-                    type="button"
-                    class="back-button"
-                    data-page="homeExpensesPage"
-                >
-                    ‹
-                </button>
-                <div>
-                    <span class="eyebrow">
-                        البيت
-                    </span>
-                    <h1>
-                        المواد المنزلية
-                    </h1>
-                </div>
-            </div>
-
-            <div class="total-box">
-                <div>
-                    <span>
-                        إجمالي المواد المنزلية هذا الشهر
-                    </span>
-                    <strong id="groceriesTotal">
-                        0 د.ع
-                    </strong>
-                </div>
-            </div>
-
-            <div class="personal-options">
-                <button type="button" class="option-card" data-grocery="fruits">
-                    <div class="option-icon">🍎</div>
-                    <div class="option-content">
-                        <strong>فواكه</strong>
-                    </div>
-                    <strong id="groceryTotal_fruits">0 د.ع</strong>
-                    <span class="option-arrow">‹</span>
-                </button>
-                <button type="button" class="option-card" data-grocery="vegetables">
-                    <div class="option-icon">🥬</div>
-                    <div class="option-content">
-                        <strong>خضروات</strong>
-                    </div>
-                    <strong id="groceryTotal_vegetables">0 د.ع</strong>
-                    <span class="option-arrow">‹</span>
-                </button>
-                <button type="button" class="option-card" data-grocery="meat">
-                    <div class="option-icon">🥩</div>
-                    <div class="option-content">
-                        <strong>لحوم</strong>
-                        <span>لحم ودجاج وسمك</span>
-                    </div>
-                    <strong id="groceryTotal_meat">0 د.ع</strong>
-                    <span class="option-arrow">‹</span>
-                </button>
-                <button type="button" class="option-card" data-grocery="household">
-                    <div class="option-icon">🧴</div>
-                    <div class="option-content">
-                        <strong>مواد منزلية</strong>
-                        <span>منظفات ومناديل وغيرها</span>
-                    </div>
-                    <strong id="groceryTotal_household">0 د.ع</strong>
-                    <span class="option-arrow">‹</span>
-                </button>
-            </div>
-        </section>
-
-        <section
-            class="page"
-            id="groceryCategoryPage"
-        >
-            <div class="page-header">
-                <button
-                    type="button"
-                    class="back-button"
-                    data-page="groceriesPage"
-                >
-                    ‹
-                </button>
-                <div>
-                    <span class="eyebrow">
-                        المواد المنزلية
-                    </span>
-                    <h1 id="groceryCategoryTitle">
-                        فواكه
-                    </h1>
-                </div>
-            </div>
-
-            <div class="total-box">
-                <div>
-                    <span id="groceryCategoryTotalLabel">
-                        إجمالي الفواكه
-                    </span>
-                    <strong id="groceryCategoryTotal">
-                        0 د.ع
-                    </strong>
-                </div>
-            </div>
-
-            <div
-                class="grocery-chips"
-                id="groceryTypeTabs"
-            ></div>
-
-            <div class="section-heading section-heading-space">
-                <div>
-                    <span class="eyebrow">
-                        السجل
-                    </span>
-                    <h2>
-                        العمليات
-                    </h2>
-                </div>
-                <button
-                    type="button"
-                    class="small-action"
-                    id="addGroceryButton"
-                >
-                    + إضافة
-                </button>
-            </div>
-
-            <div
-                class="record-list"
-                id="groceryList"
-            ></div>
-        </section>
     </main>
 
 
