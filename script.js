@@ -169,8 +169,24 @@ function currency(value) {
     return `${formatNumber(value)} د.ع`;
 }
 
+/*
+    Money text helpers (display only).
+    Inputs show thousands separators while typing, but every value that
+    reaches the calculations / localStorage / Firestore is a plain number.
+*/
+
+function normalizeNumberText(value) {
+    return String(value ?? "")
+        .replace(/[٠-٩]/g, (digit) => String(digit.charCodeAt(0) - 1632))
+        .replace(/[۰-۹]/g, (digit) => String(digit.charCodeAt(0) - 1776))
+        .replace(/[,،٬\s]/g, "")
+        .replace(/٫/g, ".");
+}
+
 function numberValue(value) {
-    const number = Number(value);
+    const number = typeof value === "string"
+        ? Number(normalizeNumberText(value))
+        : Number(value);
 
     if (!Number.isFinite(number) || number < 0) {
         return 0;
@@ -180,13 +196,99 @@ function numberValue(value) {
 }
 
 function parseDecimal(value) {
-    const number = parseFloat(String(value ?? ""));
+    const number = parseFloat(
+        typeof value === "string"
+            ? normalizeNumberText(value)
+            : String(value ?? "")
+    );
 
     if (!Number.isFinite(number) || number < 0) {
         return 0;
     }
 
     return number;
+}
+
+/* "1250000" -> "1,250,000" (digits only; "" stays "") */
+function formatMoneyDigits(digits) {
+    const clean = String(digits ?? "")
+        .replace(/\D/g, "")
+        .replace(/^0+(?=\d)/, "");
+
+    return clean.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+/* number -> text for an input's value ("" when empty) */
+function moneyInputValue(value) {
+    const number = numberValue(value);
+
+    return number > 0 ? formatMoneyDigits(String(number)) : "";
+}
+
+/* Re-formats a money <input> in place and keeps the caret where it was. */
+function formatMoneyInput(input) {
+    if (!input || typeof input.value !== "string") {
+        return;
+    }
+
+    const raw = input.value;
+
+    let caret = raw.length;
+
+    try {
+        if (typeof input.selectionStart === "number") {
+            caret = input.selectionStart;
+        }
+    } catch (error) {
+        caret = raw.length;
+    }
+
+    const digitsBeforeCaret = normalizeNumberText(raw.slice(0, caret))
+        .replace(/\D/g, "").length;
+
+    const formatted = formatMoneyDigits(normalizeNumberText(raw));
+
+    if (formatted === raw) {
+        return;
+    }
+
+    input.value = formatted;
+
+    let position = 0;
+    let seen = 0;
+
+    while (position < formatted.length && seen < digitsBeforeCaret) {
+        if (/\d/.test(formatted[position])) {
+            seen += 1;
+        }
+
+        position += 1;
+    }
+
+    try {
+        input.setSelectionRange(position, position);
+    } catch (error) {
+        /* some input types do not support selection */
+    }
+}
+
+function setupMoneyInputs() {
+    document.addEventListener(
+        "input",
+        (event) => {
+
+            const target = event && event.target;
+
+            if (
+                target &&
+                typeof target.matches === "function" &&
+                target.matches("input[data-money]")
+            ) {
+                formatMoneyInput(target);
+            }
+
+        }
+    );
 }
 
 function roundDecimals(value, decimals) {
@@ -714,13 +816,14 @@ function amountFormHtml({ title, label, value = "", submitLabel = "حفظ" }) {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="genericAmount"
-                    min="0"
-                    step="1000"
+
                     inputmode="numeric"
-                    value="${value}"
+                    value="${value === "" ? "" : moneyInputValue(value)}"
                     required
+
+                    data-money
                 >
 
             </div>
@@ -764,12 +867,13 @@ function expenseFormHtml({ title, label, withSavingsOption = false }) {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="genericAmount"
-                    min="0"
-                    step="250"
+
                     inputmode="numeric"
                     required
+
+                    data-money
                 >
 
             </div>
@@ -836,6 +940,7 @@ function bindGenericForm(onSubmit) {
 ========================================================= */
 
 const EDITABLE_SETTINGS = {
+    salary: "الراتب الشهري",
     loan: "السلفة",
     fuelBudget: "ميزانية البنزين",
     mobileInternet: "نت الموبايل",
@@ -844,6 +949,37 @@ const EDITABLE_SETTINGS = {
     homeInternet: "نت البيت",
     rent: "الإيجار"
 };
+
+/*
+    Monthly salary: a month that never set its own salary follows the
+    latest earlier month that did (nothing is copied or stored until the
+    user edits it).
+*/
+
+function getSalary(month) {
+    const own = month.settings && month.settings.salary;
+
+    if (typeof own === "number" && isFinite(own)) {
+        return own;
+    }
+
+    const thisKey = monthKey(month.year, month.month);
+
+    const earlier = Object.keys(database.months)
+        .filter((key) => key < thisKey)
+        .sort()
+        .reverse();
+
+    for (const key of earlier) {
+        const value = database.months[key]?.settings?.salary;
+
+        if (typeof value === "number" && isFinite(value)) {
+            return value;
+        }
+    }
+
+    return 0;
+}
 
 function openEditSettingModal(key) {
     const month = currentMonthData();
@@ -858,7 +994,9 @@ function openEditSettingModal(key) {
         amountFormHtml({
             title: `تعديل ${label}`,
             label: `${label} (د.ع)`,
-            value: numberValue(month.settings[key])
+            value: key === "salary"
+                ? getSalary(month)
+                : numberValue(month.settings[key])
         })
     );
 
@@ -1073,12 +1211,15 @@ function fuelFormHtml() {
                     </label>
 
                     <input
-                        type="number"
+                        type="text"
                         id="fuelPricePerLiter"
-                        min="0"
-                        step="1"
+
                         placeholder="0"
                         autocomplete="off"
+
+                        inputmode="numeric"
+
+                        data-money
                     >
 
                 </div>
@@ -1092,12 +1233,15 @@ function fuelFormHtml() {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="fuelTotal"
-                    min="0"
-                    step="1"
+
                     placeholder="0"
                     autocomplete="off"
+
+                    inputmode="numeric"
+
+                    data-money
                 >
 
             </div>
@@ -1175,7 +1319,7 @@ function onFuelTypeChange() {
         priceInput.value = priceInput.value || "";
     } else {
         priceInput.disabled = true;
-        priceInput.value = FUEL_PRICES[type];
+        priceInput.value = moneyInputValue(FUEL_PRICES[type]);
     }
 
     recomputeFuelTotal();
@@ -1196,7 +1340,7 @@ function recomputeFuelTotal() {
     }
 
     if (liters > 0 && price > 0) {
-        totalInput.value = Math.round(liters * price);
+        totalInput.value = moneyInputValue(Math.round(liters * price));
     } else if (liters <= 0) {
         totalInput.value = "";
     }
@@ -1433,14 +1577,15 @@ function carPartFormHtml(kind) {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="carPartAmount"
-                    min="0"
-                    step="250"
+
                     inputmode="numeric"
                     placeholder="0"
                     autocomplete="off"
                     required
+
+                    data-money
                 >
 
             </div>
@@ -1723,6 +1868,21 @@ function setupActions() {
         () => openCarPartModal("battery")
     );
 
+    $("walletDepositButton")?.addEventListener(
+        "click",
+        () => openWalletModal("deposit")
+    );
+
+    $("walletWithdrawButton")?.addEventListener(
+        "click",
+        () => openWalletModal("withdraw")
+    );
+
+    $("addGroceryButton")?.addEventListener(
+        "click",
+        openGroceryModal
+    );
+
     $("accountButton")?.addEventListener(
         "click",
         openAccountModal
@@ -1777,6 +1937,21 @@ function setupActions() {
                     deleteButton.dataset.delete,
                     deleteButton.dataset.deleteId
                 );
+                return;
+            }
+
+            const groceryButton = event.target.closest("[data-grocery]");
+
+            if (groceryButton) {
+                openGroceryCategory(groceryButton.dataset.grocery);
+                return;
+            }
+
+            const groceryTypeButton =
+                event.target.closest("[data-grocery-type]");
+
+            if (groceryTypeButton) {
+                setGrocerySubtype(groceryTypeButton.dataset.groceryType);
                 return;
             }
 
@@ -3824,12 +3999,13 @@ function savingsTransactionFormHtml({ title, submitLabel }) {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="genericAmount"
-                    min="0"
-                    step="1000"
+
                     inputmode="numeric"
                     required
+
+                    data-money
                 >
 
             </div>
@@ -3979,12 +4155,13 @@ function openAddDebtorModal() {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="genericRequired"
-                    min="0"
-                    step="1000"
+
                     inputmode="numeric"
                     required
+
+                    data-money
                 >
 
             </div>
@@ -3996,12 +4173,13 @@ function openAddDebtorModal() {
                 </label>
 
                 <input
-                    type="number"
+                    type="text"
                     id="genericPaid"
-                    min="0"
-                    step="1000"
+
                     inputmode="numeric"
                     value="0"
+
+                    data-money
                 >
 
             </div>
@@ -4420,6 +4598,15 @@ function renderExpensesPage() {
 
     setText("fixedExpenseTotal", currency(fixedTotal));
 
+    const finance = monthFinance(month, fixedTotal);
+
+    setText("salaryValue", formatNumber(finance.salary));
+    setText("monthSpentTotal", currency(finance.spent));
+    setText("monthWalletNet", signedCurrency(finance.walletNet));
+    setText("monthRemaining", currency(finance.remaining));
+    $("monthRemaining")?.classList.toggle("is-negative", finance.remaining < 0);
+    setText("walletCardBalance", formatNumber(walletBalance()));
+
     const list = $("customExpenseList");
 
     if (list) {
@@ -4500,19 +4687,39 @@ function renderCarPage() {
     setText("fuelTotalLiters", `${formatDecimals(fuelLiters, 2)} لتر`);
     setText("fuelTotalAmount", currency(sumOf(fuelRecords)));
 
+    /* ---- سجل البنزين (داخل قسم البنزين) ---- */
+
+    const fuelList = $("fuelRecordsList");
+
+    if (fuelList) {
+        fuelList.innerHTML = fuelRecords.length
+            ? sortCarRecordsDesc(fuelRecords)
+                .map((record) => fuelRecordRowHtml({
+                    listName: "carExpenses",
+                    record
+                }))
+                .join("")
+            : emptyListHtml("لا توجد تعبئات بنزين بعد");
+
+        wireRecordRows(fuelList, "carExpenses");
+    }
+
+    setText("fuelLogTotal", currency(sumOf(fuelRecords)));
+
+    /* ---- سجل الصيانة (باقي مصاريف السيارة) ---- */
+
+    const otherCarRecords = month.carExpenses.filter(
+        (record) => record.kind !== "fuel"
+    );
+
+    setText("carMaintenanceLogTotal", currency(sumOf(otherCarRecords)));
+
     const list = $("carExpensesList");
 
     if (list) {
-        list.innerHTML = month.carExpenses.length
-            ? sortCarRecordsDesc(month.carExpenses)
+        list.innerHTML = otherCarRecords.length
+            ? sortCarRecordsDesc(otherCarRecords)
                 .map((record) => {
-
-                    if (record.kind === "fuel") {
-                        return fuelRecordRowHtml({
-                            listName: "carExpenses",
-                            record
-                        });
-                    }
 
                     if (carPartMeta(record.kind)) {
                         return carPartRecordRowHtml({
@@ -4530,7 +4737,7 @@ function renderCarPage() {
                     });
                 })
                 .join("")
-            : emptyListHtml("لا توجد مصاريف سيارة بعد");
+            : emptyListHtml("لا توجد سجلات صيانة بعد");
 
         wireRecordRows(list, "carExpenses");
     }
@@ -4557,6 +4764,11 @@ function renderHomeExpensesPage() {
     setText("homeBasicTotal", currency(basic));
     setText("homeRemaining", currency(Math.max(budget - basic - other, 0)));
 
+    setText(
+        "homeGroceriesTotal",
+        currency(sumOf(month.homeExpenses.filter(isGroceryRecord)))
+    );
+
     setText("generatorValue", formatNumber(settings.generator));
     setText("homeInternetValue", formatNumber(settings.homeInternet));
     setText("rentValue", formatNumber(settings.rent));
@@ -4564,8 +4776,12 @@ function renderHomeExpensesPage() {
     const list = $("homeExpensesList");
 
     if (list) {
-        list.innerHTML = month.homeExpenses.length
-            ? month.homeExpenses
+        const plainHomeExpenses = month.homeExpenses.filter(
+            (record) => !isGroceryRecord(record)
+        );
+
+        list.innerHTML = plainHomeExpenses.length
+            ? plainHomeExpenses
                 .slice()
                 .reverse()
                 .map((record) => recordRowHtml({
@@ -4607,6 +4823,12 @@ function renderAll() {
     renderCarPage();
 
     renderHomeExpensesPage();
+
+    renderWalletPage();
+
+    renderGroceriesPage();
+
+    renderGroceryCategoryPage();
 
     renderTasks();
 
@@ -5043,6 +5265,902 @@ function setupCloudSync() {
    INIT
 ========================================================= */
 
+/* =========================================================
+   FINANCE SUMMARY (راتب / مصروف / محفظتي / متبقي)
+
+   remaining = salary - spent - wallet net of THIS month
+   where wallet net = deposits - withdrawals recorded in this month.
+   A deposit takes money out of the available balance, a withdrawal
+   gives it back - same single "remaining" figure the page already uses.
+========================================================= */
+
+function signedCurrency(value) {
+    const number = Math.round(Number(value) || 0);
+
+    if (number === 0) {
+        return currency(0);
+    }
+
+    return `${number > 0 ? "+" : "-"}${formatNumber(Math.abs(number))} د.ع`;
+}
+
+function monthFinance(month, fixedTotal) {
+    const salary = getSalary(month);
+
+    const spent = fixedTotal + sumOf(month.expenses);
+
+    const walletNet = walletNetForMonth(
+        monthKey(month.year, month.month)
+    );
+
+    return {
+        salary,
+        spent,
+        walletNet,
+        remaining: salary - spent - walletNet
+    };
+}
+
+function fixedExpensesTotal(month) {
+    const settings = month.settings;
+
+    return (
+        numberValue(settings.loan) +
+        numberValue(settings.fuelBudget) +
+        numberValue(settings.mobileInternet) +
+        numberValue(settings.homeContribution)
+    );
+}
+
+function availableBalance(month = currentMonthData()) {
+    return monthFinance(month, fixedExpensesTotal(month)).remaining;
+}
+
+/* =========================================================
+   WALLET (محفظتي)
+
+   Cumulative balance across ALL months, kept in the same cloud
+   document as the savings ledger (database.savingsLedger.
+   walletTransactions -> users/{uid}/meta/ledger). Each record:
+
+     { id, type: "deposit" | "withdraw", amount, date, monthKey }
+
+   `monthKey` is the month the operation was made in; it decides
+   which month's available balance it affects. Changing the month
+   never resets or edits the wallet balance itself.
+========================================================= */
+
+function getWalletTransactions() {
+    if (
+        !database.savingsLedger ||
+        typeof database.savingsLedger !== "object"
+    ) {
+        database.savingsLedger = {
+            transactions: [],
+            debtors: []
+        };
+    }
+
+    if (!Array.isArray(database.savingsLedger.walletTransactions)) {
+        database.savingsLedger.walletTransactions = [];
+    }
+
+    return database.savingsLedger.walletTransactions.filter(
+        (transaction) => transaction && typeof transaction === "object"
+    );
+}
+
+function walletBalance() {
+    return getWalletTransactions().reduce((balance, transaction) => {
+
+        const amount = numberValue(transaction.amount);
+
+        if (transaction.type === "deposit") {
+            return balance + amount;
+        }
+
+        if (transaction.type === "withdraw") {
+            return balance - amount;
+        }
+
+        return balance;
+
+    }, 0);
+}
+
+function walletNetForMonth(key) {
+    return getWalletTransactions().reduce((net, transaction) => {
+
+        if (transaction.monthKey !== key) {
+            return net;
+        }
+
+        const amount = numberValue(transaction.amount);
+
+        if (transaction.type === "deposit") {
+            return net + amount;
+        }
+
+        if (transaction.type === "withdraw") {
+            return net - amount;
+        }
+
+        return net;
+
+    }, 0);
+}
+
+/*
+    Validates and records one wallet operation.
+    Returns { ok: true, transaction } or { ok: false, message }.
+*/
+function addWalletTransaction(type, rawAmount) {
+    if (type !== "deposit" && type !== "withdraw") {
+        return { ok: false, message: "عملية غير معروفة" };
+    }
+
+    const amount = numberValue(rawAmount);
+
+    if (amount <= 0) {
+        return { ok: false, message: "أدخل مبلغاً صحيحاً" };
+    }
+
+    if (type === "withdraw" && amount > walletBalance()) {
+        return { ok: false, message: "رصيد المحفظة غير كافٍ." };
+    }
+
+    getWalletTransactions();
+
+    const transaction = {
+        id: Date.now() + Math.floor(Math.random() * 100000),
+        type,
+        amount,
+        date: new Date().toISOString(),
+        monthKey: monthKey()
+    };
+
+    database.savingsLedger.walletTransactions.push(transaction);
+
+    return { ok: true, transaction };
+}
+
+function openWalletModal(type) {
+    if (isMonthClosed()) {
+        showToast("🔒 شهر مغلق");
+        return;
+    }
+
+    const isDeposit = type === "deposit";
+
+    openModal(
+        amountFormHtml({
+            title: isDeposit ? "إيداع في محفظتي" : "سحب من محفظتي",
+            label: "المبلغ (د.ع)",
+            submitLabel: isDeposit ? "إيداع" : "سحب"
+        })
+    );
+
+    bindGenericForm(
+        (amount) => {
+
+            const result = addWalletTransaction(type, amount);
+
+            if (!result.ok) {
+                showToast(result.message);
+                return;
+            }
+
+            commit();
+            closeModal();
+            showToast(isDeposit ? "تم الإيداع في المحفظة" : "تم السحب من المحفظة");
+
+        }
+    );
+}
+
+function formatDateTime(iso) {
+    const date = new Date(iso);
+
+    if (Number.isNaN(date.getTime())) {
+        return "";
+    }
+
+    const pad = (value) => String(value).padStart(2, "0");
+
+    return (
+        `${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()}` +
+        ` ${pad(date.getHours())}:${pad(date.getMinutes())}`
+    );
+}
+
+function walletRowHtml(transaction, balanceAfter) {
+    const isDeposit = transaction.type === "deposit";
+
+    return `
+        <div class="record-row wallet-row">
+
+            <span class="record-icon">
+                ${isDeposit ? "⬇️" : "⬆️"}
+            </span>
+
+            <div class="record-info">
+
+                <strong>
+                    ${isDeposit ? "إيداع" : "سحب"}
+                </strong>
+
+                <span class="fuel-meta">
+                    ${formatDateTime(transaction.date)}
+                    • الرصيد بعدها ${currency(balanceAfter)}
+                </span>
+
+            </div>
+
+            <strong class="record-amount ${isDeposit ? "wallet-plus" : "wallet-minus"}">
+                ${isDeposit ? "+" : "-"}${formatNumber(transaction.amount)} د.ع
+            </strong>
+
+        </div>
+    `;
+}
+
+function renderWalletPage() {
+    setText("walletBalanceValue", currency(walletBalance()));
+
+    setText("walletAvailableValue", currency(availableBalance()));
+
+    const list = $("walletLogList");
+
+    if (!list) {
+        return;
+    }
+
+    const ordered = getWalletTransactions()
+        .slice()
+        .sort((a, b) =>
+            (new Date(a.date).getTime() || 0) -
+            (new Date(b.date).getTime() || 0) ||
+            (Number(a.id) || 0) - (Number(b.id) || 0)
+        );
+
+    let running = 0;
+
+    const rows = ordered.map((transaction) => {
+
+        const amount = numberValue(transaction.amount);
+
+        running += transaction.type === "deposit" ? amount : -amount;
+
+        return walletRowHtml(transaction, running);
+
+    });
+
+    list.innerHTML = rows.length
+        ? rows.reverse().join("")
+        : emptyListHtml("لا توجد عمليات في المحفظة بعد");
+}
+
+/* =========================================================
+   HOME GROCERIES (المواد المنزلية)
+
+   Every purchase is stored in month.homeExpenses - the same list
+   (and the same cloud field) as the other home expenses - so it is
+   part of the home total automatically:
+
+     { id, kind: "grocery", group, subtype, title, quantity, unit,
+       unitPrice, amount (= total), total, date, note }
+
+   `group` is fruits | vegetables | meat | household.
+========================================================= */
+
+const GROCERY_CATEGORIES = {
+    fruits: {
+        label: "فواكه",
+        icon: "🍎",
+        namePlaceholder: "مثال: تفاح",
+        defaultUnit: "كغم",
+        units: ["كغم", "حبة", "حزمة", "علبة", "أخرى"],
+        subtypes: null
+    },
+
+    vegetables: {
+        label: "خضروات",
+        icon: "🥬",
+        namePlaceholder: "مثال: طماطم",
+        defaultUnit: "كغم",
+        units: ["كغم", "حبة", "حزمة", "علبة", "أخرى"],
+        subtypes: null
+    },
+
+    meat: {
+        label: "لحوم",
+        icon: "🥩",
+        namePlaceholder: "مثال: صدور دجاج",
+        defaultUnit: "كغم",
+        units: ["كغم", "قطعة", "علبة", "أخرى"],
+        /* add more built-in kinds here; users can also add their own */
+        subtypes: ["لحم", "دجاج", "سمك"]
+    },
+
+    household: {
+        label: "مواد منزلية",
+        icon: "🧴",
+        namePlaceholder: "مثال: منظف أرضيات",
+        defaultUnit: "قطعة",
+        units: ["قطعة", "علبة", "كارتون", "لتر", "كغم", "أخرى"],
+        subtypes: null
+    }
+};
+
+let activeGroceryCategory = "fruits";
+let activeGrocerySubtype = "all";
+
+function isGroceryRecord(record) {
+    return Boolean(
+        record &&
+        typeof record === "object" &&
+        typeof record.group === "string" &&
+        Object.prototype.hasOwnProperty.call(GROCERY_CATEGORIES, record.group)
+    );
+}
+
+function getGroceryRecords(group) {
+    return currentMonthData().homeExpenses.filter(
+        (record) => isGroceryRecord(record) && record.group === group
+    );
+}
+
+/* built-in kinds + any custom kind the user already used */
+function grocerySubtypes(group) {
+    const meta = GROCERY_CATEGORIES[group];
+
+    if (!meta || !meta.subtypes) {
+        return [];
+    }
+
+    const list = meta.subtypes.slice();
+
+    getGroceryRecords(group).forEach((record) => {
+        if (record.subtype && list.indexOf(record.subtype) === -1) {
+            list.push(record.subtype);
+        }
+    });
+
+    return list;
+}
+
+function openGroceryCategory(group) {
+    if (!GROCERY_CATEGORIES[group]) {
+        return;
+    }
+
+    activeGroceryCategory = group;
+    activeGrocerySubtype = "all";
+
+    renderGroceryCategoryPage();
+    showPage("groceryCategoryPage");
+}
+
+function setGrocerySubtype(subtype) {
+    activeGrocerySubtype = subtype || "all";
+
+    renderGroceryCategoryPage();
+}
+
+function groceryTotalAll(month = currentMonthData()) {
+    return sumOf(month.homeExpenses.filter(isGroceryRecord));
+}
+
+function renderGroceriesPage() {
+    const month = currentMonthData();
+
+    Object.keys(GROCERY_CATEGORIES).forEach((group) => {
+        setText(
+            `groceryTotal_${group}`,
+            currency(
+                sumOf(
+                    month.homeExpenses.filter(
+                        (record) =>
+                            isGroceryRecord(record) && record.group === group
+                    )
+                )
+            )
+        );
+    });
+
+    setText("groceriesTotal", currency(groceryTotalAll(month)));
+}
+
+function groceryRowHtml(record, meta) {
+    const quantity = record.quantity != null
+        ? formatDecimals(record.quantity, 3)
+        : "";
+
+    const unit = record.unit ? ` ${escapeTaskHtml(record.unit)}` : "";
+
+    const unitPrice = record.unitPrice != null
+        ? ` × ${formatNumber(record.unitPrice)} د.ع`
+        : "";
+
+    const subtype = record.subtype
+        ? `${escapeTaskHtml(record.subtype)} • `
+        : "";
+
+    const note = record.note
+        ? ` • ${escapeTaskHtml(record.note)}`
+        : "";
+
+    return `
+        <div class="record-row grocery-row">
+
+            <span class="record-icon">
+                ${meta.icon}
+            </span>
+
+            <div class="record-info">
+
+                <strong>
+                    ${escapeTaskHtml(record.title)}
+                </strong>
+
+                <span class="fuel-meta">
+                    ${subtype}${quantity}${unit}${unitPrice}
+                    • ${formatDate(record.date)}${note}
+                </span>
+
+            </div>
+
+            <strong class="record-amount">
+                ${currency(record.amount)}
+            </strong>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-delete="homeExpenses"
+                data-delete-id="${record.id}"
+                aria-label="حذف"
+            >
+                ×
+            </button>
+
+        </div>
+    `;
+}
+
+function renderGroceryCategoryPage() {
+    const meta = GROCERY_CATEGORIES[activeGroceryCategory];
+
+    if (!meta) {
+        return;
+    }
+
+    const records = getGroceryRecords(activeGroceryCategory);
+
+    setText("groceryCategoryTitle", meta.label);
+    setText("groceryCategoryTotalLabel", `إجمالي ${meta.label}`);
+    setText("groceryCategoryTotal", currency(sumOf(records)));
+
+    const tabs = $("groceryTypeTabs");
+
+    if (tabs) {
+        const subtypes = grocerySubtypes(activeGroceryCategory);
+
+        if (!subtypes.length) {
+            tabs.innerHTML = "";
+        } else {
+            tabs.innerHTML = ["all"]
+                .concat(subtypes)
+                .map((subtype) => `
+                    <button
+                        type="button"
+                        class="grocery-chip ${subtype === activeGrocerySubtype ? "active" : ""}"
+                        data-grocery-type="${escapeTaskHtml(subtype)}"
+                    >
+                        ${subtype === "all" ? "الكل" : escapeTaskHtml(subtype)}
+                    </button>
+                `)
+                .join("");
+        }
+    }
+
+    const filtered = activeGrocerySubtype === "all"
+        ? records
+        : records.filter((record) => record.subtype === activeGrocerySubtype);
+
+    const list = $("groceryList");
+
+    if (list) {
+        list.innerHTML = filtered.length
+            ? sortCarRecordsDesc(filtered)
+                .map((record) => groceryRowHtml(record, meta))
+                .join("")
+            : emptyListHtml("لا توجد عمليات بعد");
+
+        wireRecordRows(list, "homeExpenses");
+    }
+}
+
+function groceryFormHtml(group) {
+    const meta = GROCERY_CATEGORIES[group];
+
+    const subtypes = grocerySubtypes(group);
+
+    const unitOptions = meta.units
+        .map((unit) => `
+            <option value="${unit}" ${unit === meta.defaultUnit ? "selected" : ""}>
+                ${unit}
+            </option>
+        `)
+        .join("");
+
+    const defaultSubtype = activeGrocerySubtype !== "all"
+        ? activeGrocerySubtype
+        : subtypes[0];
+
+    const subtypeOptions = subtypes
+        .map((subtype) => `
+            <option value="${escapeTaskHtml(subtype)}" ${subtype === defaultSubtype ? "selected" : ""}>
+                ${escapeTaskHtml(subtype)}
+            </option>
+        `)
+        .join("");
+
+    return `
+        <h2 class="modal-title">إضافة ${meta.label}</h2>
+
+        <form id="groceryForm" class="fuel-form" autocomplete="off">
+
+            ${subtypes.length ? `
+            <div class="form-group">
+
+                <label for="grocerySubtype">
+                    النوع
+                </label>
+
+                <select id="grocerySubtype">
+                    ${subtypeOptions}
+                    <option value="__new">+ نوع جديد</option>
+                </select>
+
+                <input
+                    type="text"
+                    id="grocerySubtypeNew"
+                    class="hidden"
+                    placeholder="اسم النوع الجديد"
+                >
+
+            </div>
+            ` : ""}
+
+            <div class="form-group">
+
+                <label for="groceryName">
+                    اسم الصنف
+                </label>
+
+                <input
+                    type="text"
+                    id="groceryName"
+                    placeholder="${meta.namePlaceholder}"
+                    required
+                >
+
+            </div>
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="groceryQuantity">
+                        الكمية
+                    </label>
+
+                    <input
+                        type="number"
+                        id="groceryQuantity"
+                        min="0"
+                        step="0.01"
+                        inputmode="decimal"
+                        placeholder="0"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="groceryUnit">
+                        الوحدة
+                    </label>
+
+                    <select id="groceryUnit">
+                        ${unitOptions}
+                    </select>
+
+                </div>
+
+            </div>
+
+            <div class="form-group hidden" id="groceryUnitOtherGroup">
+
+                <label for="groceryUnitOther">
+                    اسم الوحدة
+                </label>
+
+                <input
+                    type="text"
+                    id="groceryUnitOther"
+                    placeholder="مثال: ربطة"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="groceryUnitPrice">
+                    سعر الوحدة (د.ع)
+                </label>
+
+                <input
+                    type="text"
+                    id="groceryUnitPrice"
+                    inputmode="numeric"
+                    placeholder="0"
+                    data-money
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="groceryTotal">
+                    الإجمالي (د.ع)
+                </label>
+
+                <input
+                    type="text"
+                    id="groceryTotal"
+                    placeholder="0"
+                    readonly
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="groceryDate">
+                    التاريخ
+                </label>
+
+                <input
+                    type="date"
+                    id="groceryDate"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="groceryNote">
+                    ملاحظات (اختياري)
+                </label>
+
+                <input
+                    type="text"
+                    id="groceryNote"
+                    placeholder="ملاحظة..."
+                >
+
+            </div>
+
+            <button
+                type="submit"
+                class="form-submit"
+            >
+                حفظ
+            </button>
+
+        </form>
+    `;
+}
+
+/* total = quantity x unit price (display only; saved as numbers) */
+function groceryComputedTotal() {
+    const quantity = parseDecimal($("groceryQuantity")?.value);
+    const unitPrice = numberValue($("groceryUnitPrice")?.value);
+
+    return Math.round(quantity * unitPrice);
+}
+
+function recomputeGroceryTotal() {
+    const totalInput = $("groceryTotal");
+
+    if (totalInput) {
+        totalInput.value = moneyInputValue(groceryComputedTotal());
+    }
+}
+
+function groceryDateISO() {
+    const value = $("groceryDate")?.value;
+
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || "");
+
+    if (!match) {
+        return new Date().toISOString();
+    }
+
+    return new Date(
+        Number(match[1]),
+        Number(match[2]) - 1,
+        Number(match[3]),
+        12
+    ).toISOString();
+}
+
+/*
+    Pure validation + record builder (no DOM).
+    Returns { ok: true, record } or { ok: false, message }.
+*/
+function buildGroceryRecord({
+    group,
+    name,
+    subtype = "",
+    quantity,
+    unit,
+    unitPrice,
+    date,
+    note = ""
+}) {
+    const meta = GROCERY_CATEGORIES[group];
+
+    if (!meta) {
+        return { ok: false, message: "قسم غير معروف" };
+    }
+
+    const title = String(name || "").trim();
+
+    if (!title) {
+        return { ok: false, message: "أدخل اسم الصنف" };
+    }
+
+    const amountQuantity = parseDecimal(quantity);
+
+    if (amountQuantity <= 0) {
+        return { ok: false, message: "أدخل كمية صحيحة" };
+    }
+
+    const price = numberValue(unitPrice);
+
+    if (price <= 0) {
+        return { ok: false, message: "أدخل سعر الوحدة" };
+    }
+
+    const total = Math.round(amountQuantity * price);
+
+    if (total <= 0) {
+        return { ok: false, message: "الإجمالي غير صحيح" };
+    }
+
+    if (meta.subtypes && !String(subtype || "").trim()) {
+        return { ok: false, message: "اختر النوع" };
+    }
+
+    return {
+        ok: true,
+        record: {
+            id: Date.now() + Math.floor(Math.random() * 100000),
+            kind: "grocery",
+            group,
+            subtype: meta.subtypes ? String(subtype).trim() : "",
+            title,
+            quantity: roundDecimals(amountQuantity, 3),
+            unit: String(unit || meta.defaultUnit).trim(),
+            unitPrice: price,
+            amount: total,
+            total,
+            date: date || new Date().toISOString(),
+            note: String(note || "").trim()
+        }
+    };
+}
+
+function openGroceryModal() {
+    if (isMonthClosed()) {
+        showToast("🔒 شهر مغلق");
+        return;
+    }
+
+    const group = activeGroceryCategory;
+
+    const meta = GROCERY_CATEGORIES[group];
+
+    if (!meta) {
+        return;
+    }
+
+    openModal(groceryFormHtml(group));
+
+    const dateInput = $("groceryDate");
+
+    if (dateInput && !dateInput.value) {
+        dateInput.value = todayDateInputValue();
+    }
+
+    $("groceryQuantity")?.addEventListener("input", recomputeGroceryTotal);
+    $("groceryUnitPrice")?.addEventListener("input", recomputeGroceryTotal);
+
+    $("groceryUnit")?.addEventListener(
+        "change",
+        () => {
+            $("groceryUnitOtherGroup")?.classList.toggle(
+                "hidden",
+                $("groceryUnit")?.value !== "أخرى"
+            );
+        }
+    );
+
+    $("grocerySubtype")?.addEventListener(
+        "change",
+        () => {
+            $("grocerySubtypeNew")?.classList.toggle(
+                "hidden",
+                $("grocerySubtype")?.value !== "__new"
+            );
+        }
+    );
+
+    $("groceryForm")?.addEventListener(
+        "submit",
+        (event) => {
+
+            event.preventDefault();
+
+            let subtype = $("grocerySubtype")?.value || "";
+
+            if (subtype === "__new") {
+                subtype = $("grocerySubtypeNew")?.value || "";
+            }
+
+            let unit = $("groceryUnit")?.value || meta.defaultUnit;
+
+            if (unit === "أخرى") {
+                unit = $("groceryUnitOther")?.value?.trim() || "";
+
+                if (!unit) {
+                    showToast("اكتب اسم الوحدة");
+                    return;
+                }
+            }
+
+            const result = buildGroceryRecord({
+                group,
+                name: $("groceryName")?.value,
+                subtype,
+                quantity: $("groceryQuantity")?.value,
+                unit,
+                unitPrice: $("groceryUnitPrice")?.value,
+                date: groceryDateISO(),
+                note: $("groceryNote")?.value
+            });
+
+            if (!result.ok) {
+                showToast(result.message);
+                return;
+            }
+
+            currentMonthData().homeExpenses.push(result.record);
+
+            commit();
+            closeModal();
+            showToast(`تمت إضافة ${meta.label}`);
+
+        }
+    );
+}
+
 function init() {
     ensureCurrentMonth();
 
@@ -5062,6 +6180,8 @@ function init() {
     setupMonthNavigation();
 
     setupModal();
+
+    setupMoneyInputs();
 
     setupPageTabs();
 

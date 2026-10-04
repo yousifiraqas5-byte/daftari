@@ -1,0 +1,14 @@
+{
+  "name": "daftari",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Daftari - Arabic PWA personal organizer (Firebase project daftari-27563)",
+  "scripts": {
+    "test": "node tests/sync.test.js && node tests/retry.test.js && node tests/car-parts.test.js",
+    "test:tasks": "node tests/tasks.test.js",
+    "test:real": "node tests/real-sync.test.js"
+  },
+  "devDependencies": {
+    "firebase": "^10.14.1"
+  }
+}

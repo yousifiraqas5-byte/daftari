@@ -3057,3 +3057,53 @@ body.dark .modal-overlay {
 
 }
 
+.maintenance-actions {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.salary-summary {
+    margin-top: 12px;
+}
+
+.is-negative {
+    color: #c0392b;
+}
+
+.grocery-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.grocery-chips:empty {
+    display: none;
+}
+
+.grocery-chip {
+    min-height: 38px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 11px;
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.grocery-chip.active {
+    background: var(--primary);
+    color: #fff;
+}
+
+.groceries-entry {
+    margin-top: 14px;
+}
+
+.wallet-plus {
+    color: #1e8e5a;
+}
+
+.wallet-minus {
+    color: #c0392b;
+}

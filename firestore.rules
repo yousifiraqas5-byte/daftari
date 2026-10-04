@@ -1,21 +1,5 @@
 rules_version = '2';
 
-/*
-    دفتري - Firestore Security Rules
-
-    Deploy:  firebase deploy --only firestore:rules
-
-    The web app stores everything under the signed-in user:
-
-        users/{uid}                    (account marker: email + lastSyncAtMs)
-        users/{uid}/months/{YYYY-MM}   (expenses, car, home, tasks, settings)
-        users/{uid}/meta/ledger        (cumulative savings + debtors)
-        users/{uid}/carMonths/{YYYY-MM}  (OLD car-only data - read only)
-
-    Data is readable/writable ONLY by the signed-in user that owns that
-    uid - never public, never cross-user. Everything else is closed.
-*/
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -29,27 +13,27 @@ service cloud.firestore {
 
     match /users/{uid} {
 
-      // Account marker document (email / lastSyncAtMs).
+      // Account marker
       allow read, write: if owns(uid);
 
-      // Month documents are keyed "YYYY-MM" - nothing else is accepted.
+      // Monthly data
       match /months/{monthKey} {
-        allow read, write: if owns(uid)
-          && monthKey.matches('^[0-9]{4}-[0-9]{2}$');
+        allow read: if owns(uid);
+        allow create, update, delete: if owns(uid);
       }
 
-      // The single savings ledger document.
+      // Savings / debt ledger
       match /meta/{docId} {
-        allow read, write: if owns(uid) && docId == 'ledger';
+        allow read, write: if owns(uid);
       }
 
-      // Old car-only documents: still readable so they can be migrated.
+      // Legacy car data - read only
       match /carMonths/{monthKey} {
         allow read: if owns(uid);
       }
     }
 
-    // Default deny: everything not listed above.
+    // Deny everything else
     match /{document=**} {
       allow read, write: if false;
     }

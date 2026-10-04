@@ -120,3 +120,49 @@ Files: `firestore-sync.js` (sync module), `firebase-config.js` (config),
 `tests/fake-firebase.js` (in-memory Firebase stub),
 `tests/car-parts.test.js` and `tests/tasks.test.js` (UI tests with a minimal
 fake DOM).
+
+## Money inputs (فواصل الآلاف)
+
+Every money field (`data-money`) shows thousands separators while typing
+(`1250000` -> `1,250,000`) and keeps the caret in place. The separators are
+display only: `numberValue()` / `parseDecimal()` strip them, so storage,
+Firestore and all calculations only ever see plain numbers. Quantity / liters
+fields are not formatted.
+
+## Fuel log
+
+The fuel log (`fuelRecordsList`) is shown inside the fuel section of the car
+page. Records are unchanged (`month.carExpenses`, `kind: "fuel"`); the
+maintenance log below it shows the remaining car records.
+
+## محفظتي (wallet)
+
+Personal -> مصروف -> المصروفات الأساسية -> **محفظتي**: balance, deposit,
+withdraw (never more than the balance) and a log with date/time.
+
+```
+users/{uid}/meta/ledger.walletTransactions = [{ id, type: "deposit"|"withdraw", amount, date, monthKey }]
+```
+
+Stored in the existing ledger document (cumulative, never reset by a month
+change). `monthKey` is the month the operation was made in: a deposit lowers
+that month's available balance (المتبقي), a withdrawal gives it back.
+
+## المواد المنزلية (home groceries)
+
+Home -> مالي -> **المواد المنزلية** -> فواكه / خضروات / لحوم (لحم / دجاج /
+سمك + أنواع جديدة) / مواد منزلية. Each purchase is a record in the existing
+`month.homeExpenses` list:
+
+```
+{ id, kind: "grocery", group, subtype, title, quantity, unit, unitPrice, amount (= total), date, note }
+```
+
+so it is part of the home total / remaining automatically and syncs with no
+schema change. Total = quantity x unit price.
+
+### Tests
+
+```
+node tests/wallet-home.test.js
+```

@@ -205,6 +205,7 @@
 
         const messages = {
             "permission-denied": "صلاحيات Firestore مرفوضة — راجع قواعد الحماية",
+            "unauthenticated": "انتهت جلسة الدخول — سجّل الدخول من جديد",
             "unavailable": "تعذّر الوصول إلى Firestore (بدون اتصال؟)",
             "failed-precondition": "تعذّر تجهيز Firestore",
             "not-found":
@@ -302,12 +303,12 @@
                   carExpenses, homeExpenses, tasks, updatedAt }
 
          ledger "ledger"   ->  users/{uid}/meta/ledger
-                { kind, transactions, debtors, updatedAt }
-                (the cumulative savings account + debtors)
+                { kind, transactions, debtors, walletTransactions, updatedAt }
+                (the cumulative savings account + debtors + "محفظتي")
     ========================================================= */
 
     const MONTH_LIST_FIELDS = ["expenses", "carExpenses", "homeExpenses", "tasks"];
-    const LEDGER_LIST_FIELDS = ["transactions", "debtors"];
+    const LEDGER_LIST_FIELDS = ["transactions", "debtors", "walletTransactions"];
 
     function isMonthKey(key) {
         return /^[0-9]{4}-[0-9]{2}$/.test(String(key));
@@ -378,6 +379,7 @@
             kind: "ledger",
             transactions: cleanList(fields.transactions),
             debtors: cleanList(fields.debtors),
+            walletTransactions: cleanList(fields.walletTransactions),
             updatedAt: stampOf(fields.updatedAt)
         };
     }
@@ -523,6 +525,7 @@
                 output[LEDGER_KEY] = makeLedgerPayload({
                     transactions: ledger.transactions,
                     debtors: ledger.debtors,
+                    walletTransactions: ledger.walletTransactions,
                     updatedAt
                 });
             }
@@ -583,6 +586,10 @@
             return makeLedgerPayload({
                 transactions: unionLists(local.transactions, remote.transactions),
                 debtors: unionLists(local.debtors, remote.debtors),
+                walletTransactions: unionLists(
+                    local.walletTransactions,
+                    remote.walletTransactions
+                ),
                 updatedAt: stamp
             });
         }
@@ -700,6 +707,7 @@
                 database.savingsLedger = Object.assign({}, current, {
                     transactions: cloneList(payload.transactions),
                     debtors: cloneList(payload.debtors),
+                    walletTransactions: cloneList(payload.walletTransactions),
                     updatedAt: stampOf(payload.updatedAt)
                 });
 
@@ -1031,7 +1039,10 @@
             pushTimer = null;
         }
 
-        clearRetryTimer();
+        // Only cancel the pending timer: the attempt counter must survive
+        // so the backoff keeps growing (5s, 10s, 20s ... 5min) until a
+        // flush really succeeds.
+        cancelRetryTimer();
 
         flushChain = flushChain.then(doFlush, doFlush);
 
@@ -1080,6 +1091,15 @@
                     Object.keys(map).map((key) => docPathFor(uid, key)).join(", ")
                 );
 
+                const stillSameUser = currentUser() && currentUser().uid === uid;
+
+                if (!stillSameUser) {
+                    // Signed out / switched account while the write was in
+                    // flight: never queue this data for another account.
+                    // (It is still safe in localStorage.)
+                    return;
+                }
+
                 Object.keys(map).forEach((key) => {
                     if (!pendingPush.has(key)) {
                         pendingPush.set(key, map[key]);
@@ -1099,14 +1119,19 @@
 
         const user = currentUser();
 
-        if (!user || !db || !pendingPush.size) {
+        if (!user || user.uid !== uid || !db || !pendingPush.size) {
+            return;
+        }
+
+        // Offline: the "online" event triggers the flush, no point spinning.
+        if (typeof navigator !== "undefined" && navigator.onLine === false) {
             return;
         }
 
         retryAttempts += 1;
 
         const delay = Math.min(
-            RETRY_BASE_MS * Math.pow(2, Math.min(retryAttempts - 1, 5)),
+            RETRY_BASE_MS * Math.pow(2, Math.min(retryAttempts - 1, 10)),
             RETRY_MAX_MS
         );
 
@@ -1120,11 +1145,16 @@
         );
     }
 
-    function clearRetryTimer() {
+    function cancelRetryTimer() {
         if (retryTimer) {
             clearTimeout(retryTimer);
             retryTimer = null;
         }
+    }
+
+    // Full reset (logout / offline / successful flush).
+    function clearRetryTimer() {
+        cancelRetryTimer();
 
         retryAttempts = 0;
     }
@@ -1314,6 +1344,12 @@
     function handleAuth(user) {
         stopSnapshot();
         clearRetryTimer();
+
+        if (pushTimer) {
+            clearTimeout(pushTimer);
+            pushTimer = null;
+        }
+
         pendingPush.clear();
 
         if (!user) {
