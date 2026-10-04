@@ -2355,6 +2355,27 @@ function savingsMonthlyReport(year, month) {
     };
 }
 
+/*
+    الادخار المخصوم من ميزانية شهر معيّن.
+
+    تُحسب هنا مرة واحدة ويقرأها monthFinance() وحده، فلا يحصل
+    خصم مزدوج مهما أُعيد رسم الصفحة أو أُعيد تحميلها.
+
+    المحتسبة (تتحرّك من ميزانية الشخص):
+      deposit  -> يُخصم من المتبقي (حُوّل إلى الادخار)
+      withdraw -> يعود إلى المتبقي (سُحب من الادخار)
+
+    المستثناة عمداً:
+      fromExpenses  -> المبلغ أصلاً مصروف داخل month.expenses،
+                       فخصمه هنا مرة أخرى يضاعف الخصم.
+      debtorPayment -> ليس من ميزانية الشخص أصلاً.
+*/
+function savingsReserved(year = currentYear, month = currentMonth) {
+    const report = savingsMonthlyReport(year, month);
+
+    return report.deposits - report.withdrawals;
+}
+
 /* =========================================================
    PAGE TABS
 ========================================================= */
@@ -4592,11 +4613,6 @@ function renderExpensesPage() {
     setText("mobileInternetValue", formatNumber(settings.mobileInternet));
     setText("homeContributionValue", formatNumber(settings.homeContribution));
 
-    setText(
-        "savingValue",
-        month.savings ? formatNumber(month.savings) : "غير محدد"
-    );
-
     const fixedTotal =
         numberValue(settings.loan) +
         numberValue(settings.fuelBudget) +
@@ -4606,6 +4622,12 @@ function renderExpensesPage() {
     setText("fixedExpenseTotal", currency(fixedTotal));
 
     const finance = monthFinance(month, fixedTotal);
+
+    /* نفس الرقم الذي يُخصم من المتبقي */
+    setText(
+        "savingValue",
+        finance.savings > 0 ? formatNumber(finance.savings) : "غير محدد"
+    );
 
     setText("salaryValue", formatNumber(finance.salary));
     setText("monthSpentTotal", currency(finance.spent));
@@ -4816,9 +4838,12 @@ function renderHomePage() {
 
     setText("homeTotalExpenses", currency(total));
 
+    /* نفس رقم الادخار الذي يُخصم من المتبقي */
+    const savings = savingsReserved(month.year, month.month);
+
     setText(
         "homeSavings",
-        month.savings ? currency(month.savings) : "غير محدد"
+        savings > 0 ? currency(savings) : "غير محدد"
     );
 }
 
@@ -5302,11 +5327,15 @@ function monthFinance(month, fixedTotal) {
         monthKey(month.year, month.month)
     );
 
+    /* الادخار المخصوم من هذا الشهر فقط (محسوب مرة واحدة) */
+    const savings = savingsReserved(month.year, month.month);
+
     return {
         salary,
         spent,
         walletNet,
-        remaining: salary - spent - walletNet
+        savings,
+        remaining: salary - spent - walletNet - savings
     };
 }
 
