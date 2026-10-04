@@ -4,8 +4,12 @@
   "private": true,
   "description": "Daftari - Arabic PWA personal organizer (Firebase project daftari-27563)",
   "scripts": {
-    "test": "node tests/sync.test.js && node tests/retry.test.js && node tests/car-parts.test.js",
+    "test": "node tests/sync.test.js && node tests/retry.test.js && node tests/car-parts.test.js && node tests/wallet-home.test.js && node tests/groceries-html.test.js && node tests/wallet.test.js && node tests/tasks.test.js && node tests/phase5-acceptance.test.js",
     "test:tasks": "node tests/tasks.test.js",
+    "test:home": "node tests/wallet-home.test.js",
+    "test:html": "node tests/groceries-html.test.js",
+    "test:wallet": "node tests/wallet.test.js",
+    "test:final": "node tests/phase5-acceptance.test.js",
     "test:real": "node tests/real-sync.test.js"
   },
   "devDependencies": {

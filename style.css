@@ -3125,3 +3125,173 @@ body.dark .modal-overlay {
     padding: 8px;
     border-radius: 8px;
 }
+
+/* بطاقة محفظتي: نفس شكل بطاقات المصروفات، تتوسع لإظهار إيداع / صرف */
+
+.wallet-card {
+    min-height: 82px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    box-shadow: 0 5px 18px rgba(21, 38, 42, 0.035);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wallet-card.open {
+    border-color: rgba(15, 159, 146, 0.35);
+    box-shadow: 0 12px 28px rgba(21, 38, 42, 0.08);
+}
+
+.wallet-card-toggle {
+    width: 100%;
+    min-height: 82px;
+    padding: 14px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: 0;
+    color: var(--text);
+    text-align: right;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.wallet-chevron {
+    color: var(--text-light);
+    font-size: 24px;
+    line-height: 1;
+    transition: transform 0.25s ease;
+    transform: rotate(-90deg);
+}
+
+.wallet-card.open .wallet-chevron {
+    transform: rotate(90deg);
+}
+
+.wallet-card-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    max-height: 0;
+    padding: 0 15px;
+    opacity: 0;
+    visibility: hidden;
+    overflow: hidden;
+    transition:
+        max-height 0.28s ease,
+        opacity 0.22s ease,
+        padding 0.28s ease,
+        visibility 0.28s ease;
+}
+
+.wallet-card.open .wallet-card-body {
+    max-height: 160px;
+    padding: 0 15px 15px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.wallet-action {
+    min-height: 48px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.wallet-action:active {
+    opacity: 0.82;
+}
+
+.wallet-action span {
+    font-size: 18px;
+}
+
+.modal-hint {
+    margin: -6px 0 14px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.wallet-deposit {
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+.wallet-withdraw {
+    background: rgba(244, 67, 54, 0.12);
+    color: #c0392b;
+}
+
+/* =========================================================
+   HOME GROCERIES (المواد المنزلية)
+========================================================= */
+
+.section-card-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--primary-dark);
+    white-space: nowrap;
+}
+
+.grocery-entry-card {
+    min-height: 92px;
+}
+
+.grocery-categories {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.grocery-category-card {
+    min-height: 104px;
+    padding: 14px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-align: center;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.grocery-category-card:active {
+    transform: scale(0.97);
+    border-color: rgba(15, 159, 146, 0.35);
+}
+
+.grocery-category-icon {
+    font-size: 26px;
+}
+
+.grocery-category-card strong {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.grocery-category-card small {
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.grocery-row .record-icon {
+    font-size: 22px;
+}
+

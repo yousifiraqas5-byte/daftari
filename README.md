@@ -137,8 +137,12 @@ maintenance log below it shows the remaining car records.
 
 ## محفظتي (wallet)
 
-Personal -> مصروف -> المصروفات الأساسية -> **محفظتي**: balance, deposit,
-withdraw (never more than the balance) and a log with date/time.
+Personal -> مصروف -> **محفظتي**: an independent card placed above
+"المصروفات الأساسية" and styled exactly like the basic-expense cards. It is
+collapsed by default and reveals only two options when tapped — **إيداع** and
+**صرف** (no log and no big balance in the main view; the current balance is
+shown inside the amount modal). A deposit adds to the balance, a withdraw
+(never more than the balance) subtracts from it.
 
 ```
 users/{uid}/meta/ledger.walletTransactions = [{ id, type: "deposit"|"withdraw", amount, date, monthKey }]
@@ -161,8 +165,42 @@ Home -> مالي -> **المواد المنزلية** -> فواكه / خضروا
 so it is part of the home total / remaining automatically and syncs with no
 schema change. Total = quantity x unit price.
 
+Units: فواكه/خضروات default **كغم**؛ اللحوم كغم؛ المواد المنزلية
+قطعة / علبة / كارتون / لتر / كغم / أخرى (with a free-text "أخرى"). The unit
+price field uses the same thousands-separator formatter (`data-money`) as the
+rest of the app.
+
 ### Tests
 
 ```
-node tests/wallet-home.test.js
+node tests/wallet-home.test.js   # logic: add / totals / sync
+node tests/groceries-html.test.js # real index.html markup contract for this section
+node tests/wallet.test.js        # محفظتي: بطاقة مستقلة + الفتح/الإغلاق + الإيداع/الصرف
 ```
+
+## المرحلة الخامسة — فحص شامل (final audit)
+
+`npm test` يشغّل كل الاختبارات:
+
+```
+sync · retry · car-parts · wallet-home · groceries-html · wallet · tasks · phase5-acceptance
+```
+
+`tests/phase5-acceptance.test.js` يفحص البنود 1-25 من المرحلة الخامسة عملياً:
+
+- **المبالغ**: `1000 -> 1,000`، `100000 -> 100,000`، `1250000 -> 1,250,000` أثناء
+  الكتابة، والحسابات تستخدم `numberValue`/`parseDecimal` (بدون فواصل)، والتخزين
+  يحفظ **أرقاماً** (`typeof === "number"`) لا نصوصاً.
+- **سجل البنزين**: داخل قسم البنزين (`fuelRecordsList`)، والسجلات القديمة تبقى،
+  ولا يتكرر البنزين في سجل الصيانة.
+- **المحفظة**: `500,000` ثم إيداع `100,000` ثم صرف `30,000` ← الرصيد `570,000`،
+  والصرف بأكثر من الرصيد مرفوض برسالة **«رصيد المحفظة غير كافٍ.»**، والمحفظة
+  تراكمية لا تُصفّر عند تغيير الشهر.
+- **البيت**: `10,000 + 15,000 + 40,000 + 20,000 = 85,000`، واللحوم بلحم/دجاج/سمك،
+  والإجماليات تدخل ضمن مصروف البيت مع بقاء المصاريف القديمة.
+- **الجودة**: `node --check script.js` + تشغيل كل ملفات الاختبار للتأكد أنها تمر.
+
+```
+node tests/phase5-acceptance.test.js
+```
+

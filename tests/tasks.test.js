@@ -867,8 +867,13 @@ function testRendering(app) {
     const homeToolbar = app.getElement("homeTasksToolbar").innerHTML;
 
     check(
-        homeToolbar.indexOf("data-task-search") !== -1,
-        "قسم مهام البيت له بحث وإحصائيات أيضاً"
+        homeToolbar.indexOf("data-task-stat") !== -1,
+        "قسم مهام البيت له إحصائيات أيضاً"
+    );
+
+    check(
+        homeToolbar.indexOf("data-task-search") === -1,
+        "لا يوجد بحث داخل شريط مهام البيت"
     );
 }
 
@@ -887,8 +892,6 @@ function testRendering(app) {
         testDates(app);
 
         testStats(app);
-
-        testFilters(app);
 
         testSorting(app);
 

@@ -803,9 +803,11 @@ function showToast(message) {
    MODAL FORM TEMPLATES
 ========================================================= */
 
-function amountFormHtml({ title, label, value = "", submitLabel = "حفظ" }) {
+function amountFormHtml({ title, label, value = "", submitLabel = "حفظ", hint = "" }) {
     return `
         <h2 class="modal-title">${title}</h2>
+
+        ${hint ? `<p class="modal-hint">${hint}</p>` : ""}
 
         <form id="genericForm">
 
@@ -1876,6 +1878,11 @@ function setupActions() {
     $("walletWithdrawButton")?.addEventListener(
         "click",
         () => openWalletModal("withdraw")
+    );
+
+    $("walletToggleButton")?.addEventListener(
+        "click",
+        toggleWalletCard
     );
 
     $("addGroceryButton")?.addEventListener(
@@ -4625,6 +4632,8 @@ function renderExpensesPage() {
 
         wireRecordRows(list, "expenses");
     }
+
+    renderWalletPage();
 }
 
 function renderCarPage() {
@@ -5424,6 +5433,24 @@ function addWalletTransaction(type, rawAmount) {
     return { ok: true, transaction };
 }
 
+/*
+    يفتح/يغلق بطاقة محفظتي (إظهار إيداع / صرف فقط).
+*/
+function toggleWalletCard() {
+    const card = $("walletCard");
+
+    if (!card) {
+        return;
+    }
+
+    const open = card.classList.toggle("open");
+
+    $("walletToggleButton")?.setAttribute(
+        "aria-expanded",
+        open ? "true" : "false"
+    );
+}
+
 function openWalletModal(type) {
     if (isMonthClosed()) {
         showToast("🔒 شهر مغلق");
@@ -5434,9 +5461,10 @@ function openWalletModal(type) {
 
     openModal(
         amountFormHtml({
-            title: isDeposit ? "إيداع في محفظتي" : "سحب من محفظتي",
+            title: isDeposit ? "إيداع في محفظتي" : "صرف من محفظتي",
             label: "المبلغ (د.ع)",
-            submitLabel: isDeposit ? "إيداع" : "سحب"
+            submitLabel: isDeposit ? "إيداع" : "صرف",
+            hint: `الرصيد الحالي: ${currency(walletBalance())}`
         })
     );
 
@@ -5452,7 +5480,7 @@ function openWalletModal(type) {
 
             commit();
             closeModal();
-            showToast(isDeposit ? "تم الإيداع في المحفظة" : "تم السحب من المحفظة");
+            showToast(isDeposit ? "تم الإيداع في المحفظة" : "تم الصرف من المحفظة");
 
         }
     );

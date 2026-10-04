@@ -919,15 +919,76 @@
                         0 د.ع
                     </strong>
                 </div>
-                <div class="fuel-summary-row">
-                    <span>
-                        المتبقي
-                    </span>
-                    <strong id="monthRemaining">
-                        0 د.ع
-                    </strong>
-                </div>
             </div>
+
+
+            <!-- WALLET (محفظتي) -->
+
+            <article
+                class="wallet-card"
+                id="walletCard"
+            >
+
+                <button
+                    type="button"
+                    class="wallet-card-toggle"
+                    id="walletToggleButton"
+                    aria-expanded="false"
+                >
+
+                    <div class="expense-icon saving">
+                        👛
+                    </div>
+
+                    <div class="expense-info">
+
+                        <h3>
+                            محفظتي
+                        </h3>
+
+                        <p>
+                            إيداع وصرف
+                        </p>
+
+                    </div>
+
+                    <span
+                        class="wallet-chevron"
+                        aria-hidden="true"
+                    >
+                        ‹
+                    </span>
+
+                </button>
+
+
+                <div
+                    class="wallet-card-body"
+                    id="walletCardBody"
+                >
+
+                    <button
+                        type="button"
+                        class="wallet-action wallet-deposit"
+                        id="walletDepositButton"
+                    >
+                        <span>⬇️</span>
+                        <strong>إيداع</strong>
+                    </button>
+
+                    <button
+                        type="button"
+                        class="wallet-action wallet-withdraw"
+                        id="walletWithdrawButton"
+                    >
+                        <span>⬆️</span>
+                        <strong>صرف</strong>
+                    </button>
+
+                </div>
+
+            </article>
+
 
             <!-- BASIC EXPENSES -->
 
@@ -1971,7 +2032,276 @@
                 id="homeExpensesList"
             ></div>
 
+
+            <!-- HOME GROCERIES (المواد المنزلية) -->
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        المشتريات
+                    </span>
+
+                    <h2>
+                        المواد المنزلية
+                    </h2>
+
+                </div>
+
+                <span
+                    class="section-total"
+                    id="homeGroceriesTotal"
+                >
+                    0 د.ع
+                </span>
+
             </div>
+
+
+            <button
+                type="button"
+                class="main-section-card grocery-entry-card"
+                data-page="groceriesPage"
+            >
+
+                <div class="section-card-icon">
+                    🛒
+                </div>
+
+                <div class="section-card-text">
+
+                    <span>
+                        سجل المشتريات
+                    </span>
+
+                    <small>
+                        فواكه • خضروات • لحوم • مواد منزلية
+                    </small>
+
+                </div>
+
+                <span class="section-arrow">
+                    ‹
+                </span>
+
+            </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             HOME GROCERIES (المواد المنزلية)
+        ================================================== -->
+
+        <section
+            class="page"
+            id="groceriesPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="homeExpensesPage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        البيت
+                    </span>
+
+                    <h1>
+                        🛒 المواد المنزلية
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="fuel-summary salary-summary">
+
+                <div class="fuel-summary-row">
+
+                    <span>
+                        إجمالي المواد المنزلية
+                    </span>
+
+                    <strong id="groceriesTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="grocery-categories">
+
+                <button
+                    type="button"
+                    class="grocery-category-card"
+                    data-grocery="fruits"
+                >
+                    <span class="grocery-category-icon">
+                        🍎
+                    </span>
+                    <strong>
+                        فواكه
+                    </strong>
+                    <small id="groceryTotal_fruits">
+                        0 د.ع
+                    </small>
+                </button>
+
+                <button
+                    type="button"
+                    class="grocery-category-card"
+                    data-grocery="vegetables"
+                >
+                    <span class="grocery-category-icon">
+                        🥬
+                    </span>
+                    <strong>
+                        خضروات
+                    </strong>
+                    <small id="groceryTotal_vegetables">
+                        0 د.ع
+                    </small>
+                </button>
+
+                <button
+                    type="button"
+                    class="grocery-category-card"
+                    data-grocery="meat"
+                >
+                    <span class="grocery-category-icon">
+                        🥩
+                    </span>
+                    <strong>
+                        لحوم
+                    </strong>
+                    <small id="groceryTotal_meat">
+                        0 د.ع
+                    </small>
+                </button>
+
+                <button
+                    type="button"
+                    class="grocery-category-card"
+                    data-grocery="household"
+                >
+                    <span class="grocery-category-icon">
+                        🧴
+                    </span>
+                    <strong>
+                        مواد منزلية
+                    </strong>
+                    <small id="groceryTotal_household">
+                        0 د.ع
+                    </small>
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             GROCERY CATEGORY (فواكه / خضروات / لحوم / مواد منزلية)
+        ================================================== -->
+
+        <section
+            class="page"
+            id="groceryCategoryPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="groceriesPage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        المواد المنزلية
+                    </span>
+
+                    <h1 id="groceryCategoryTitle">
+                        فواكه
+                    </h1>
+
+                </div>
+
+            </div>
+
+
+            <div class="fuel-summary salary-summary">
+
+                <div class="fuel-summary-row">
+
+                    <span id="groceryCategoryTotalLabel">
+                        إجمالي فواكه
+                    </span>
+
+                    <strong id="groceryCategoryTotal">
+                        0 د.ع
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="grocery-chips"
+                id="groceryTypeTabs"
+            ></div>
+
+
+            <div class="section-heading section-heading-space">
+
+                <div>
+
+                    <span class="eyebrow">
+                        السجل
+                    </span>
+
+                    <h2>
+                        العمليات
+                    </h2>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="small-action"
+                    id="addGroceryButton"
+                >
+                    + إضافة
+                </button>
+
+            </div>
+
+
+            <div
+                class="record-list"
+                id="groceryList"
+            ></div>
 
         </section>
 
