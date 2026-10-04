@@ -761,6 +761,56 @@ function closeModal() {
     $("modal")?.classList.add("hidden");
 }
 
+/*
+    نافذة تأكيد صغيرة (إلغاء / تأكيد) بنفس أسلوب نوافذ التطبيق.
+    تُستخدم قبل الحذف حتى لا يفقد المستخدم حركة بلمسة واحدة.
+*/
+function openConfirmDialog({
+    title,
+    message = "",
+    confirmLabel = "تأكيد",
+    onConfirm
+}) {
+    openModal(`
+        <h2 class="modal-title">${title}</h2>
+
+        ${message ? `<p class="modal-hint">${message}</p>` : ""}
+
+        <div class="confirm-actions">
+
+            <button
+                type="button"
+                class="confirm-btn confirm-cancel"
+                id="confirmCancelButton"
+            >
+                إلغاء
+            </button>
+
+            <button
+                type="button"
+                class="confirm-btn confirm-accept"
+                id="confirmAcceptButton"
+            >
+                ${confirmLabel}
+            </button>
+
+        </div>
+    `);
+
+    $("confirmCancelButton")?.addEventListener("click", closeModal);
+
+    $("confirmAcceptButton")?.addEventListener(
+        "click",
+        () => {
+
+            closeModal();
+
+            onConfirm();
+
+        }
+    );
+}
+
 function setupModal() {
     $("modalClose")?.addEventListener("click", closeModal);
 
@@ -1974,6 +2024,16 @@ function setupActions() {
 
             if (debtorDeleteButton) {
                 deleteDebtor(debtorDeleteButton.dataset.debtorDelete);
+                return;
+            }
+
+            const savingsDeleteButton =
+                event.target.closest("[data-savings-delete]");
+
+            if (savingsDeleteButton) {
+                deleteSavingsMovement(
+                    savingsDeleteButton.dataset.savingsDelete
+                );
                 return;
             }
 
@@ -4478,6 +4538,30 @@ function renderDebtorsList() {
         .join("");
 }
 
+/* أنواع حركات الادخار: يشاركها السجل ورسالة التأكيد */
+const SAVINGS_MOVEMENT_LABELS = {
+    deposit: "إيداع ادخار",
+    withdraw: "سحب من الادخار",
+    fromExpenses: "تحويل من المصروفات",
+    debtorPayment: "دفعة من مدين"
+};
+
+const SAVINGS_MOVEMENT_ICONS = {
+    deposit: "＋",
+    withdraw: "－",
+    fromExpenses: "💰",
+    debtorPayment: "👥"
+};
+
+/* الأحدث أولاً: بالتاريخ ثم وقت الإضافة */
+function sortSavingsMovementsDesc(movements) {
+    return movements.slice().sort((a, b) =>
+        (new Date(b.date).getTime() || 0) -
+        (new Date(a.date).getTime() || 0) ||
+        (Number(b.id) || 0) - (Number(a.id) || 0)
+    );
+}
+
 function renderSavingsLog() {
     const ledger = getSavingsLedger();
 
@@ -4492,43 +4576,35 @@ function renderSavingsLog() {
         return;
     }
 
-    const labels = {
-        deposit: "إيداع",
-        withdraw: "سحب",
-        fromExpenses: "تحويل من المصروفات",
-        debtorPayment: "دفعة من مدين"
-    };
-
-    const icons = {
-        deposit: "＋",
-        withdraw: "－",
-        fromExpenses: "💰",
-        debtorPayment: "👥"
-    };
-
-    list.innerHTML = ledger.transactions
-        .slice()
-        .reverse()
+    list.innerHTML = sortSavingsMovementsDesc(ledger.transactions)
         .map((transaction) => {
 
             const negative = transaction.type === "withdraw";
 
+            const label =
+                SAVINGS_MOVEMENT_LABELS[transaction.type] || "حركة";
+
+            const icon =
+                SAVINGS_MOVEMENT_ICONS[transaction.type] || "•";
+
+            const note = String(transaction.note || "").trim();
+
             return `
-                <div class="record-row">
+                <div class="record-row savings-movement-row">
 
                     <span class="record-icon">
-                        ${icons[transaction.type] || "•"}
+                        ${icon}
                     </span>
 
                     <div class="record-info">
 
                         <strong>
-                            ${labels[transaction.type] || "حركة"}
+                            ${label}
                         </strong>
 
                         <span>
-                            ${formatDate(transaction.date)}
-                            ${transaction.note ? ` - ${transaction.note}` : ""}
+                            ${formatDateTime(transaction.date)}
+                            ${note ? ` • ${escapeTaskHtml(note)}` : ""}
                         </span>
 
                     </div>
@@ -4537,11 +4613,58 @@ function renderSavingsLog() {
                         ${negative ? "-" : "+"}${formatNumber(transaction.amount)}
                     </strong>
 
+                    <button
+                        type="button"
+                        class="delete-record"
+                        data-savings-delete="${transaction.id}"
+                        aria-label="حذف الحركة"
+                    >
+                        🗑️
+                    </button>
+
                 </div>
             `;
 
         })
         .join("");
+}
+
+/*
+    تأكيد ثم حذف حركة ادخار.
+
+    يُحذف السجل من ledger.transactions فقط. ارتباط الحركة بالمتبقي
+    يُعاد حسابه تلقائياً لأن savingsReserved() يقرأ نفس السجل،
+    و commit() يعيد الحفظ والرسم والمزامنة بلا إعادة تحميل.
+*/
+function deleteSavingsMovement(movementId) {
+    const ledger = getSavingsLedger();
+
+    const movement = ledger.transactions.find(
+        (item) => item.id === Number(movementId)
+    );
+
+    if (!movement) {
+        return;
+    }
+
+    openConfirmDialog({
+        title: "حذف حركة الادخار؟",
+        message:
+            `${SAVINGS_MOVEMENT_LABELS[movement.type] || "حركة"}` +
+            ` بمبلغ ${currency(movement.amount)}`,
+        confirmLabel: "حذف",
+        onConfirm: () => {
+
+            ledger.transactions = ledger.transactions.filter(
+                (item) => item.id !== Number(movementId)
+            );
+
+            commit();
+
+            showToast("تم حذف حركة الادخار");
+
+        }
+    });
 }
 
 /* __APPEND__ */

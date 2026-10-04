@@ -3222,6 +3222,41 @@ body.dark .modal-overlay {
     font-size: 13px;
 }
 
+/* =========================================================
+   SAVINGS MOVEMENTS LOG (سجل حركات الادخار)
+========================================================= */
+
+.savings-movement-row .record-icon {
+    font-size: 18px;
+}
+
+.confirm-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.confirm-btn {
+    min-height: 48px;
+    border: 0;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.confirm-cancel {
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+}
+
+.confirm-accept {
+    background: var(--danger);
+    color: #fff;
+}
+
 .wallet-deposit {
     background: var(--primary-soft);
     color: var(--primary-dark);
