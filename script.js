@@ -488,6 +488,8 @@ function updateMonthHeader() {
     setText("monthName", `${MONTH_NAMES[currentMonth]} ${currentYear}`);
 
     updateMonthLock();
+
+    updatePreviousMonthUnlock();
 }
 
 /* =========================================================
@@ -513,13 +515,60 @@ const LONG_PRESS_DURATION = 2000;
 
     This is the single source of truth used by every lock check.
 */
+
+/* مفتاح الشهر السابق للشهر الحقيقي الحالي: YYYY-MM */
+function previousMonthKey() {
+    const today = new Date();
+
+    const date = new Date(
+        today.getFullYear(),
+        today.getMonth() - 1,
+        1
+    );
+
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function getUnlockedMonths() {
+    if (!Array.isArray(database.unlockedMonths)) {
+        database.unlockedMonths = [];
+    }
+
+    return database.unlockedMonths.filter(
+        (key) => typeof key === "string" && key
+    );
+}
+
+/*
+    فقط الشهر السابق مباشرة هو القابل للفتح.
+
+    الفتح صالح لذلك الشهر بالذات، لذلك:
+      - لا يمكن التخطي (أكتوبر لا يفتح أغسطس)
+      - الأشهر الأقدم تُقفل تلقائياً مع مرور الوقت
+      - الشهر الحالي والمستقبل مفتوحان دائماً بلا استثناء
+*/
+function isMonthUnlocked(year = currentYear, month = currentMonth) {
+    const key = monthKey(year, month);
+
+    if (key !== previousMonthKey()) {
+        return false;
+    }
+
+    return getUnlockedMonths().indexOf(key) !== -1;
+}
+
 function isMonthClosed(year = currentYear, month = currentMonth) {
     const today = new Date();
 
-    return (
+    const beforeToday =
         year < today.getFullYear() ||
-        (year === today.getFullYear() && month < today.getMonth())
-    );
+        (year === today.getFullYear() && month < today.getMonth());
+
+    if (!beforeToday) {
+        return false;
+    }
+
+    return !isMonthUnlocked(year, month);
 }
 
 function updateMonthLock() {
@@ -533,6 +582,79 @@ function updateMonthLock() {
         "hidden",
         !isMonthClosed()
     );
+}
+
+/*
+    شريط الشهر السابق (أعلى التطبيق).
+
+    حالة الشهر السابق + زر الفتح. يظهر مرة واحدة فقط في الأعلى،
+    وليس داخل أي قسم.
+*/
+function updatePreviousMonthUnlock() {
+    const text = $("previousMonthUnlockText");
+    const button = $("unlockPreviousMonthButton");
+
+    if (!text && !button) {
+        return;
+    }
+
+    const key = previousMonthKey();
+    const parts = key.split("-");
+    const year = Number(parts[0]);
+    const month = Number(parts[1]) - 1;
+
+    const label = `${MONTH_NAMES[month]} ${year}`;
+
+    if (isMonthUnlocked(year, month)) {
+        setText(
+            "previousMonthUnlockText",
+            `🔓 ${label} مفتوح للتعديل`
+        );
+
+        button?.classList.add("hidden");
+        return;
+    }
+
+    setText("previousMonthUnlockText", `🔒 ${label} مغلق للتعديل`);
+
+    setText("unlockPreviousMonthButton", `فتح ${label}`);
+
+    button?.classList.remove("hidden");
+}
+
+/*
+    فتح قفل الشهر السابق مباشرة والانتقال إليه.
+
+    يغيّر حالة القفل فقط - لا يمس أي بيانات، فتبقى كل بيانات
+    ذلك الشهر كما هي وتصبح قابلة للتعديل طبيعياً.
+*/
+function unlockPreviousMonth() {
+    const key = previousMonthKey();
+    const parts = key.split("-");
+    const year = Number(parts[0]);
+    const month = Number(parts[1]) - 1;
+
+    if (isMonthUnlocked(year, month)) {
+        return;
+    }
+
+    const unlocked = getUnlockedMonths();
+
+    if (unlocked.indexOf(key) === -1) {
+        unlocked.push(key);
+    }
+
+    database.unlockedMonths = unlocked;
+
+    currentYear = year;
+    currentMonth = month;
+
+    ensureCurrentMonth();
+    updateMonthHeader();
+    renderAll();
+    saveDatabase();
+
+    showToast(`🔓 ${MONTH_NAMES[month]} ${year} مفتوح للتعديل`);
 }
 
 /*
@@ -687,6 +809,11 @@ function setupMonthNavigation() {
             renderAll();
 
         }
+    );
+
+    $("unlockPreviousMonthButton")?.addEventListener(
+        "click",
+        unlockPreviousMonth
     );
 }
 

@@ -3257,6 +3257,65 @@ body.dark .modal-overlay {
     color: #fff;
 }
 
+/* =========================================================
+   PREVIOUS MONTH UNLOCK (فتح الشهر السابق)
+========================================================= */
+
+.month-unlock-bar {
+    width: min(
+        calc(100% - 32px),
+        900px
+    );
+
+    margin:
+        10px auto 0;
+
+    padding:
+        10px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-soft);
+}
+
+.month-unlock-text {
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+.month-unlock-button {
+    flex: 0 0 auto;
+
+    border: 0;
+    border-radius: 11px;
+
+    padding:
+        9px 14px;
+
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 800;
+
+    white-space: nowrap;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+}
+
+.month-unlock-button:active {
+    opacity: 0.8;
+}
+
 .wallet-deposit {
     background: var(--primary-soft);
     color: var(--primary-dark);

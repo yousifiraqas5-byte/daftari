@@ -752,6 +752,7 @@ function testAllProjectTests() {
         "groceries-html.test.js",
         "wallet.test.js",
         "tasks.test.js",
+        "month-unlock.test.js",
         "savings-remaining.test.js",
         "savings-log.test.js"
     ].forEach((file) => {
