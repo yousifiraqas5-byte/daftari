@@ -2226,6 +2226,16 @@ function setupActions() {
                 return;
             }
 
+            const walletDeleteButton =
+                event.target.closest("[data-wallet-delete]");
+
+            if (walletDeleteButton) {
+                deleteWalletMovement(
+                    walletDeleteButton.dataset.walletDelete
+                );
+                return;
+            }
+
             const taskToggleButton =
                 event.target.closest("[data-task-toggle]");
 
@@ -2275,6 +2285,19 @@ function deleteLinkedSavingsMovement(transactionId) {
     );
 }
 
+/*
+    حذف حركة المحفظة المرتبطة بمصروف صرف (نفس المعرّف).
+    يُستخدم عند حذف مصروف "صرف من المحفظة" من صفحة المصروفات،
+    حتى يعود المبلغ للمحفظة ولا تبقى حركة يتيمة.
+*/
+function deleteLinkedWalletMovement(walletTransactionId) {
+    const ledger = getSavingsLedger();
+
+    ledger.walletTransactions = ledger.walletTransactions.filter(
+        (transaction) => transaction.id !== walletTransactionId
+    );
+}
+
 function deleteRecord(listName, recordId, force = false) {
     const month = currentMonthData();
 
@@ -2299,6 +2322,11 @@ function deleteRecord(listName, recordId, force = false) {
     /* إن كان محوّلاً للادخار، تُحذف حركته المرتبطة معه */
     if (removed && removed.isSavings && removed.transactionId) {
         deleteLinkedSavingsMovement(removed.transactionId);
+    }
+
+    /* إن كان صرفاً من المحفظة، تُحذف حركته المرتبطة به أيضاً */
+    if (removed && removed.walletTransactionId) {
+        deleteLinkedWalletMovement(removed.walletTransactionId);
     }
 
     commit();
@@ -5000,10 +5028,14 @@ function renderExpensesPage() {
                 .map((record) => recordRowHtml({
                     listName: "expenses",
                     record,
-                    icon: record.isSavings ? "💰" : "د.ع",
-                    note: record.isSavings
-                        ? "ادخار من المصروفات الشخصية"
-                        : "مصروف شخصي"
+                    icon: record.walletTransactionId
+                        ? "💳"
+                        : (record.isSavings ? "💰" : "د.ع"),
+                    note: record.walletTransactionId
+                        ? "مصروف من صرف محفظتي"
+                        : (record.isSavings
+                            ? "ادخار من المصروفات الشخصية"
+                            : "مصروف شخصي")
                 }))
                 .join("")
             : emptyListHtml("لا توجد مصاريف إضافية بعد");
@@ -5700,19 +5732,31 @@ function monthFinance(month, fixedTotal) {
 
     const spent = fixedTotal + spentExpensesTotal(month);
 
-    const walletNet = walletNetForMonth(
-        monthKey(month.year, month.month)
-    );
+    const key = monthKey(month.year, month.month);
+
+    /* صافي ما مرّ بالمحفظة (للعرض فقط) */
+    const walletNet = walletNetForMonth(key);
+
+    /* ما دخل المحفظة فعلاً في هذا الشهر - يخفض المتبقي */
+    const walletDeposits = walletDepositsForMonth(key);
 
     /* الادخار المخصوم من هذا الشهر فقط (محسوب مرة واحدة) */
     const savings = savingsReserved(month.year, month.month);
 
+    /*
+        المتبقي = الدخل - المصروفات - الإيداعات - الادخار
+
+        الإيداع يخصم مباشرةً (مال انتقل من الميزانية إلى المحفظة)،
+        والصرف ليس هنا لأنه مصروف حقيقي داخل المصروفات - لو خُصم
+        مرتين لصار الخصم مزدوجاً.
+    */
     return {
         salary,
         spent,
         walletNet,
+        walletDeposits,
         savings,
-        remaining: salary - spent - walletNet - savings
+        remaining: salary - spent - walletDeposits - savings
     };
 }
 
@@ -5743,6 +5787,21 @@ function availableBalance(month = currentMonthData()) {
    `monthKey` is the month the operation was made in; it decides
    which month's available balance it affects. Changing the month
    never resets or edits the wallet balance itself.
+
+   Accounting rules (never break them):
+
+     deposit  -> money moves from the budget INTO the wallet:
+                 wallet balance up, remaining down (walletDeposits),
+                 NOT an expense.
+
+     withdraw -> money leaves the wallet and becomes a real expense:
+                 wallet balance down, an entry is added to
+                 month.expenses sharing the same `id`, and the
+                 remaining drops through the expenses total.
+                 It is NOT subtracted again via the wallet.
+
+   Both sides share one id (`walletTransactionId`), so deleting
+   either one (the movement or the expense) removes both.
 ========================================================= */
 
 function getWalletTransactions() {
@@ -5806,6 +5865,50 @@ function walletNetForMonth(key) {
 }
 
 /*
+    إجمالي ما دخل المحفظة في شهر معيّن (الإيداعات فقط).
+
+    الإيداع ينقل المال من الميزانية إلى المحفظة، فهو يُخصم من
+    المتبقي. أما الصرف فيُسجَّل مصروفاً حقيقياً داخل month.expenses
+    ويظهر أثره عبر المصروفات - لو خُصم أيضاً من هنا لخصم المبلغ
+    مرتين.
+*/
+function walletDepositsForMonth(key) {
+    return getWalletTransactions().reduce((total, transaction) => {
+
+        if (transaction.monthKey !== key) {
+            return total;
+        }
+
+        if (transaction.type !== "deposit") {
+            return total;
+        }
+
+        return total + numberValue(transaction.amount);
+
+    }, 0);
+}
+
+/*
+    معرّف حركة المحفظة: تصاعدي دائماً حتى لو حدثت حركتان
+    في نفس المللي ثانية، فيبقى ترتيب السجل (الأحدث أولاً) ثابتاً.
+*/
+function nextWalletTransactionId() {
+    const ledger = getSavingsLedger();
+
+    const lastId = ledger.walletTransactions.reduce(
+        (max, transaction) => Math.max(max, Number(transaction.id) || 0),
+        0
+    );
+
+    return Math.max(Date.now(), lastId + 1);
+}
+
+/*
+    الإيداع يخصم من المتبقي فقط. والصرف مصروف حقيقي يُضاف
+    إلى month.expenses بنفس المعرّف، فلا يُخصم مرتين.
+*/
+
+/*
     Validates and records one wallet operation.
     Returns { ok: true, transaction } or { ok: false, message }.
 */
@@ -5827,7 +5930,7 @@ function addWalletTransaction(type, rawAmount) {
     getWalletTransactions();
 
     const transaction = {
-        id: Date.now() + Math.floor(Math.random() * 100000),
+        id: nextWalletTransactionId(),
         type,
         amount,
         date: new Date().toISOString(),
@@ -5836,7 +5939,72 @@ function addWalletTransaction(type, rawAmount) {
 
     database.savingsLedger.walletTransactions.push(transaction);
 
+    /*
+        الصرف مصروف فعلي: يُضاف إلى month.expenses بنفس المعرّف
+        ليربط السجلين. أما الإيداع فلا يُضاف هنا - هو فقط ما ينقل
+        المال من الميزانية إلى المحفظة ويخفض المتبقي.
+    */
+    if (type === "withdraw") {
+        const month = currentMonthData();
+
+        month.expenses.push({
+            id: transaction.id,
+            title: "صرف من المحفظة",
+            amount,
+            walletTransactionId: transaction.id,
+            date: transaction.date
+        });
+    }
+
     return { ok: true, transaction };
+}
+
+/*
+    حذف حركة محفظة مع عكس أثرها بالكامل:
+
+      حذف إيداع  -> يخرج المبلغ من المحفظة ويعود إلى المتبقي
+      حذف صرف   -> يعود المبلغ إلى المحفظة ويُحذف مصروفه المرتبط
+*/
+function deleteWalletMovement(transactionId) {
+    const ledger = getSavingsLedger();
+
+    const id = Number(transactionId);
+
+    const transaction = ledger.walletTransactions.find(
+        (item) => item.id === id
+    );
+
+    if (!transaction) {
+        return;
+    }
+
+    openConfirmDialog({
+        title: "حذف حركة المحفظة؟",
+        message:
+            `${transaction.type === "deposit" ? "إيداع" : "صرف"}` +
+            ` بمبلغ ${currency(transaction.amount)}`,
+        confirmLabel: "حذف",
+        onConfirm: () => {
+
+            ledger.walletTransactions = ledger.walletTransactions.filter(
+                (item) => item.id !== id
+            );
+
+            /* المصروف المرتبط بالصرف يذهب معه حتى لا يبقى يتيماً */
+            const month = database.months[transaction.monthKey];
+
+            if (month && Array.isArray(month.expenses)) {
+                month.expenses = month.expenses.filter(
+                    (record) => record.walletTransactionId !== id
+                );
+            }
+
+            commit();
+
+            showToast("تم حذف حركة المحفظة");
+
+        }
+    });
 }
 
 /*
@@ -5920,7 +6088,7 @@ function walletRowHtml(transaction, balanceAfter) {
             <div class="record-info">
 
                 <strong>
-                    ${isDeposit ? "إيداع" : "سحب"}
+                    ${isDeposit ? "إيداع" : "صرف"}
                 </strong>
 
                 <span class="fuel-meta">
@@ -5933,6 +6101,15 @@ function walletRowHtml(transaction, balanceAfter) {
             <strong class="record-amount ${isDeposit ? "wallet-plus" : "wallet-minus"}">
                 ${isDeposit ? "+" : "-"}${formatNumber(transaction.amount)} د.ع
             </strong>
+
+            <button
+                type="button"
+                class="delete-record"
+                data-wallet-delete="${transaction.id}"
+                aria-label="حذف الحركة"
+            >
+                🗑️
+            </button>
 
         </div>
     `;

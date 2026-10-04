@@ -467,8 +467,12 @@ function testWalletScenario() {
     check(withdraw.transaction.type === "withdraw", "نوع العملية withdraw");
     check(app.walletBalance() === 570000, "الرصيد النهائي = 570,000");
     check(
-        app.availableBalance() === baseAvailable - 100000 + 30000,
-        "الرصيد المتاح ارتفع 30,000 بعد الصرف"
+        app.availableBalance() === baseAvailable - 100000 - 30000,
+        "الرصيد المتاح انخفض 30,000 بعد الصرف (عبر زيادة المصروفات)"
+    );
+    check(
+        month.expenses.some((row) => row.walletTransactionId === withdraw.transaction.id),
+        "الصرف انشأ مصروفاً مرتبطاً داخل المصروفات"
     );
 
     /* صرف أكبر من الرصيد */

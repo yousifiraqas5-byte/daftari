@@ -3187,10 +3187,29 @@ body.dark .modal-overlay {
 }
 
 .wallet-card.open .wallet-card-body {
-    max-height: 160px;
+    max-height: 560px;
     padding: 0 15px 15px;
     opacity: 1;
     visibility: visible;
+}
+
+/* سجل حركات المحفظة داخل البطاقة */
+.wallet-log {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 8px;
+    max-height: 240px;
+    margin-top: 4px;
+    overflow-y: auto;
+}
+
+/* صفوف السجل أكثر إحكاماً من صفوف السجلات الطويلة */
+.wallet-log .record-row {
+    min-height: 54px;
+}
+
+.wallet-log:empty {
+    display: none;
 }
 
 .wallet-action {

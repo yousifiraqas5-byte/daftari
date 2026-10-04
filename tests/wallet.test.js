@@ -263,10 +263,10 @@ async function testWalletMarkup() {
         "index.html: خيارا إيداع وصرف موجودان"
     );
 
-    /* واجهة بسيطة: لا سجل عمليات ولا رصيد كبير في الواجهة الرئيسية */
+    /* السجل موجود داخل بطاقة المحفظة نفسها، لا في الواجهة الرئيسية */
     check(
-        HTML_SOURCE.indexOf('id="walletLogList"') === -1,
-        "index.html: لا يوجد سجل عمليات في الواجهة الرئيسية"
+        HTML_SOURCE.indexOf('id="walletLogList"') !== -1,
+        "index.html: سجل حركات المحفظة داخل البطاقة"
     );
 
     check(
@@ -469,9 +469,16 @@ async function testFinanceLogic() {
     addWalletTransaction("withdraw", 30000);
 
     const finance2 = monthFinance(month, 0);
-    check(finance2.walletNet === 70000, "صافي المحفظة = 70,000 بعد سحب 30,000");
-    check(finance2.remaining === 430000, "المتبقي = 430,000 بعد سحب 30,000");
-    check(availableBalance(month) === 430000, "الرصيد المتاح = 430,000");
+    check(finance2.walletNet === 70000, "صافي المحفظة = 70,000 بعد صرف 30,000");
+    check(
+        finance2.spent === 30000,
+        "الصرف 30,000 يُحسب ضمن المصروفات"
+    );
+    check(
+        finance2.remaining === 370000,
+        "المتبقي = 370,000 بعد صرف 30,000 (لا خصم مزدوج)"
+    );
+    check(availableBalance(month) === 370000, "الرصيد المتاح = 370,000");
 }
 
 async function testPersistence() {
@@ -585,7 +592,11 @@ async function testEndToEnd() {
 
     const finance = monthFinance(month, 0);
     check(finance.walletNet === 70000, "صافي المحفظة = 70,000");
-    check(finance.remaining === 430000, "المتبقي = 430,000 (500k - 100k + 30k)");
+    check(finance.spent === 30000, "المصروفات = 30,000 بعد الصرف");
+    check(
+        finance.remaining === 370000,
+        "المتبقي = 370,000 (500k - 100k إيداع - 30k صرف)"
+    );
 
     const r3 = addWalletTransaction("withdraw", 100000);
     check(!r3.ok, "سحب 100,000 من 70,000 مرفوض");
