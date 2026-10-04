@@ -365,23 +365,35 @@ function testFromExpensesNotDoubled() {
 
     const app = createApp(seed(1000000, 300000));
 
+    /* الشكل الحقيقي: مصروف موسوم isSavings + حركة مرتبطة به */
     app.currentMonthData().expenses.push({
-        id: 2,
-        title: "مصروف محول",
+        id: 500,
+        title: "ادخار",
         amount: 50000,
+        isSavings: true,
+        transactionId: 500,
         date: new Date().toISOString()
     });
 
-    app.addSavingsTransaction({ type: "fromExpenses", amount: 50000 });
+    app.addSavingsTransaction({
+        type: "fromExpenses",
+        amount: 50000,
+        transactionId: 500
+    });
 
     check(
-        app.savingsReserved() === 0,
-        "fromExpenses لا يُحتسب كخصم ادخار مكرر"
+        app.savingsReserved() === 50000,
+        "المبلغ محسوب مرة واحدة عبر الادخار"
     );
 
     check(
         remainingText(app) === app.currency(650000),
-        "المتبقي = 1,000,000 - 350,000 = 650,000 (خصم واحد فقط)"
+        "المتبقي = 1,000,000 - 300,000 - 50,000 = 650,000 (خصم واحد فقط)"
+    );
+
+    check(
+        remainingText(app) !== app.currency(600000),
+        "ليس 600,000 - أي لا خصم مزدوج"
     );
 }
 

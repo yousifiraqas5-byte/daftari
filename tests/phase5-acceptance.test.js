@@ -754,7 +754,8 @@ function testAllProjectTests() {
         "tasks.test.js",
         "month-unlock.test.js",
         "savings-remaining.test.js",
-        "savings-log.test.js"
+        "savings-log.test.js",
+        "savings-from-expenses.test.js"
     ].forEach((file) => {
         let ok = false;
 

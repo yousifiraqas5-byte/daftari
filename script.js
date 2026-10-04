@@ -1233,26 +1233,47 @@ function openPersonalExpenseModal() {
             const isSavings =
                 $("genericIsSavings")?.checked === true;
 
+            /*
+                معرّف واحد يربط السجلين معاً:
+
+                  month.expenses  ↔  savingsLedger.transactions
+
+                فالمبلغ محفوظ مرة واحدة كمصروف ظاهر، ومرة واحدة
+                كحركة ادخار - والمبلغ يُخصم من المتبقي مرة واحدة فقط
+                عبر spentExpensesTotal() + savingsReserved().
+            */
+            const transactionId =
+                Date.now() + Math.floor(Math.random() * 100000);
+
+            const date = new Date().toISOString();
+
             month.expenses.push({
-                id: Date.now(),
-                title: title || "مصروف",
+                id: transactionId,
+                title: title || (isSavings ? "ادخار" : "مصروف"),
                 amount,
                 isSavings,
-                date: new Date().toISOString()
+                transactionId: isSavings ? transactionId : null,
+                date
             });
 
             if (isSavings) {
                 addSavingsTransaction({
-                    type: "fromExpenses",
+                    type: "deposit",
                     amount,
-                    note: title || "مصروف محوّل لادخار"
+                    note: "المصروفات الشخصية",
+                    source: "personalExpenses",
+                    transactionId,
+                    date
                 });
             }
 
             commit();
             closeModal();
+
             showToast(
-                isSavings ? "تمت الإضافة وتحويلها للادخار" : "تمت إضافة المصروف"
+                isSavings
+                    ? "تم حفظ الادخار وإضافته لسجل الحركات"
+                    : "تمت إضافة المصروف"
             );
 
         }
@@ -2200,6 +2221,19 @@ function setupActions() {
 
 }
 
+/*
+    حذف حركة الادخار المرتبطة بسجل أصلي (transactionId واحد).
+    يُستخدم عند حذف المصروف المحوَّل للادخار حتى لا تبقى حركة
+    يتيمة تخصم من المتبقي بلا سبب.
+*/
+function deleteLinkedSavingsMovement(transactionId) {
+    const ledger = getSavingsLedger();
+
+    ledger.transactions = ledger.transactions.filter(
+        (transaction) => transaction.transactionId !== transactionId
+    );
+}
+
 function deleteRecord(listName, recordId, force = false) {
     const month = currentMonthData();
 
@@ -2213,9 +2247,18 @@ function deleteRecord(listName, recordId, force = false) {
 
     const id = Number(recordId);
 
+    const removed = (month[listName] || []).find(
+        (record) => record.id === id
+    );
+
     month[listName] = month[listName].filter(
         (record) => record.id !== id
     );
+
+    /* إن كان محوّلاً للادخار، تُحذف حركته المرتبطة معه */
+    if (removed && removed.isSavings && removed.transactionId) {
+        deleteLinkedSavingsMovement(removed.transactionId);
+    }
 
     commit();
     showToast("تم الحذف");
@@ -2477,17 +2520,35 @@ function savingsStats() {
     };
 }
 
-function addSavingsTransaction({ type, amount, note = "", date = null }) {
+function addSavingsTransaction({
+    type,
+    amount,
+    note = "",
+    date = null,
+    source = null,
+    transactionId = null
+}) {
     const ledger = getSavingsLedger();
 
-    ledger.transactions.push({
+    const movement = {
         id: Date.now() + Math.floor(Math.random() * 1000),
         type,
         amount: numberValue(amount),
         note,
         date: date || new Date().toISOString(),
         createdAt: new Date().toISOString()
-    });
+    };
+
+    /* مصدر العملية + المعرّف الذي يربطها بسجلها الأصلي */
+    if (source) {
+        movement.source = source;
+    }
+
+    if (transactionId) {
+        movement.transactionId = transactionId;
+    }
+
+    ledger.transactions.push(movement);
 }
 
 function getSavingsBalance() {
@@ -2549,18 +2610,20 @@ function savingsMonthlyReport(year, month) {
     خصم مزدوج مهما أُعيد رسم الصفحة أو أُعيد تحميلها.
 
     المحتسبة (تتحرّك من ميزانية الشخص):
-      deposit  -> يُخصم من المتبقي (حُوّل إلى الادخار)
-      withdraw -> يعود إلى المتبقي (سُحب من الادخار)
+      deposit       -> إيداع ادخار (من صفحة الادخار أو من
+                       المصروفات الشخصية بعد ربط السجلين)
+      fromExpenses  -> تحويلات قديمة من المصروفات (نفس المعالجة،
+                       ومبلغها مستثنى من spentExpensesTotal)
+      withdraw      -> يعود المبلغ إلى المتبقي
+      debiorPayment مستثنى - ليس من ميزانية الشخص أصلاً.
 
-    المستثناة عمداً:
-      fromExpenses  -> المبلغ أصلاً مصروف داخل month.expenses،
-                       فخصمه هنا مرة أخرى يضاعف الخصم.
-      debtorPayment -> ليس من ميزانية الشخص أصلاً.
+    ولأن spentExpensesTotal() لا يحسب المصروفات المحوّلة للادخار،
+    فإن أي مبلغ مرتبط هنا لا يُخصم مرتين.
 */
 function savingsReserved(year = currentYear, month = currentMonth) {
     const report = savingsMonthlyReport(year, month);
 
-    return report.deposits - report.withdrawals;
+    return report.net;
 }
 
 /* =========================================================
@@ -4896,8 +4959,10 @@ function renderExpensesPage() {
                 .map((record) => recordRowHtml({
                     listName: "expenses",
                     record,
-                    icon: "د.ع",
-                    note: "مصروف شخصي"
+                    icon: record.isSavings ? "💰" : "د.ع",
+                    note: record.isSavings
+                        ? "ادخار من المصروفات الشخصية"
+                        : "مصروف شخصي"
                 }))
                 .join("")
             : emptyListHtml("لا توجد مصاريف إضافية بعد");
@@ -5568,10 +5633,31 @@ function signedCurrency(value) {
     return `${number > 0 ? "+" : "-"}${formatNumber(Math.abs(number))} د.ع`;
 }
 
+/*
+    المصروفات التي تُحتسب من الميزانية فعلاً.
+
+    المصروف المحوَّل للادخار (isSavings) لا يُحسب هنا، لأن مبلغه
+    يُخصم مرة واحدة عبر savingsReserved() (حركته في سجل الادخار).
+    لو احتُسب هنا أيضاً لخصم نفس المبلغ مرتين.
+*/
+function spentExpensesTotal(month) {
+    const expenses = Array.isArray(month.expenses) ? month.expenses : [];
+
+    return expenses.reduce((total, record) => {
+
+        if (!record || record.isSavings) {
+            return total;
+        }
+
+        return total + numberValue(record.amount);
+
+    }, 0);
+}
+
 function monthFinance(month, fixedTotal) {
     const salary = getSalary(month);
 
-    const spent = fixedTotal + sumOf(month.expenses);
+    const spent = fixedTotal + spentExpensesTotal(month);
 
     const walletNet = walletNetForMonth(
         monthKey(month.year, month.month)
