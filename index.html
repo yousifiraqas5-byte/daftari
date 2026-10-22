@@ -284,6 +284,37 @@
 
                 </button>
 
+
+                <!-- DODGE CHARGER -->
+
+                <button
+                    type="button"
+                    class="main-section-card home-card"
+                    data-page="chargerPage"
+                >
+
+                    <div class="section-card-icon">
+                        🚘
+                    </div>
+
+                    <div class="section-card-text">
+
+                        <span>
+                            Dodge Charger
+                        </span>
+
+                        <small>
+                            عقول السيارة ومخططات الأسلاك
+                        </small>
+
+                    </div>
+
+                    <span class="section-arrow">
+                        ‹
+                    </span>
+
+                </button>
+
             </div>
 
 
@@ -1007,13 +1038,14 @@
                         <strong>صرف</strong>
                     </button>
 
-                </div>
+                    <!-- سجل حركات المحفظة (الأحدث أولاً) مع زر حذف لكل حركة
+                         داخل الجسم المطوي حتى لا يظهر والبطاقة مطوية -->
+                    <div
+                        class="wallet-log"
+                        id="walletLogList"
+                    ></div>
 
-                <!-- سجل حركات المحفظة (الأحدث أولاً) مع زر حذف لكل حركة -->
-                <div
-                    class="wallet-log"
-                    id="walletLogList"
-                ></div>
+                </div>
 
             </article>
 
@@ -1680,8 +1712,1922 @@
                 id="fuelRecordsList"
             ></div>
 
+
         </section>
 
+
+
+        <!-- =================================================
+             DODGE CHARGER
+        ================================================== -->
+
+        <section
+            class="page"
+            id="chargerPage"
+        >
+
+            <div class="page-header">
+
+                <button
+                    type="button"
+                    class="back-button"
+                    data-page="homePage"
+                >
+                    ‹
+                </button>
+
+                <div>
+
+                    <span class="eyebrow">
+                        ECUs &amp; Control Modules
+                    </span>
+
+                    <h1>
+                        Dodge Charger
+                    </h1>
+
+                </div>
+
+            </div>
+
+            <div class="section-heading section-heading-space">
+                <div>
+                    <span class="eyebrow">
+                        ECUs &amp; Control Modules
+                    </span>
+                    <h2>
+                        عقول السيارة
+                    </h2>
+                </div>
+                <span class="section-total">
+                    15
+                </span>
+            </div>
+
+            <ol class="ecu-list" id="carEcuList">
+                    <li class="ecu-item ecu-expand">
+                        <details class="ecu-details">
+                            <summary class="ecu-summary">
+                                <span class="ecu-num">1</span>
+                                <div class="ecu-info">
+                                    <strong dir="ltr">Powertrain Control Module</strong>
+                                    <span>وحدة التحكم بمجموعة نقل الحركة</span>
+                                </div>
+                                <span class="ecu-abbr">PCM</span>
+                            </summary>
+                            <div class="ecu-body">
+                                <span class="eyebrow">3.6L · Engine Performance Circuit</span>
+                                <p class="bcm-note">
+                موقعها: الجهة الخلفية اليمنى من حجرة المحرك. فيها مقبسان C1 وC2، وكل مقبس 96 طرفًا يُرسم على صفحتين: الأطراف 1–60 على صفحة، و61–96 على صفحة ثانية.
+            </p>
+                                <div class="pcm-legend">
+                <span class="pcm-dot pcm-in"></span> إلى PCM
+                <span class="pcm-dot pcm-out"></span> من PCM
+                <span class="pcm-dot pcm-gnd"></span> أرضي / راجع
+                <span class="pcm-dot pcm-com"></span> اتصال
+            </div>
+                                <details class="pcm-operation-guide">
+                                    <summary>آلية عمل PCM والتنسيق بين المدخلات والمخرجات</summary>
+                                    <div class="pcm-operation-content">
+                                    <p class="pcm-operation-intro">وحدة PCM تستقبل إشارات الحساسات والمفاتيح، تقارنها بحالة المحرك، ثم تحسب أوامر التشغيل المناسبة. الحساس لا يشغّل القطعة مباشرة؛ الوحدة هي التي تنسق بين الإشارة والخرج.</p>
+                                    <div class="pcm-operation-flow" aria-label="تسلسل العمل">
+                                        <span>مدخلات الحساسات والمفاتيح</span><b aria-hidden="true">←</b>
+                                        <span>قراءة ومقارنة وحساب داخل PCM</span><b aria-hidden="true">←</b>
+                                        <span>أوامر إلى البخاخات والكويلات والصمامات والريلايات</span><b aria-hidden="true">←</b>
+                                        <span>مراقبة النتيجة بحساسات التغذية الراجعة</span>
+                                    </div>
+                                    <ol class="pcm-operation-steps">
+                                        <li><strong>المدخلات:</strong> يقرأ PCM موضع وسرعة عمود المرفق والكامات لمزامنة الشرارة والحقن، ويقرأ ضغط وحرارة هواء السحب وحرارة سائل التبريد وطلب دواسة الوقود. كما يستقبل إشارات حساسات الأكسجين لمراقبة الاحتراق والعادم.</li>
+                                        <li><strong>المعالجة والتنسيق:</strong> يربط القراءات ببعضها وبحالة التشغيل، مثل التشغيل البارد أو الخمول أو التسارع. ثم يحدد توقيت ومدة نبضة البخاخات وتوقيت الشرارة، ويقرر تشغيل المخارج المناسبة. لذلك قد يؤثر أكثر من مدخل في أمر واحد.</li>
+                                        <li><strong>المخرجات:</strong> يرسل أوامر كهربائية إلى البخاخات والكويلات وصمامات التحكم والريلايات. هذه الأوامر تتحكم بكمية الوقود وتوقيت الشرارة وبعض وظائف المحرك والانبعاثات.</li>
+                                        <li><strong>التغذية الراجعة:</strong> بعد الاحتراق، تقيس حساسات الأكسجين نتيجة الخليط ويراقب PCM الإشارات المتوقعة؛ فيصحح كمية الوقود عند الحاجة. إشارات المرفق والكامات تحفظ التزامن أثناء دوران المحرك.</li>
+                                    </ol>
+                                    <p class="pcm-operation-note"><strong>فهم أطراف C1 وC2:</strong> رقم C1 أو C2 يحدد أي فيشة على PCM، والرقم التالي يحدد pin داخلها. عبارة «إلى PCM» تعني إشارة أو تغذية تصل إلى الوحدة، و«من PCM» تعني أمراً أو خرجاً ترسله الوحدة؛ وهذا يوضح اتجاه الدائرة ولا يعني ترتيب تنفيذها الداخلي.</p>
+                                    </div>
+                                </details>
+                                <div class="bcm-groups pcm-groups">
+                <details class="bcm-group" id="pcm-c1-pins">
+                    <summary>
+                        <span class="bcm-ico">🧠</span>
+                        <span class="bcm-title"><strong>Connector C1</strong><small>المستخدم 32 من 96 · دخول 7 · خروج 14 · أرضي 8 · اتصال 3</small></span>
+                        <span class="ecu-abbr">32/96</span>
+                    </summary>
+                    <div class="bcm-conn">الأطراف 1–60 · Fig. 26 (1 of 7) · صفحة 27</div>
+                    <ul class="bcm-pins">
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">23</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED IGN SW O/P (RUN/START)</strong>
+                                <span>تغذية الإشعال المفيّزة (Run/Start)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">PNK/GRN</bdi> · <bdi dir="ltr">F942</bdi> · تغذية من مفتاح الإشعال</span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-23 · من مفتاح الإشعال</span>
+                        </li>
+                        <li class="pcm-pin pcm-com">
+                            <span class="bcm-pinno">33</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN C (-)</strong>
+                                <span>CAN C سالب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">YEL</bdi> · <bdi dir="ltr">D28</bdi> · خطوط البيانات (اتجاهين)</span>
+                            </div>
+                            <span class="pcm-tag">اتصال</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">42</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SENS GND</strong>
+                                <span>أرضي الحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K914</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">44</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">A/C PRESS SIG</strong>
+                                <span>إشارة ضغط التكييف</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLU/BRN</bdi> · <bdi dir="ltr">C18</bdi> · من حساس ضغط التكييف</span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-44 · من حساس ضغط المكيف</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">45</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL PURGE SOL RTN</strong>
+                                <span>راجع صمام تنفيس بخار الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/BRN</bdi> · <bdi dir="ltr">K70</bdi> · راجع صمام EVAP Purge</span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">48</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">5 VOLT SPLY</strong>
+                                <span>تغذية 5 فولت للحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/DK BLU</bdi> · <bdi dir="ltr">K859</bdi> · يغذي حساس ضغط خزان الوقود</span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-48</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">52</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">Z903</bdi> · أرضي G102</span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">53</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">Z903</bdi> · أرضي G102</span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">54</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SENS GND</strong>
+                                <span>أرضي الحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/TAN</bdi> · <bdi dir="ltr">K917</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-com">
+                            <span class="bcm-pinno">55</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LIN BUS</strong>
+                                <span>ناقل LIN</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/TAN</bdi> · <bdi dir="ltr">D511</bdi> · نحو صمامي العادم النشطين</span>
+                            </div>
+                            <span class="pcm-tag">اتصال</span>
+                        </li>
+                        <li class="pcm-pin pcm-com">
+                            <span class="bcm-pinno">57</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN C (+)</strong>
+                                <span>CAN C موجب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/WHT</bdi> · <bdi dir="ltr">D27</bdi> · خطوط البيانات (اتجاهين)</span>
+                            </div>
+                            <span class="pcm-tag">اتصال</span>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">الأطراف 61–96 · Fig. 27 (2 of 7) · صفحة 28</div>
+                    <ul class="bcm-pins">
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">67</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">APP SENS GND 2</strong>
+                                <span>أرضي حساس الدواسة 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/VIO</bdi> · <bdi dir="ltr">K400</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">68</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">APP SENS GND 1</strong>
+                                <span>أرضي حساس الدواسة 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/YEL</bdi> · <bdi dir="ltr">K167</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">69</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">5 VOLT SPLY</strong>
+                                <span>تغذية 5 فولت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/BRN</bdi> · <bdi dir="ltr">K854</bdi> · يغذي حساس الدواسة</span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-69</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">70</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ESIM SIG</strong>
+                                <span>إشارة مفتاح مراقبة نظام EVAP</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRY</bdi> · <bdi dir="ltr">K108</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-70 · من مفتاح مراقبة نظام EVAP (ESIM)</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">72</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">Z903</bdi> · أرضي G102</span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">73</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL PUMP CTRL</strong>
+                                <span>تحكم مضخة الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU</bdi> · <bdi dir="ltr">N9</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-73</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">74</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ASD CTRL O/P</strong>
+                                <span>خرج ريلاي الإيقاف التلقائي (ASD)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">F342</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-74</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">75</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ASD CTRL O/P</strong>
+                                <span>خرج ريلاي الإيقاف التلقائي (ASD)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">F342</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-75</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">76</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ASD CTRL O/P</strong>
+                                <span>خرج ريلاي الإيقاف التلقائي (ASD)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">F342</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-76</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">77</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VACUUM PUMP RLY CTRL</strong>
+                                <span>ريلاي مضخة الفراغ</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/YEL</bdi> · <bdi dir="ltr">T110</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-77</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">78</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RAD FAN RLY CTRL</strong>
+                                <span>ريلاي مروحة الرادياتير</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/ORG</bdi> · <bdi dir="ltr">N112</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-78</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">79</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">A/C CLUTCH CTRL</strong>
+                                <span>كلتش كمبرسر التكييف</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLU/ORG</bdi> · <bdi dir="ltr">C13</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-79</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">80</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ASD RLY CTRL</strong>
+                                <span>تحكم ريلاي ASD</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K51</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-80</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">81</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">STARTER RLY CTRL</strong>
+                                <span>ريلاي المارش</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/ORG</bdi> · <bdi dir="ltr">T752</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-81</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">82</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LOW SPEED RAD FAN CTRL</strong>
+                                <span>مروحة الرادياتير سرعة بطيئة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRN</bdi> · <bdi dir="ltr">N201</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-82</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">88</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL TANK PRESS SIG</strong>
+                                <span>إشارة ضغط خزان الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/ORG</bdi> · <bdi dir="ltr">N7</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-88 · من حساس ضغط خزان الوقود</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">91</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">APP SIG 2</strong>
+                                <span>إشارة دواسة الوقود 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/BRN</bdi> · <bdi dir="ltr">K29</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-91 · من حساس موضع دواسة الوقود</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">92</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">APP SIG 1</strong>
+                                <span>إشارة دواسة الوقود 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K23</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-92 · من حساس موضع دواسة الوقود</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">93</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">5 VOLT SPLY</strong>
+                                <span>تغذية 5 فولت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/VIO</bdi> · <bdi dir="ltr">K852</bdi> · يغذي حساس الدواسة</span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-93</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">94</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">EVAP PURGE CTRL</strong>
+                                <span>تحكم صمام تنفيس بخار الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/WHT</bdi> · <bdi dir="ltr">K52</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C1-94</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">96</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED B(+)</strong>
+                                <span>تغذية موجبة مفيّزة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED</bdi> · <bdi dir="ltr">A209</bdi> · تغذية الوحدة</span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C1-96 · من البطارية عبر فيوز</span>
+                        </li>
+                    </ul>
+                    <p class="pcm-unused"><strong>أطراف غير مستخدمة:</strong> <bdi dir="ltr">1–22, 24–32, 34–41, 43, 46–47, 49–51, 56, 58–66, 71, 83–87, 89–90, 95</bdi></p>
+                </details>
+                <details class="bcm-group" id="pcm-c2-pins">
+                    <summary>
+                        <span class="bcm-ico">🧠</span>
+                        <span class="bcm-title"><strong>Connector C2</strong><small>المستخدم 53 من 96 · دخول 19 · خروج 26 · أرضي 8 · اتصال 0</small></span>
+                        <span class="ecu-abbr">53/96</span>
+                    </summary>
+                    <div class="bcm-conn">الأطراف 1–60 · Fig. 32 (7 of 7) · صفحة 33</div>
+                    <ul class="bcm-pins">
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">OIL PRESS SIG</strong>
+                                <span>إشارة ضغط الزيت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRY</bdi> · <bdi dir="ltr">G6</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-4 · من حساس ضغط الزيت</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">8</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 1</strong>
+                                <span>تحكم البخاخ 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/YEL</bdi> · <bdi dir="ltr">K11</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-8</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">9</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 2</strong>
+                                <span>تحكم البخاخ 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/DK BLU</bdi> · <bdi dir="ltr">K12</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-9</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">10</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 3</strong>
+                                <span>تحكم البخاخ 3</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/BLU</bdi> · <bdi dir="ltr">K13</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-10</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">11</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 4</strong>
+                                <span>تحكم البخاخ 4</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/TAN</bdi> · <bdi dir="ltr">K14</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-11</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">12</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ECT SIG</strong>
+                                <span>إشارة حرارة سائل التبريد</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/ORG</bdi> · <bdi dir="ltr">K2</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-12 · من حساس حرارة سائل التبريد</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">13</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">KS SIG 2</strong>
+                                <span>إشارة حساس الخبط 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K242</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-13 · من حساس الخبط 2</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">14</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">KS SIG 1</strong>
+                                <span>إشارة حساس الخبط 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/YEL</bdi> · <bdi dir="ltr">K42</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-14 · من حساس الخبط 1</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">19</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 1/2 SIG</strong>
+                                <span>إشارة حساس الأوكسجين 1/2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/YEL</bdi> · <bdi dir="ltr">K141</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-19 · من حساس الأكسجين 1/2</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">20</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 RTN (DOWNSTREAM)</strong>
+                                <span>راجع حساسات الأوكسجين (بعد الكتلست)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/DK GRN</bdi> · <bdi dir="ltr">K904</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">21</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 2/2 SIG</strong>
+                                <span>إشارة حساس الأوكسجين 2/2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN</bdi> · <bdi dir="ltr">K243</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-21 · من حساس الأكسجين 2/2</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">22</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VVT EXHAUST CTRL</strong>
+                                <span>تحكم VVT العادم</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/WHT</bdi> · <bdi dir="ltr">K276</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-22</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">23</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VVT INTAKE CTRL</strong>
+                                <span>تحكم VVT السحب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K76</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-23</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">24</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 1/1 HEATER CTRL</strong>
+                                <span>سخان حساس الأوكسجين 1/1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRN</bdi> · <bdi dir="ltr">K99</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-24</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">32</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GEN FIELD CTRL</strong>
+                                <span>تحكم ملف الدينمو</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRY</bdi> · <bdi dir="ltr">K20</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-32</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">33</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ETC MTR (+)</strong>
+                                <span>محرك دعسة الوقود الإلكترونية موجب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/YEL</bdi> · <bdi dir="ltr">K447</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-33</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">34</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ETC MTR (-)</strong>
+                                <span>محرك دعسة الوقود الإلكترونية سالب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/ORG</bdi> · <bdi dir="ltr">K448</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-34</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">35</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GEN SENSE</strong>
+                                <span>حساس الدينمو</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED/VIO</bdi> · <bdi dir="ltr">A804</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-35 · من الدينمو</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">37</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">KS RTN 2</strong>
+                                <span>راجع حساس الخبط 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/BRN</bdi> · <bdi dir="ltr">K924</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">38</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">KS RTN 1</strong>
+                                <span>راجع حساس الخبط 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRN</bdi> · <bdi dir="ltr">K942</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">39</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 1/1 SIG</strong>
+                                <span>إشارة حساس الأوكسجين 1/1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/BLU</bdi> · <bdi dir="ltr">K41</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-39 · من حساس الأكسجين 1/1</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">40</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 RTN (UPSTREAM)</strong>
+                                <span>راجع حساسات الأوكسجين (قبل الكتلست)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/DK GRN</bdi> · <bdi dir="ltr">K902</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">41</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 2/1 SIG</strong>
+                                <span>إشارة حساس الأوكسجين 2/1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRN</bdi> · <bdi dir="ltr">K43</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-41 · من حساس الأكسجين 2/1</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">43</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">EOT SIG</strong>
+                                <span>إشارة حرارة زيت المحرك</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/BRN</bdi> · <bdi dir="ltr">G24</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-43 · من حساس حرارة زيت المحرك</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">44</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">IAT SIG</strong>
+                                <span>إشارة حرارة هواء السحب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRN</bdi> · <bdi dir="ltr">K21</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-44 · من حساس حرارة هواء السحب</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">45</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">MAP SIG</strong>
+                                <span>إشارة ضغط مانيفولد السحب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/BRN</bdi> · <bdi dir="ltr">K1</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-45 · من حساس ضغط مانيفولد السحب</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">48</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 1/2 HEATER CTRL SPLY</strong>
+                                <span>تغذية سخان حساس الأوكسجين 1/2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K299</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-48</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">49</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 3</strong>
+                                <span>تحكم الكويل 3</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/ORG</bdi> · <bdi dir="ltr">K18</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-49</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">50</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 2</strong>
+                                <span>تحكم الكويل 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/TAN</bdi> · <bdi dir="ltr">K17</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-50</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">51</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 1</strong>
+                                <span>تحكم الكويل 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/DK GRN</bdi> · <bdi dir="ltr">K19</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-51</span>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">الأطراف 61–96 · Fig. 29 (4 of 7) · صفحة 30</div>
+                    <ul class="bcm-pins">
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">61</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CMP SIG 4</strong>
+                                <span>إشارة حساس الكامة 4</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/PNK</bdi> · <bdi dir="ltr">K445</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-61 · من حساس موضع عمود الكامات، الإشارة 4</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">62</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CMP SIG 2</strong>
+                                <span>إشارة حساس الكامة 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/BRN</bdi> · <bdi dir="ltr">K441</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-62 · من حساس موضع عمود الكامات، الإشارة 2</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">63</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CMP SIG 3</strong>
+                                <span>إشارة حساس الكامة 3</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/TAN</bdi> · <bdi dir="ltr">K444</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-63 · من حساس موضع عمود الكامات، الإشارة 3</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">65</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">TP SENS RTN</strong>
+                                <span>راجع حساس دعسة الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/DK BLU</bdi> · <bdi dir="ltr">K922</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">66</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SENS GND</strong>
+                                <span>أرضي الحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/DK GRN</bdi> · <bdi dir="ltr">K900</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">67</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">5 VOLT SPLY</strong>
+                                <span>تغذية 5 فولت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">PNK/YEL</bdi> · <bdi dir="ltr">F855</bdi> · يغذي حساس الكرنك والكامة</span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-67</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">68</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SENS GND</strong>
+                                <span>أرضي الحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/WHT</bdi> · <bdi dir="ltr">K915</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">72</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 2/1 HEATER CTRL</strong>
+                                <span>سخان حساس الأوكسجين 2/1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/VIO</bdi> · <bdi dir="ltr">K199</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-72</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">73</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 4</strong>
+                                <span>تحكم الكويل 4</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRY</bdi> · <bdi dir="ltr">K15</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-73</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">74</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 5</strong>
+                                <span>تحكم الكويل 5</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/YEL</bdi> · <bdi dir="ltr">K16</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-74</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">75</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">COIL CTRL 6</strong>
+                                <span>تحكم الكويل 6</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/ORG</bdi> · <bdi dir="ltr">K10</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-75</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">79</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 5</strong>
+                                <span>تحكم البخاخ 5</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/ORG</bdi> · <bdi dir="ltr">K38</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-79</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">80</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">INJECTOR CTRL 6</strong>
+                                <span>تحكم البخاخ 6</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/VIO</bdi> · <bdi dir="ltr">K58</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-80</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">85</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CMP SIG</strong>
+                                <span>إشارة حساس الكامة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRY</bdi> · <bdi dir="ltr">K44</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-85 · من حساس موضع عمود الكامات</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">86</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CKP SIG</strong>
+                                <span>إشارة حساس الكرنك</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/BLU</bdi> · <bdi dir="ltr">K24</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-86 · من حساس موضع عمود المرفق (الكرنك)</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">87</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">5 VOLT SPLY</strong>
+                                <span>تغذية 5 فولت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">YEL/PNK</bdi> · <bdi dir="ltr">F856</bdi> · يغذي حساس الكرنك والكامة</span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-87</span>
+                        </li>
+                        <li class="pcm-pin pcm-gnd">
+                            <span class="bcm-pinno">88</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CKP GND</strong>
+                                <span>أرضي حساس الكرنك</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRY</bdi> · <bdi dir="ltr">K925</bdi></span>
+                            </div>
+                            <span class="pcm-tag">أرضي/راجع</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">89</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">TP SIG 1</strong>
+                                <span>إشارة حساس دعسة الوقود 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/ORG</bdi> · <bdi dir="ltr">K22</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-89 · من حساس موضع صفيحة الخانق، الإشارة 1</span>
+                        </li>
+                        <li class="pcm-pin pcm-in">
+                            <span class="bcm-pinno">90</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">TP SIG 2</strong>
+                                <span>إشارة حساس دعسة الوقود 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/DK GRN</bdi> · <bdi dir="ltr">K122</bdi></span>
+                            </div>
+                            <span class="pcm-tag">إلى PCM · C2-90 · من حساس موضع صفيحة الخانق، الإشارة 2</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">93</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">OIL PUMP CTRL</strong>
+                                <span>تحكم مضخة الزيت</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/YEL</bdi> · <bdi dir="ltr">G62</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-93</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">94</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VVT INTAKE CTRL 2</strong>
+                                <span>تحكم VVT السحب 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN</bdi> · <bdi dir="ltr">K78</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-94</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">95</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VVT EXHAUST CTRL 2</strong>
+                                <span>تحكم VVT العادم 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU</bdi> · <bdi dir="ltr">K227</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-95</span>
+                        </li>
+                        <li class="pcm-pin pcm-out">
+                            <span class="bcm-pinno">96</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">O2 2/2 HEATER CTRL</strong>
+                                <span>سخان حساس الأوكسجين 2/2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRY</bdi> · <bdi dir="ltr">K399</bdi></span>
+                            </div>
+                            <span class="pcm-tag">من PCM · C2-96</span>
+                        </li>
+                    </ul>
+                    <p class="pcm-unused"><strong>أطراف غير مستخدمة:</strong> <bdi dir="ltr">1–3, 5–7, 15–18, 25–31, 36, 42, 46–47, 52–60, 64, 69–71, 76–78, 81–84, 91–92</bdi></p>
+                </details>
+            </div>
+                <details class="bcm-group pcm-components">
+                    <summary>
+                        <span class="bcm-ico">🔌</span>
+                        <span class="bcm-title">
+                            <strong>عناصر الدائرة وعدد الأطراف</strong>
+                            <small>Power Train Module · العناصر الظاهرة في مخططات 3.6L</small>
+                        </span>
+                        <span class="ecu-abbr">40 عنصرًا</span>
+                    </summary>
+                    <p class="pcm-component-note">عند فتح العنصر تظهر أطراف موصله بترتيب أرقام الـPin. وسوم C1 وC2 تحدد طرف PCM المطابق. لون السلك المعروض مأخوذ من جدول الموصل. الموقع تقريبي بحسب نظام 3.6L وقد يختلف حسب سنة الموديل والفئة. المصدر: الأشكال 26–32، الصفحات 27–33.</p><div class="pcm-component-groups"><section class="pcm-component-group"><h3>الحساسات والمدخلات</h3><ol class="pcm-component-list" start="1"><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Fuel Tank Pressure Sensor</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يراقب ضغط خزان الوقود للمساعدة في كشف حالة منظومة أبخرة الوقود.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Rear of vehicle, above the fuel tank near the pump module.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يتحرك غشاء داخلي مع تغيّر ضغط الخزان، وتحول الدائرة هذا التغيّر إلى إشارة كهربائية تقرؤها وحدة التحكم.</p><ul class="bcm-pins"><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">A</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">B</span><div class="ecu-info"><strong dir="ltr">Fuel tank pressure signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/ORG</bdi></span></div><span class="pcm-tag">إلى PCM · C1-88</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">C</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">A/C Pressure Transducer</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس ضغط وسيط التبريد ويرسل قراءته إلى وحدة التحكم.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Engine bay, on the A/C high-pressure line near the front.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يستشعر ضغط وسيط التبريد ويحوّله إلى إشارة كهربائية متغيرة، فتستخدمها وحدة التحكم لمراقبة ضغط المكيف.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">A/C pressure signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLU/BRN</bdi></span></div><span class="pcm-tag">إلى PCM · C1-44</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Ambient Air Temperature Sensor</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس درجة حرارة الهواء خارج السيارة.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Behind the front fascia or grille.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تتغير مقاومة العنصر الحراري بحسب حرارة الهواء الخارجي، وتحوّل وحدة التحكم الإشارة إلى قراءة لدرجة الحرارة.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Ambient air temperature signal</strong></div><span class="pcm-tag">إلى BCM</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor return</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Hood Ajar Switch</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يرسل حالة غطاء المحرك: مفتوح أو مغلق.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the hood latch at the front of the vehicle.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تغيّر حركة غطاء المحرك حالة المفتاح بين دائرة مفتوحة ومغلقة، فتتعرف وحدة التحكم إلى حالة الغطاء.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Hood ajar signal</strong></div><span class="pcm-tag">إلى BCM</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Accelerator Pedal Position Sensor</strong><span class="pcm-pin-count">6 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس مقدار ضغط السائق على دواسة الوقود.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Inside the cabin, mounted at the accelerator pedal.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تحوّل حركة دواسة الوقود إلى إشارات موضع كهربائية، وتستخدم وحدة التحكم هذه الإشارات لتحديد طلب السائق.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">APP signal 1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/BRN · BRN/WHT</bdi></span></div><span class="pcm-tag">إلى PCM · C1-91/92</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">APP sensor ground 1</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">APP sensor ground 2</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">APP signal 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/BRN · BRN/WHT</bdi></span></div><span class="pcm-tag">إلى PCM · C1-91/92</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">EVAP System Monitor Switch (ESIM)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يراقب تغيّر الضغط في منظومة تبخير الوقود.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Rear of vehicle, near the EVAP canister and fuel tank.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يراقب تغيّر الضغط أو التفريغ في منظومة أبخرة الوقود، ويبدّل حالة المفتاح عند تحقق شروط المراقبة.</p><ul class="bcm-pins"><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">ESIM signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRY</bdi></span></div><span class="pcm-tag">إلى PCM · C1-70</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Crankshaft Position Sensor</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يرسل سرعة وموقع عمود المرفق لمزامنة عمل المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Rear of the engine, near the transmission bellhousing.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يرصد مرور أهداف عمود المرفق أمام الحساس ويولّد نبضات تحدد سرعة العمود وموضعه.</p><ul class="bcm-pins"><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">CKP sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">CKP signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/BLU</bdi></span></div><span class="pcm-tag">إلى PCM · C2-86</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Camshaft Position Sensors (each)</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ترصد موقع عمود الكامات لمزامنة توقيت الصمامات والاحتراق.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the cylinder heads near the camshafts; exact position varies by bank.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يرصد الحساس هدف عمود الكامات ويولّد إشارة موضع تساعد وحدة التحكم على مزامنة توقيت المحرك.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Camshaft position signal 1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/PNK · DK BLU/BRN · DK BLU/TAN · DK BLU/GRY</bdi></span></div><span class="pcm-tag">إلى PCM · C2-61/62/63/85</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">Camshaft position signal 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/PNK · DK BLU/BRN · DK BLU/TAN · DK BLU/GRY</bdi></span></div><span class="pcm-tag">إلى PCM · C2-61/62/63/85</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Engine Oil Temperature Sensor</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس درجة حرارة زيت المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the engine at the oil passage or sump; exact mounting point is not shown.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تتغير مقاومته مع حرارة زيت المحرك، وتحوّل وحدة التحكم الإشارة إلى قيمة حرارية.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Engine oil temperature signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/BRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-43</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Engine Coolant Temperature Sensor</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس درجة حرارة سائل تبريد المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the engine bay at the coolant outlet or thermostat housing.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تتغير مقاومته مع حرارة سائل التبريد، فتستخدم وحدة التحكم الإشارة لمتابعة حرارة المحرك.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Engine coolant temperature signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/ORG</bdi></span></div><span class="pcm-tag">إلى PCM · C2-12</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Oil Pressure Sensor</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يرسل قراءة ضغط زيت المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the engine near the oil filter housing and oil passage.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يحوّل ضغط الزيت المؤثر على عنصر الاستشعار إلى إشارة كهربائية تمثل مستوى الضغط.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Oil pressure signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRY</bdi></span></div><span class="pcm-tag">إلى PCM · C2-4</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Manifold Absolute Pressure (MAP) Sensor</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس الضغط داخل مجمع السحب لتقدير حمل المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Mounted on top of the intake manifold.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يؤثر ضغط مجمع السحب على عنصر حساس داخلي، فينتج الحساس إشارة تستخدم لتقدير حمل المحرك.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">MAP signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/BRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-45</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Inlet Air Temperature Sensor</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يقيس حرارة الهواء الداخل إلى المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the intake duct before the throttle body.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تتغير مقاومة العنصر الحراري بحسب حرارة الهواء الداخل، وتقرأ وحدة التحكم هذه الإشارة.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Inlet air temperature signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/GRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-44</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Upstream Oxygen Sensors (each)</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تقيس الأكسجين في العادم قبل المحول الحفاز لمراقبة خليط الوقود والهواء.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the exhaust before the catalytic converter, near the exhaust manifold.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يقيس الحساس نسبة الأكسجين في العادم قبل المحول الحفاز، ويرسل إشارة تساعد على تصحيح خليط الوقود والهواء.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">O2 heater control/supply</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/GRN · BRN/WHT</bdi></span></div><span class="pcm-tag">من PCM · C2-24/48</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">O2 sensor return</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">Oxygen sensor signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/BLU · DK BLU/GRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-39/41</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Knock Sensors 1 and 2 (each)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ترصد اهتزازات الطرق أو الخبط داخل المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the engine block valley beneath the intake manifold.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يحوّل العنصر الكهروضغطي اهتزازات المحرك إلى إشارة؛ وتفحص وحدة التحكم الإشارة لاكتشاف الطرق.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Knock sensor signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/WHT · DK BLU/YEL</bdi></span></div><span class="pcm-tag">إلى PCM · C2-13/14</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Sensor return</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Downstream Oxygen Sensors (each)</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تراقب الأكسجين في العادم بعد المحول الحفاز.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the exhaust pipes after the catalytic converters.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يقيس الحساس الأكسجين في العادم بعد المحول الحفاز، وتُستخدم الإشارة لمراقبة أداء نظام الانبعاثات.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">O2 heater control/supply</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/VIO · BRN/GRY</bdi></span></div><span class="pcm-tag">من PCM · C2-72/96</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">O2 sensor return</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">Oxygen sensor signal</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/YEL · BRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-19/21</span></li></ul></details></li></ol></section><section class="pcm-component-group"><h3>المشغلات والمخارج</h3><ol class="pcm-component-list" start="17"><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Active Exhaust Valve 1</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تتحكم بمجرى العادم على الجهة الأولى.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the rear exhaust pipe near the muffler, side 1.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تحرك المشغلة صمام العادم بحسب أمر التحكم لتغيير مسار أو تدفق العادم في الجهة الأولى.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Fused B+</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">LIN bus</strong></div><span class="pcm-tag">اتصال</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Active Exhaust Valve 2</strong><span class="pcm-pin-count">3 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تتحكم بمجرى العادم على الجهة الثانية.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On the rear exhaust pipe near the muffler, side 2.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تحرك المشغلة صمام العادم بحسب أمر التحكم لتغيير مسار أو تدفق العادم في الجهة الثانية.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Fused B+</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">LIN bus</strong></div><span class="pcm-tag">اتصال</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">EVAP Purge Solenoid</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ينظم مرور أبخرة الوقود من علبة الفحم إلى المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the engine bay near the intake manifold.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تفتح الوحدة أو تغلق صمام التطهير كهربائياً، فتسمح بمرور أبخرة الوقود من علبة الفحم إلى المحرك.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">EVAP purge control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/WHT</bdi></span></div><span class="pcm-tag">من PCM · C1-94</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Purge solenoid return</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Vacuum Pump</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تولّد التفريغ اللازم للأنظمة التي تحتاج ضغطًا منخفضًا.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the rear of the engine near a cylinder head.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يشغّل المحرك الكهربائي المضخة لسحب الهواء وتوليد التفريغ المطلوب للأنظمة المرتبطة بها.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Relay switched feed</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Fuel Pump Module</strong><span class="pcm-pin-count">5 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يضم مضخة الوقود ومكوّنات قراءة مستوى الوقود.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Inside the fuel tank at the rear of the vehicle.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يدير المحرك الكهربائي مضخة الوقود لدفع الوقود نحو المحرك، وتتحرك العوامة مع مستوى الوقود لإنتاج إشارة المستوى.</p><ul class="bcm-pins"><li class="pcm-pin pcm-in"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Fuel level signal 2</strong></div><span class="pcm-tag">إلى BCM</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Fuel pump feed</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">Fuel level sensor signal</strong></div><span class="pcm-tag">إلى BCM</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">Fuel pump control output</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU</bdi></span></div><span class="pcm-tag">من PCM · C1-73</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Oil Pump Solenoid</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ينظم تشغيل أو تدفق مضخة الزيت بأمر وحدة التحكم.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the oil pump in the lower engine area.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تستجيب لتيار التحكم بتحريك صمام داخلي يغيّر تدفق الزيت أو ضغطه وفق تصميم النظام.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Oil pump control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/YEL</bdi></span></div><span class="pcm-tag">من PCM · C2-93</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Camshaft Position Solenoid 2/1 (VVT Intake)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يضبط توقيت عمود كامات السحب في الجهة الثانية.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On cylinder head, bank 2, intake side.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> توجّه صماماً داخلياً تدفق زيت المحرك إلى مغير توقيت عمود سحب الجهة الثانية لتقديم أو تأخير توقيته.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">VVT intake control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN</bdi></span></div><span class="pcm-tag">من PCM · C2-94</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Camshaft Position Solenoid 2/2 (VVT Exhaust)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يضبط توقيت عمود كامات العادم في الجهة الثانية.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On cylinder head, bank 2, exhaust side.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> توجّه صماماً داخلياً تدفق زيت المحرك إلى مغير توقيت عمود عادم الجهة الثانية لتقديم أو تأخير توقيته.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">VVT exhaust control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU</bdi></span></div><span class="pcm-tag">من PCM · C2-95</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Camshaft Position Solenoid 1/1 (VVT Intake)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يضبط توقيت عمود كامات السحب في الجهة الأولى.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On cylinder head, bank 1, intake side.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> توجّه صماماً داخلياً تدفق زيت المحرك إلى مغير توقيت عمود سحب الجهة الأولى لتقديم أو تأخير توقيته.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">VVT intake control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/WHT</bdi></span></div><span class="pcm-tag">من PCM · C2-23</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Camshaft Position Solenoid 1/2 (VVT Exhaust)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يضبط توقيت عمود كامات العادم في الجهة الأولى.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">On cylinder head, bank 1, exhaust side.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> توجّه صماماً داخلياً تدفق زيت المحرك إلى مغير توقيت عمود عادم الجهة الأولى لتقديم أو تأخير توقيته.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">VVT exhaust control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/WHT</bdi></span></div><span class="pcm-tag">من PCM · C2-22</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Ground</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Ignition Capacitors (each)</strong><span class="pcm-pin-count">1 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تساعد على الحد من التشويش الكهربائي في دائرة الإشعال.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the engine bay near the ignition coils or coil harness.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يمتص المكثف النبضات الكهربائية العابرة في دائرة الإشعال، فيحد من التشويش الكهربائي.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Fused ASD relay output</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Ignition Coils 1-6 (each)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ترفع الجهد لتوليد الشرارة في شمعة الإشعال.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Mounted on top of the cylinder heads above the spark plugs.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يبني الملف مجالاً مغناطيسياً ثم يرفع الجهد عند فصل التيار، مولداً جهداً عالياً لشمعة الإشعال.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Ignition coil control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/ORG · DK BLU/TAN · DK BLU/DK GRN · DK BLU/GRY · DK BLU/YEL · DK BLU/ORG</bdi></span></div><span class="pcm-tag">من PCM · C2-49/50/51/73/74/75</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Fused ASD relay output</strong></div><span class="pcm-tag">تغذية</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Fuel Injectors 1-6 (each)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ترش الوقود داخل المحرك وفق أوامر وحدة التحكم.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the fuel rail and intake manifold, beneath the upper intake plenum.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يفتح الملف الكهربائي الإبرة لفترة محددة بأمر وحدة التحكم، فيُرش الوقود إلى مجرى السحب أو الأسطوانة بحسب التصميم.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Fused ASD relay output</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Injector control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/YEL · BRN/DK BLU · BRN/BLU · BRN/TAN · BRN/ORG · BRN/VIO</bdi></span></div><span class="pcm-tag">من PCM · C2-8/9/10/11/79/80</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Electronic Throttle Body</strong><span class="pcm-pin-count">6 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> ينظم كمية الهواء الداخلة للمحرك عبر صفيحة الخانق الإلكترونية.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the intake manifold inlet at the front of the engine.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يدير المحرك الكهربائي صفيحة الخانق وفق أمر وحدة التحكم، وتُستخدم إشارة موضعها لمتابعة حركتها.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">ETC motor (+)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/YEL · TAN/ORG</bdi></span></div><span class="pcm-tag">من PCM · C2-33/34</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">ETC motor (-)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/YEL · TAN/ORG</bdi></span></div><span class="pcm-tag">من PCM · C2-33/34</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">Throttle position signal 1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/ORG · BRN/DK GRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-89/90</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">5 V supply</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">Throttle position signal 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/ORG · BRN/DK GRN</bdi></span></div><span class="pcm-tag">إلى PCM · C2-89/90</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">Throttle position sensor return</strong></div><span class="pcm-tag">أرضي/راجع</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Generator</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يشحن البطارية ويغذي الأنظمة الكهربائية أثناء تشغيل المحرك.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the front of the engine, driven by the accessory belt.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يحوّل دوران المحرك إلى طاقة كهربائية بالحث الكهرومغناطيسي، وينظم خرج الشحن لتغذية النظام وشحن البطارية.</p><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">Generator field control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/GRY</bdi></span></div><span class="pcm-tag">من PCM · C2-32</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">Generator sense</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">RED/VIO</bdi></span></div><span class="pcm-tag">إلى PCM · C2-35</span></li></ul></details></li></ol></section><section class="pcm-component-group"><h3>الريلايات والفيوزات</h3><ol class="pcm-component-list" start="32"><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Vacuum Pump Relay</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يوصل ويفصل التغذية الكهربائية لمضخة التفريغ.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the front power distribution center in the engine bay; confirm the relay circuit.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> عند تنشيط ملف الريلاي تغلق نقاط التلامس لتوصيل التغذية إلى مضخة التفريغ؛ وعند إيقافه تنفتح.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">30</span><div class="ecu-info"><strong dir="ltr">Battery feed</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">85</span><div class="ecu-info"><strong dir="ltr">Coil control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/YEL</bdi></span></div><span class="pcm-tag">من PCM · C1-77</span></li><li class="pcm-pin pcm-coil"><span class="bcm-pinno">86</span><div class="ecu-info"><strong dir="ltr">Relay coil terminal</strong></div><span class="pcm-tag">ملف الريلاي</span></li><li class="pcm-pin pcm-load"><span class="bcm-pinno">87</span><div class="ecu-info"><strong dir="ltr">Switched output to pump</strong></div><span class="pcm-tag">إلى الحمل</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Automatic Shutdown (ASD) Relay</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يفصل تغذية بعض دوائر المحرك عند أمر الإيقاف التلقائي.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the power distribution center containing the ASD relay.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تغلق نقاط التلامس عند تفعيل الريلاي لتغذية الدوائر التي يتحكم بها، وتفصلها عند زوال أمر التشغيل.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">30</span><div class="ecu-info"><strong dir="ltr">Battery feed</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">85</span><div class="ecu-info"><strong dir="ltr">PCM relay control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/WHT · BRN/WHT · BRN/WHT · BRN/WHT</bdi></span></div><span class="pcm-tag">من PCM · C1-74/75/76/80</span></li><li class="pcm-pin pcm-coil"><span class="bcm-pinno">86</span><div class="ecu-info"><strong dir="ltr">Relay coil terminal</strong></div><span class="pcm-tag">ملف الريلاي</span></li><li class="pcm-pin pcm-load"><span class="bcm-pinno">87</span><div class="ecu-info"><strong dir="ltr">Switched ASD output</strong></div><span class="pcm-tag">إلى الحمل</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Fuel Pump Relay</strong><span class="pcm-pin-count">4 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> يوصل ويفصل التغذية الكهربائية لمضخة الوقود.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the power distribution center containing the fuel-pump relay.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يستخدم ملفاً كهربائياً لإغلاق نقاط التلامس وتوصيل التغذية إلى مضخة الوقود، ثم يفصلها عند إيقافه.</p><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">30</span><div class="ecu-info"><strong dir="ltr">Battery feed</strong></div><span class="pcm-tag">تغذية</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">85</span><div class="ecu-info"><strong dir="ltr">Relay control</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU</bdi></span></div><span class="pcm-tag">من PCM · C1-73</span></li><li class="pcm-pin pcm-coil"><span class="bcm-pinno">86</span><div class="ecu-info"><strong dir="ltr">Relay coil terminal</strong></div><span class="pcm-tag">ملف الريلاي</span></li><li class="pcm-pin pcm-load"><span class="bcm-pinno">87</span><div class="ecu-info"><strong dir="ltr">Switched output to fuel pump</strong></div><span class="pcm-tag">إلى الحمل</span></li></ul></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Fuses (each)</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> تحمي الدائرة من زيادة التيار بقطع التغذية عند حدوث خلل.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the front or rear power distribution center, depending on the fuse circuit.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> ينصهر العنصر المعدني داخل الفيوز إذا تجاوز التيار الحد المصمم له، فيفتح الدائرة ويحمي الأسلاك والمكونات.</p><p class="pcm-component-note">طرف جهة التغذية، ثم طرف جهة الدائرة. الرسم لا يرقّم طرفي الفيوز.</p></details></li></ol></section><section class="pcm-component-group"><h3>وحدات التحكم والتوصيل</h3><ol class="pcm-component-list" start="36"><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Powertrain Control Module - Connector C1</strong><span class="pcm-pin-count">96 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> الموصل الأول لوحدة PCM؛ يربط إشارات وتغذيات الدوائر المحددة في الجدول.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Connector C1 on the PCM; the PCM is at the rear-right of the engine bay.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يوفر موصل C1 نقاط التوصيل الكهربائية المحددة في جدول الأطراف لربط الدوائر بوحدة التحكم.</p><p class="pcm-component-note"><a href="#pcm-c1-pins">عرض أطراف C1 مرتبة حسب رقم pin</a></p></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Powertrain Control Module - Connector C2</strong><span class="pcm-pin-count">96 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> الموصل الثاني لوحدة PCM؛ يربط إشارات وتغذيات الدوائر المحددة في الجدول.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Connector C2 on the PCM; the PCM is at the rear-right of the engine bay.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> يوفر موصل C2 نقاط التوصيل الكهربائية المحددة في جدول الأطراف لربط الدوائر بوحدة التحكم.</p><p class="pcm-component-note"><a href="#pcm-c2-pins">عرض أطراف C2 مرتبة حسب رقم pin</a></p></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Front Power Distribution Center Assembly</strong><span class="pcm-pin-count">Not specified</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> مركز التوزيع الأمامي الذي يوزع التغذية عبر الفيوزات والريلايات.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">In the engine compartment.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تصل التغذية إلى قضبان التوزيع الداخلية، ثم تمر عبر الفيوزات والريلايات إلى الدوائر الأمامية المرتبطة.</p><p class="pcm-component-note">المخطط لا يبيّن ترقيم أطراف موصل هذه الوحدة.</p></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Rear Power Distribution Center Assembly</strong><span class="pcm-pin-count">Not specified</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> مركز التوزيع الخلفي الذي يوزع التغذية عبر الفيوزات والريلايات.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">At the rear of the vehicle near the battery or trunk area.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تصل التغذية إلى قضبان التوزيع الداخلية، ثم تمر عبر الفيوزات والريلايات إلى الدوائر الخلفية المرتبطة.</p><p class="pcm-component-note">المخطط لا يبيّن ترقيم أطراف موصل هذه الوحدة.</p></details></li><li class="pcm-component-row"><details class="pcm-component-details"><summary><strong dir="ltr">Instrument Cluster CAN Connector</strong><span class="pcm-pin-count">2 pins</span></summary><p class="pcm-component-description"><strong>الوظيفة:</strong> نقطة اتصال شبكة CAN مع لوحة العدادات.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Behind the instrument cluster in the dashboard.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> ينقل الموصل إشارات الاتصال التفاضلية على خطي CAN بين لوحة العدادات وبقية وحدات السيارة.</p><ul class="bcm-pins"><li class="pcm-pin pcm-com"><span class="bcm-pinno">12</span><div class="ecu-info"><strong dir="ltr">CAN C (+)</strong></div><span class="pcm-tag">اتصال</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">13</span><div class="ecu-info"><strong dir="ltr">CAN C (-)</strong></div><span class="pcm-tag">اتصال</span></li></ul></details></li></ol></section></div>
+                        </details>
+                    </li>
+                    <li class="ecu-item ecu-expand"><details class="ecu-details"><summary class="ecu-summary"><span class="ecu-num">2</span><div class="ecu-info"><strong dir="ltr">Body Control Module</strong><span>وحدة التحكم بالهيكل</span></div><span class="ecu-abbr">BCM</span></summary><div class="ecu-body"><p class="pcm-component-description"><strong>الوظيفة:</strong> تستقبل الوحدة إشارات المفاتيح والحساسات، وتتحكم بأنظمة الإضاءة والأقفال والمساحات والملحقات، وتتبادل البيانات مع وحدات السيارة.</p><p class="pcm-component-location"><strong>Location:</strong> <span dir="ltr">Right end of the dashboard.</span></p><p class="pcm-component-mechanism"><strong>آلية العمل:</strong> تقرأ الوحدة مداخل الموصلات، وتعالجها وفق شروط التشغيل، ثم تشغّل المخارج أو ترسل أوامر عبر شبكات الاتصال.</p><p class="pcm-component-note">الأطراف الفارغة غير معروضة؛ أرقام الأطراف الموصولة مطابقة لترتيبها في المخطط.</p><div class="pcm-bcm-connectors"><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C1</strong><span class="pcm-pin-count">17 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">LF FOG LAMP CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/YEL</bdi></span></div><span class="pcm-tag">من BCM · C1-1</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">RH HIGH BEAM DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRY</bdi></span></div><span class="pcm-tag">من BCM · C1-2</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">LH HEADLAMP RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK BLU (OR TAN)</bdi></span></div><span class="pcm-tag">من BCM · C1-3</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">LF PARK LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/BRN</bdi></span></div><span class="pcm-tag">من BCM · C1-4</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">WIPER PARK SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/GRY</bdi></span></div><span class="pcm-tag">إلى BCM · C1-6</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">7</span><div class="ecu-info"><strong dir="ltr">WASHER FLUID LEVEL SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/TAN</bdi></span></div><span class="pcm-tag">إلى BCM · C1-7</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">8</span><div class="ecu-info"><strong dir="ltr">LOW WASHER SWITCH RETURN</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/TAN</bdi></span></div><span class="pcm-tag">أرضي · C1-8</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">9</span><div class="ecu-info"><strong dir="ltr">LED CONTROL SIGNAL 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN</bdi></span></div><span class="pcm-tag">من BCM · C1-9</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">11</span><div class="ecu-info"><strong dir="ltr">HOOD AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/BLU</bdi></span></div><span class="pcm-tag">إلى BCM · C1-11</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">12</span><div class="ecu-info"><strong dir="ltr">WIPER ON/OFF RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/YEL</bdi></span></div><span class="pcm-tag">من BCM · C1-12</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">13</span><div class="ecu-info"><strong dir="ltr">RF TURN LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/TAN</bdi></span></div><span class="pcm-tag">من BCM · C1-13</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">15</span><div class="ecu-info"><strong dir="ltr">FRONT WASHER PUMP MOTOR CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN</bdi></span></div><span class="pcm-tag">من BCM · C1-15</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">18</span><div class="ecu-info"><strong dir="ltr">RUN/START CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN</bdi></span></div><span class="pcm-tag">من BCM · C1-18</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">19</span><div class="ecu-info"><strong dir="ltr">STARTER RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLU/TAN</bdi></span></div><span class="pcm-tag">من BCM · C1-19</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">20</span><div class="ecu-info"><strong dir="ltr">WIPER HI/LO RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/GRN</bdi></span></div><span class="pcm-tag">من BCM · C1-20</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">22</span><div class="ecu-info"><strong dir="ltr">RH DRL LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK BLU</bdi></span></div><span class="pcm-tag">من BCM · C1-22</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">23</span><div class="ecu-info"><strong dir="ltr">HORN RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/WHT</bdi></span></div><span class="pcm-tag">من BCM · C1-23</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C2</strong><span class="pcm-pin-count">2 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">GROUND</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLK</bdi></span></div><span class="pcm-tag">أرضي · C2-1</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">FUSED B+</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">RED/YEL</bdi></span></div><span class="pcm-tag">تغذية · C2-3</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C3</strong><span class="pcm-pin-count">4 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-power"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">FUSED B+</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">RED/GRY</bdi></span></div><span class="pcm-tag">تغذية · C3-1</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">GROUND</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLK</bdi></span></div><span class="pcm-tag">أرضي · C3-2</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">FUSED B+</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">RED/VIO</bdi></span></div><span class="pcm-tag">تغذية · C3-3</span></li><li class="pcm-pin pcm-power"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">FUSED B+</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">RED/WHT</bdi></span></div><span class="pcm-tag">تغذية · C3-4</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C4</strong><span class="pcm-pin-count">16 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">LH HIGH BEAM DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">من BCM · C4-1</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">RH HEADLAMP RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/TAN (OR TAN/WHT)</bdi></span></div><span class="pcm-tag">من BCM · C4-2</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">RF PARK LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">من BCM · C4-3</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">LED CONTROL SIGNAL 1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT</bdi></span></div><span class="pcm-tag">من BCM · C4-5</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">FUSED RELAY OUTPUT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/ORG</bdi></span></div><span class="pcm-tag">من BCM · C4-6</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">11</span><div class="ecu-info"><strong dir="ltr">RH LED DRL LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/YEL</bdi></span></div><span class="pcm-tag">من BCM · C4-11</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">13</span><div class="ecu-info"><strong dir="ltr">RF FOG LAMP CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">من BCM · C4-13</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">14</span><div class="ecu-info"><strong dir="ltr">LF TURN LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">من BCM · C4-14</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">15</span><div class="ecu-info"><strong dir="ltr">LH DRL LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/YEL</bdi></span></div><span class="pcm-tag">من BCM · C4-15</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">17</span><div class="ecu-info"><strong dir="ltr">LIN BUS CBC3</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/DK BLU</bdi></span></div><span class="pcm-tag">اتصال · C4-17</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">18</span><div class="ecu-info"><strong dir="ltr">BRAKE SIGNAL 1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/WHT</bdi></span></div><span class="pcm-tag">إلى BCM · C4-18</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">19</span><div class="ecu-info"><strong dir="ltr">GROUND</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLK/ORG</bdi></span></div><span class="pcm-tag">أرضي · C4-19</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">21</span><div class="ecu-info"><strong dir="ltr">BRAKE FLUID LEVEL SIGNAL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/ORG</bdi></span></div><span class="pcm-tag">إلى BCM · C4-21</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">22</span><div class="ecu-info"><strong dir="ltr">AMBIENT AIR TEMPERATURE SIGNAL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRN</bdi></span></div><span class="pcm-tag">إلى BCM · C4-22</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">23</span><div class="ecu-info"><strong dir="ltr">SENSOR GROUND</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/BRN</bdi></span></div><span class="pcm-tag">أرضي · C4-23</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">24</span><div class="ecu-info"><strong dir="ltr">LH LED DRL LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/YEL</bdi></span></div><span class="pcm-tag">من BCM · C4-24</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C5</strong><span class="pcm-pin-count">23 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">RH BACKUP LAMPS DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">من BCM · C5-1</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">RH STOP LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">من BCM · C5-2</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">LH REAR TURN LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK GRN</bdi></span></div><span class="pcm-tag">من BCM · C5-3</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">RR PARK LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">من BCM · C5-4</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">RR DOOR AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/YEL</bdi></span></div><span class="pcm-tag">إلى BCM · C5-5</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">ACCESSORY DELAY RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRN/BLU</bdi></span></div><span class="pcm-tag">من BCM · C5-6</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">8</span><div class="ecu-info"><strong dir="ltr">RR SUNSHADE SIGNAL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/YEL</bdi></span></div><span class="pcm-tag">إلى BCM · C5-8</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">9</span><div class="ecu-info"><strong dir="ltr">ACCESSORY DELAY RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRN/GRY</bdi></span></div><span class="pcm-tag">من BCM · C5-9</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">11</span><div class="ecu-info"><strong dir="ltr">PARK BRAKE SWITCH SIGNAL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/WHT</bdi></span></div><span class="pcm-tag">إلى BCM · C5-11</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">14</span><div class="ecu-info"><strong dir="ltr">LH STOP LAMP FAULT SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/BRN</bdi></span></div><span class="pcm-tag">إلى BCM · C5-14</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">15</span><div class="ecu-info"><strong dir="ltr">FUEL LEVEL SIGNAL 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/GRY</bdi></span></div><span class="pcm-tag">إلى BCM · C5-15</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">16</span><div class="ecu-info"><strong dir="ltr">FUEL LEVEL SENSOR RETURN</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BLK</bdi></span></div><span class="pcm-tag">أرضي · C5-16</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">17</span><div class="ecu-info"><strong dir="ltr">FUEL LEVEL SENSOR SIGNAL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK BLU/WHT</bdi></span></div><span class="pcm-tag">إلى BCM · C5-17</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">18</span><div class="ecu-info"><strong dir="ltr">LICENSE PLATE LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK BLU</bdi></span></div><span class="pcm-tag">من BCM · C5-18</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">25</span><div class="ecu-info"><strong dir="ltr">CAN C (+)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN</bdi></span></div><span class="pcm-tag">اتصال · C5-25</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">26</span><div class="ecu-info"><strong dir="ltr">CAN C (-)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">YEL</bdi></span></div><span class="pcm-tag">اتصال · C5-26</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">27</span><div class="ecu-info"><strong dir="ltr">IGN RUN/START CONTROL OUTPUT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">PNK/WHT</bdi></span></div><span class="pcm-tag">من BCM · C5-27</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">31</span><div class="ecu-info"><strong dir="ltr">IGN OFF/RUN/START CONTROL OUTPUT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">PNK/WHT</bdi></span></div><span class="pcm-tag">من BCM · C5-31</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">35</span><div class="ecu-info"><strong dir="ltr">ADJUSTABLE PEDALS RELAY</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRN/DK BLU</bdi></span></div><span class="pcm-tag">من BCM · C5-35</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">36</span><div class="ecu-info"><strong dir="ltr">IGN RUN CONTROL OUTPUT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/ORG</bdi></span></div><span class="pcm-tag">من BCM · C5-36</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">38</span><div class="ecu-info"><strong dir="ltr">BTSI UNLOCK CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">BRN/YEL</bdi></span></div><span class="pcm-tag">من BCM · C5-38</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">39</span><div class="ecu-info"><strong dir="ltr">RR FOG LAMP FEED 2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK GRN</bdi></span></div><span class="pcm-tag">من BCM · C5-39</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">41</span><div class="ecu-info"><strong dir="ltr">SECONDARY UNLOCK DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/TAN</bdi></span></div><span class="pcm-tag">من BCM · C5-41</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C6</strong><span class="pcm-pin-count">24 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-out"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">FRONT DRIVER DOOR UNLOCK</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-1</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">DRIVER DOOR LOCK RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRN/DK GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-2</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">PASSENGER DOOR UNLOCK RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-3</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">DECKLID/LIFTGATE RELAY CONTROL</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/YEL</bdi></span></div><span class="pcm-tag">من BCM · C6-4</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">RR FOG LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">من BCM · C6-5</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">COURTESY LAMPS DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-6</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">7</span><div class="ecu-info"><strong dir="ltr">LF FRONT WELL LAMP FEED</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-7</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">9</span><div class="ecu-info"><strong dir="ltr">DRIVER DOOR AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO</bdi></span></div><span class="pcm-tag">إلى BCM · C6-9</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">11</span><div class="ecu-info"><strong dir="ltr">CAN IHS (-)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT</bdi></span></div><span class="pcm-tag">اتصال · C6-11</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">12</span><div class="ecu-info"><strong dir="ltr">CAN IHS (+)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">اتصال · C6-12</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">13</span><div class="ecu-info"><strong dir="ltr">LIFTGATE HANDLE SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/DK GRN</bdi></span></div><span class="pcm-tag">إلى BCM · C6-13</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">22</span><div class="ecu-info"><strong dir="ltr">REAR SUNSHADE SWITCH</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/DK BLU</bdi></span></div><span class="pcm-tag">إلى BCM · C6-22</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">23</span><div class="ecu-info"><strong dir="ltr">PASSENGER DOOR AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/WHT</bdi></span></div><span class="pcm-tag">إلى BCM · C6-23</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">25</span><div class="ecu-info"><strong dir="ltr">LF LIGHTING FAULT SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/BRN</bdi></span></div><span class="pcm-tag">إلى BCM · C6-25</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">26</span><div class="ecu-info"><strong dir="ltr">DECKLID/LIFTGATE AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/ORG</bdi></span></div><span class="pcm-tag">إلى BCM · C6-26</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">27</span><div class="ecu-info"><strong dir="ltr">LR DOOR AJAR SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRY</bdi></span></div><span class="pcm-tag">إلى BCM · C6-27</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">28</span><div class="ecu-info"><strong dir="ltr">RF LIGHTING FAULT SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">TAN/ORG</bdi></span></div><span class="pcm-tag">إلى BCM · C6-28</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">29</span><div class="ecu-info"><strong dir="ltr">HORN SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">DK GRN/VIO</bdi></span></div><span class="pcm-tag">إلى BCM · C6-29</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">31</span><div class="ecu-info"><strong dir="ltr">RH STOP LAMP FAULT SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">إلى BCM · C6-31</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">32</span><div class="ecu-info"><strong dir="ltr">LR PARK LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRY</bdi></span></div><span class="pcm-tag">من BCM · C6-32</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">39</span><div class="ecu-info"><strong dir="ltr">BRAKE LAMP SWITCH OUTPUT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK GRN</bdi></span></div><span class="pcm-tag">من BCM · C6-39</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">40</span><div class="ecu-info"><strong dir="ltr">LH STOP LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT</bdi></span></div><span class="pcm-tag">من BCM · C6-40</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">41</span><div class="ecu-info"><strong dir="ltr">LH BACKUP LAMPS DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/TAN</bdi></span></div><span class="pcm-tag">من BCM · C6-41</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">42</span><div class="ecu-info"><strong dir="ltr">RH REAR TURN LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/YEL</bdi></span></div><span class="pcm-tag">من BCM · C6-42</span></li></ul></details><details class="pcm-component-details pcm-bcm-connector"><summary><strong dir="ltr">C7</strong><span class="pcm-pin-count">15 أطراف موصولة</span></summary><ul class="bcm-pins"><li class="pcm-pin pcm-com"><span class="bcm-pinno">1</span><div class="ecu-info"><strong dir="ltr">CAN IHS (+)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRY</bdi></span></div><span class="pcm-tag">اتصال · C7-1</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">2</span><div class="ecu-info"><strong dir="ltr">CAN IHS (-)</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/ORG</bdi></span></div><span class="pcm-tag">اتصال · C7-2</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">3</span><div class="ecu-info"><strong dir="ltr">LIN BUS CBC2</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/VIO</bdi></span></div><span class="pcm-tag">اتصال · C7-3</span></li><li class="pcm-pin pcm-com"><span class="bcm-pinno">4</span><div class="ecu-info"><strong dir="ltr">LIN BUS CBC1</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG</bdi></span></div><span class="pcm-tag">اتصال · C7-4</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">5</span><div class="ecu-info"><strong dir="ltr">DECKLID/LIFTGATE RELAY SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRN/WHT</bdi></span></div><span class="pcm-tag">إلى BCM · C7-5</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">6</span><div class="ecu-info"><strong dir="ltr">PANEL LAMPS DIMMER SWITCH MUX</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/YEL</bdi></span></div><span class="pcm-tag">إلى BCM · C7-6</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">9</span><div class="ecu-info"><strong dir="ltr">READING LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">YEL/BLU</bdi></span></div><span class="pcm-tag">من BCM · C7-9</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">10</span><div class="ecu-info"><strong dir="ltr">COURTESY LAMPS DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">YEL/VIO</bdi></span></div><span class="pcm-tag">من BCM · C7-10</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">11</span><div class="ecu-info"><strong dir="ltr">UGDO ENABLE CONTROL CIRCUIT</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">GRY</bdi></span></div><span class="pcm-tag">من BCM · C7-11</span></li><li class="pcm-pin pcm-gnd"><span class="bcm-pinno">13</span><div class="ecu-info"><strong dir="ltr">HEADLAMP SWITCH MUX RETURN</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/YEL</bdi></span></div><span class="pcm-tag">أرضي · C7-13</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">15</span><div class="ecu-info"><strong dir="ltr">PANEL LAMP DRIVER</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">ORG/BRN</bdi></span></div><span class="pcm-tag">من BCM · C7-15</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">16</span><div class="ecu-info"><strong dir="ltr">HEADLAMP SWITCH MUX</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/BRN</bdi></span></div><span class="pcm-tag">إلى BCM · C7-16</span></li><li class="pcm-pin pcm-in"><span class="bcm-pinno">17</span><div class="ecu-info"><strong dir="ltr">HAZARD SWITCH SENSOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/DK BLU</bdi></span></div><span class="pcm-tag">إلى BCM · C7-17</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">18</span><div class="ecu-info"><strong dir="ltr">VTA WARNING INDICATOR</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">VIO/GRY</bdi></span></div><span class="pcm-tag">من BCM · C7-18</span></li><li class="pcm-pin pcm-out"><span class="bcm-pinno">20</span><div class="ecu-info"><strong dir="ltr">LF FRONT WELL LAMP FEED</strong><span class="bcm-meta pcm-wire-color"><bdi dir="ltr">WHT/GRN</bdi></span></div><span class="pcm-tag">من BCM · C7-20</span></li></ul></details></div></div></details></li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">3</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Transmission Control Module</strong>
+                            <span>وحدة التحكم بناقل الحركة</span>
+                        </div>
+                        <span class="ecu-abbr">TCM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">4</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Fuel Pump Control Module</strong>
+                            <span>وحدة التحكم بمضخة الوقود</span>
+                        </div>
+                        <span class="ecu-abbr">FPCM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">5</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Radio Frequency Hub Module</strong>
+                            <span>وحدة استقبال إشارات المفتاح الذكي والترددات اللاسلكية</span>
+                        </div>
+                        <span class="ecu-abbr">RF Hub</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">6</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Anti-lock Brake Module</strong>
+                            <span>وحدة التحكم بنظام منع انغلاق المكابح</span>
+                        </div>
+                        <span class="ecu-abbr">ABS</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">7</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Occupant Restraint Controller</strong>
+                            <span>وحدة التحكم بنظام الوسائد الهوائية وحماية الركاب</span>
+                        </div>
+                        <span class="ecu-abbr">ORC</span>
+                    </li>
+                    <li class="ecu-item ecu-expand">
+                        <details class="ecu-details">
+                            <summary class="ecu-summary">
+                                <span class="ecu-num">8</span>
+                                <div class="ecu-info">
+                                    <strong dir="ltr">Body Control Module</strong>
+                                    <span>وحدة التحكم بالجسم</span>
+                                </div>
+                                <span class="ecu-abbr">BCM</span>
+                            </summary>
+                            <div class="ecu-body">
+                                <span class="eyebrow">Body Control Module Circuit</span>
+                                <p class="bcm-note">
+                موقعها: الطرف الأيمن من الداشبورد. الأطراف مأخوذة من مخططي Fig. 10 و Fig. 11.
+                التصنيف مخرجات/مدخلات مبني على أسماء الأطراف (DRV / CTRL / FD = مخرج، SNS / SW / SIG = مدخل).
+            </p>
+                                <div class="bcm-groups">
+                <details class="bcm-group" open>
+                    <summary>
+                        <span class="bcm-ico">⚡</span>
+                        <span class="bcm-title"><strong>المخرجات (Outputs)</strong><small>أحمال وإشارات تتحكم بها الوحدة</small></span>
+                        <span class="ecu-abbr">55</span>
+                    </summary>
+                    <div class="bcm-conn">Connector C1</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF FOG LMP CTRL</strong>
+                                <span>التحكم بضوء الضباب الأمامي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/YEL</bdi> · <bdi dir="ltr">L89</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">2</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH HI BEAM DRV</strong>
+                                <span>الضوء العالي الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRY</bdi> · <bdi dir="ltr">L34</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH HDLP RLY CTRL (Premium) / LH LO BEAM DRV (Base)</strong>
+                                <span>ريلاي الضوء الأمامي الأيسر (Premium) / الضوء الواطي الأيسر (Base)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK BLU</bdi> · <bdi dir="ltr">L43</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF PARK LMP DRV</strong>
+                                <span>ضوء الركن الأمامي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/BRN</bdi> · <bdi dir="ltr">L77</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">10</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LED CTRL SIG 2</strong>
+                                <span>إشارة تحكم LED 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN</bdi> · <bdi dir="ltr">L150</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">12</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">WPR ON/OFF RLY CTRL</strong>
+                                <span>ريلاي تشغيل/إيقاف المساحة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/YEL</bdi> · <bdi dir="ltr">W8</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">13</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RF TURN LMP DRV</strong>
+                                <span>إشارة الانعطاف الأمامية اليمنى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/TAN</bdi> · <bdi dir="ltr">L60</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">15</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FRNT WSHR PMP MTR CTRL</strong>
+                                <span>محرك مضخة الغسالة الأمامية</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN</bdi> · <bdi dir="ltr">W10</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">18</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RUN START CTRL</strong>
+                                <span>تحكم Run/Start</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN</bdi> · <bdi dir="ltr">K617</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">19</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">STARTER RLY CTRL</strong>
+                                <span>ريلاي المارش</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLU/TAN</bdi> · <bdi dir="ltr">K90</bdi> · التشغيل والشحن</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">20</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">WPR HI/LO RLY CTRL</strong>
+                                <span>ريلاي المساحة سريع/بطيء</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRN</bdi> · <bdi dir="ltr">W2</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">22</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH DRL LP DRV</strong>
+                                <span>ضوء النهار الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK BLU</bdi> · <bdi dir="ltr">L59</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">23</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HRN RLY CTRL</strong>
+                                <span>ريلاي الهورن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/WHT</bdi> · <bdi dir="ltr">X4</bdi> · الهورن</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C4</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH HI BEAM DRV</strong>
+                                <span>الضوء العالي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">L33</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">2</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH HDLP RLY CTRL (Premium) / RH LO BEAM DRV (Base)</strong>
+                                <span>ريلاي الضوء الأمامي الأيمن (Premium) / الضوء الواطي الأيمن (Base)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/TAN</bdi> · <bdi dir="ltr">L44</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RF PARK LMP DRV</strong>
+                                <span>ضوء الركن الأمامي الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L78</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">5</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LED CTRL SIG 1</strong>
+                                <span>إشارة تحكم LED 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT</bdi> · <bdi dir="ltr">L153</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">6</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED RLY O/P</strong>
+                                <span>خرج الريلاي المفيّز</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/ORG</bdi> · <bdi dir="ltr">W24</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">11</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH LED DRL LP DVR</strong>
+                                <span>ضوء LED النهاري الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/YEL</bdi> · <bdi dir="ltr">L140</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">13</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RF FOG LMP CTRL</strong>
+                                <span>ضوء الضباب الأمامي الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L90</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">14</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF TURN LMP DRV</strong>
+                                <span>إشارة الانعطاف الأمامية اليسرى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">L61</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">15</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH DRL LMP DRV</strong>
+                                <span>ضوء النهار الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/YEL</bdi> · <bdi dir="ltr">L58</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">24</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH LED DRL LP DVR</strong>
+                                <span>ضوء LED النهاري الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/YEL</bdi> · <bdi dir="ltr">L155</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C5</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH BACKUP LMPS DRV</strong>
+                                <span>ضوء الرجوع الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L16</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">2</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH STOP LMP DRV</strong>
+                                <span>ضوء الفرامل الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">L54</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH RR TURN LMP DRV</strong>
+                                <span>إشارة الانعطاف الخلفية اليسرى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK GRN</bdi> · <bdi dir="ltr">L63</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RR PARK LMP DRV</strong>
+                                <span>ضوء الركن الخلفي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L72</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">6</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ACCY DLY RLY CTRL</strong>
+                                <span>ريلاي تأخير الملحقات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRN/BLU</bdi> · <bdi dir="ltr">P305</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">9</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ACCY DLY RLY CTRL</strong>
+                                <span>ريلاي تأخير الملحقات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRN/GRY</bdi> · <bdi dir="ltr">P307</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">18</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LICENSE PLATE LMP DRV</strong>
+                                <span>ضوء اللوحة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK BLU</bdi> · <bdi dir="ltr">L3</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">27</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">IGN RUN/START CTRL O/P</strong>
+                                <span>خرج تحكم الإشعال Run/Start</span>
+                                <span class="bcm-meta"><bdi dir="ltr">PNK/WHT</bdi> · <bdi dir="ltr">F20</bdi> · مضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">31</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">IGN OFF/RUN/START CTRL O/P</strong>
+                                <span>خرج تحكم الإشعال Off/Run/Start</span>
+                                <span class="bcm-meta"><bdi dir="ltr">PNK/WHT</bdi> · <bdi dir="ltr">F1</bdi> · ناقل الحركة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">35</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">ADJUSTABLE PEDALS RLY</strong>
+                                <span>ريلاي الدواسات المتحركة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRN/DK BLU</bdi> · <bdi dir="ltr">P201</bdi> · المقاعد</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">36</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">IGN RUN CTRL O/P</strong>
+                                <span>خرج تحكم الإشعال Run</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/ORG</bdi> · <bdi dir="ltr">K619</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">38</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">BTSI UNLK CTRL</strong>
+                                <span>تحكم فك قفل BTSI (قفل ناقل الحركة)</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/YEL</bdi> · <bdi dir="ltr">K321</bdi> · ناقل الحركة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">39</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RR FOG LP FD 2</strong>
+                                <span>تغذية ضباب خلفي 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK GRN</bdi> · <bdi dir="ltr">L898</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">41</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SECONDARY UNLK DRV</strong>
+                                <span>فك القفل الثانوي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/TAN</bdi> · <bdi dir="ltr">P237</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C6</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FT DRV DR ULK</strong>
+                                <span>فك قفل باب السائق الأمامي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/GRN</bdi> · <bdi dir="ltr">P910</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">2</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">DR LCK RLY CTRL</strong>
+                                <span>ريلاي قفل الأبواب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRN/DK GRN</bdi> · <bdi dir="ltr">P777</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">PASS DR ULCK RLY CTRL</strong>
+                                <span>ريلاي فك قفل باب الراكب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRN</bdi> · <bdi dir="ltr">P292</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">DECKLID/LIFTGATE REL DRV</strong>
+                                <span>فتح الشنطة/الباب الخلفي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/YEL</bdi> · <bdi dir="ltr">P31</bdi> · الصندوق وغطاء الوقود</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">5</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RR FOG LP DRV</strong>
+                                <span>ضوء الضباب الخلفي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L899</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">6</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CRTSY LMPS DRV</strong>
+                                <span>إضاءات المجاملة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/GRN</bdi> · <bdi dir="ltr">M25</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">7</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF FTWELL LMP FD</strong>
+                                <span>ضوء الأرضية الأمامي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">M5</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">32</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LR PARK LMP DRV</strong>
+                                <span>ضوء الركن الخلفي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRY</bdi> · <bdi dir="ltr">L71</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">39</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">BRK LMP SW O/P</strong>
+                                <span>خرج مفتاح ضوء الفرامل</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK GRN</bdi> · <bdi dir="ltr">L51</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">40</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH STOP LMP DRV</strong>
+                                <span>ضوء الفرامل الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT</bdi> · <bdi dir="ltr">L52</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">41</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH BKUP LMPS DRV</strong>
+                                <span>ضوء الرجوع الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/TAN</bdi> · <bdi dir="ltr">L15</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">42</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH RR TURN LMP DRV</strong>
+                                <span>إشارة الانعطاف الخلفية اليمنى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/YEL</bdi> · <bdi dir="ltr">L62</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C7</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">13</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">READING LMP DRV</strong>
+                                <span>ضوء القراءة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">YEL/BLU</bdi> · <bdi dir="ltr">M27</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">14</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CRTSY LMPS DRV</strong>
+                                <span>إضاءات المجاملة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">YEL/VIO</bdi> · <bdi dir="ltr">M11</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">15</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">UGDO ENABLE CTRL CKT</strong>
+                                <span>تفعيل فتحة النظارات UGDO</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRY</bdi> · <bdi dir="ltr">G38</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">19</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">PNL LMP DRV</strong>
+                                <span>إضاءة اللوحة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/BRN</bdi> · <bdi dir="ltr">E2</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">22</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">VTA WARNING IND</strong>
+                                <span>مؤشر تحذير VTA</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRY</bdi> · <bdi dir="ltr">G84</bdi> · لوحة العدادات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">24</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF FTWELL LMP FD</strong>
+                                <span>ضوء الأرضية الأمامي الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">M5</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                    </ul>
+                </details>
+                <details class="bcm-group">
+                    <summary>
+                        <span class="bcm-ico">🎚️</span>
+                        <span class="bcm-title"><strong>المدخلات (Inputs)</strong><small>مفاتيح وحساسات تقرأها الوحدة</small></span>
+                        <span class="ecu-abbr">29</span>
+                    </summary>
+                    <div class="bcm-conn">Connector C1</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">6</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">WPR PARK SW SNS</strong>
+                                <span>حساس وضع ركن المساحة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/GRY</bdi> · <bdi dir="ltr">W7</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">8</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">WASHER FLD LVL SW SENS</strong>
+                                <span>حساس مستوى ماء الغسالة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/TAN</bdi> · <bdi dir="ltr">W1</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">9</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LO WSH SW RTN 1</strong>
+                                <span>راجع مفتاح نقص ماء الغسالة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN/TAN</bdi> · <bdi dir="ltr">W11</bdi> · المساحات والغسالة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">11</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HOOD AJAR SW SNS</strong>
+                                <span>حساس الكبوت مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/BLU</bdi> · <bdi dir="ltr">G70</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C4</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">18</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">BRK SIG 1</strong>
+                                <span>إشارة الفرامل 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/WHT</bdi> · <bdi dir="ltr">B15</bdi> · نظام ABS</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">21</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">BRK FLD LVL SIG</strong>
+                                <span>حساس مستوى زيت الفرامل</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/ORG</bdi> · <bdi dir="ltr">B20</bdi> · نظام ABS</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">22</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">AAT SIG</strong>
+                                <span>حساس حرارة الهواء الخارجي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRN</bdi> · <bdi dir="ltr">G31</bdi> · التكييف</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C5</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">5</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RR DR AJAR SW SNS</strong>
+                                <span>حساس الباب الخلفي الأيمن مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/YEL</bdi> · <bdi dir="ltr">G76</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">8</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RR SUNSHADE SIG</strong>
+                                <span>إشارة الستارة الخلفية</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/YEL</bdi> · <bdi dir="ltr">Q557</bdi> · الزجاج الكهربائي</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">11</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">PRK BRK SW SIG</strong>
+                                <span>مفتاح فرامل الوقوف</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/WHT</bdi> · <bdi dir="ltr">B25</bdi> · نظام ABS</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">14</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LH STOP LP FAULT SNS</strong>
+                                <span>كشف عطل ضوء الفرامل الأيسر</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/BRN</bdi> · <bdi dir="ltr">L555</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">15</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL LVL SIG 2</strong>
+                                <span>إشارة مستوى الوقود 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/GRY</bdi> · <bdi dir="ltr">N5</bdi> · التحكم بالمحرك</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">16</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL LVL SNS RTN</strong>
+                                <span>راجع حساس الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">G109</bdi> · التحكم بالمحرك</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">17</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUEL LVL SENS SIG</strong>
+                                <span>إشارة حساس الوقود</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK BLU/WHT</bdi> · <bdi dir="ltr">N4</bdi> · التحكم بالمحرك</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C6</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">9</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">DRV DR AJAR SW SNS</strong>
+                                <span>حساس باب السائق مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO</bdi> · <bdi dir="ltr">G75</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">13</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LIFTGATE HANDLE SW SNS</strong>
+                                <span>مفتاح مقبض الباب الخلفي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/DK GRN</bdi> · <bdi dir="ltr">P30</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">22</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">REAR SUNSHADE SW</strong>
+                                <span>مفتاح الستارة الخلفية</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/DK BLU</bdi> · <bdi dir="ltr">Q558</bdi> · الزجاج الكهربائي</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">23</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">PASS DR AJAR SW SNS</strong>
+                                <span>حساس باب الراكب مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/WHT</bdi> · <bdi dir="ltr">G74</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">25</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LF LIGHTING FAULT SNS</strong>
+                                <span>كشف عطل إضاءة أمامية يسرى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/BRN</bdi> · <bdi dir="ltr">L551</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">26</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">DECKLID/LIFTGATE AJAR SW SNS</strong>
+                                <span>حساس الشنطة/الباب الخلفي مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/ORG</bdi> · <bdi dir="ltr">G78</bdi> · الصندوق وغطاء الوقود</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">27</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LR DR AJAR SW SNS</strong>
+                                <span>حساس الباب الخلفي الأيسر مفتوح</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/GRY</bdi> · <bdi dir="ltr">G77</bdi> · أقفال الأبواب ومضاد السرقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">28</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RF LIGHTING FAULT SNS</strong>
+                                <span>كشف عطل إضاءة أمامية يمنى</span>
+                                <span class="bcm-meta"><bdi dir="ltr">TAN/ORG</bdi> · <bdi dir="ltr">L552</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">29</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HORN SW SENS</strong>
+                                <span>مفتاح الهورن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">DK GRN/VIO</bdi> · <bdi dir="ltr">X3</bdi> · الهورن</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">31</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">RH STOP LMP FAULT SNS</strong>
+                                <span>كشف عطل ضوء الفرامل الأيمن</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">L556</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C7</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">8</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">DECKLID/LIFTGATE REL SW SNS</strong>
+                                <span>مفتاح فتح الشنطة/الباب الخلفي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">GRN/WHT</bdi> · <bdi dir="ltr">P223</bdi> · الصندوق وغطاء الوقود</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">9</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">PNL LMPS DIMM SW MUX</strong>
+                                <span>مفتاح تخفيت إضاءة اللوحة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/YEL</bdi> · <bdi dir="ltr">E3</bdi> · الإنارة الداخلية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">17</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HDLP SW MUX RTN</strong>
+                                <span>راجع مفتاح الإنارة الأمامية</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/YEL</bdi> · <bdi dir="ltr">L900</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">20</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HDLP SW MUX</strong>
+                                <span>مفتاح الإنارة الأمامية</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/BRN</bdi> · <bdi dir="ltr">L307</bdi> · الإنارة الأمامية</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">21</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">HAZARD SW SNS</strong>
+                                <span>مفتاح الهزارد</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/DK BLU</bdi> · <bdi dir="ltr">L91</bdi> · الإنارة الخارجية</span>
+                            </div>
+                        </li>
+                    </ul>
+                </details>
+                <details class="bcm-group">
+                    <summary>
+                        <span class="bcm-ico">🔗</span>
+                        <span class="bcm-title"><strong>الاتصال (CAN / LIN)</strong><small>خطوط البيانات</small></span>
+                        <span class="ecu-abbr">9</span>
+                    </summary>
+                    <div class="bcm-conn">Connector C4</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">17</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LIN BUS CBC 3</strong>
+                                <span>ناقل LIN رقم 3</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/DK BLU</bdi> · <bdi dir="ltr">D403</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C5</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">25</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN C (+)</strong>
+                                <span>CAN C موجب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BRN</bdi> · <bdi dir="ltr">D45</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">26</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN C (-)</strong>
+                                <span>CAN C سالب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">YEL</bdi> · <bdi dir="ltr">D46</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C6</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">11</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN IHS (-)</strong>
+                                <span>CAN IHS سالب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT</bdi> · <bdi dir="ltr">D146</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">12</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN IHS (+)</strong>
+                                <span>CAN IHS موجب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRN</bdi> · <bdi dir="ltr">D145</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C7</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN IHS (+)</strong>
+                                <span>CAN IHS موجب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/GRY</bdi> · <bdi dir="ltr">D265</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">5</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">CAN IHS (-)</strong>
+                                <span>CAN IHS سالب</span>
+                                <span class="bcm-meta"><bdi dir="ltr">WHT/ORG</bdi> · <bdi dir="ltr">D264</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">6</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LIN BUS CBC 2</strong>
+                                <span>ناقل LIN رقم 2</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG/VIO</bdi> · <bdi dir="ltr">D402</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">7</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">LIN BUS 1</strong>
+                                <span>ناقل LIN رقم 1</span>
+                                <span class="bcm-meta"><bdi dir="ltr">ORG</bdi> · <bdi dir="ltr">D401</bdi> · خطوط البيانات</span>
+                            </div>
+                        </li>
+                    </ul>
+                </details>
+                <details class="bcm-group">
+                    <summary>
+                        <span class="bcm-ico">🔌</span>
+                        <span class="bcm-title"><strong>الطاقة والأرضي (Power & Ground)</strong><small>تغذية وأرضي الوحدة</small></span>
+                        <span class="ecu-abbr">8</span>
+                    </summary>
+                    <div class="bcm-conn">Connector C4</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">19</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK/ORG</bdi> · <bdi dir="ltr">Z420</bdi> · نظام ABS</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">23</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">SENS GND</strong>
+                                <span>أرضي الحساسات</span>
+                                <span class="bcm-meta"><bdi dir="ltr">VIO/BRN</bdi> · <bdi dir="ltr">G931</bdi> · التكييف</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C2</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">Z917</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED B(+)</strong>
+                                <span>تغذية موجبة مفيّزة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED/YEL</bdi> · <bdi dir="ltr">A904</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="bcm-conn">Connector C3</div>
+                    <ul class="bcm-pins">
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">1</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED B(+)</strong>
+                                <span>تغذية موجبة مفيّزة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED/GRY</bdi> · <bdi dir="ltr">A905</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">2</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">GND</strong>
+                                <span>أرضي</span>
+                                <span class="bcm-meta"><bdi dir="ltr">BLK</bdi> · <bdi dir="ltr">Z917</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">3</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED B(+)</strong>
+                                <span>تغذية موجبة مفيّزة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED/VIO</bdi> · <bdi dir="ltr">A906</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                        <li class="bcm-pin">
+                            <span class="bcm-pinno">4</span>
+                            <div class="ecu-info">
+                                <strong dir="ltr">FUSED B(+)</strong>
+                                <span>تغذية موجبة مفيّزة</span>
+                                <span class="bcm-meta"><bdi dir="ltr">RED/WHT</bdi> · <bdi dir="ltr">A903</bdi> · توزيع الطاقة</span>
+                            </div>
+                        </li>
+                    </ul>
+                </details>
+            </div>
+                            </div>
+                        </details>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">9</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Electric Power Steering Module</strong>
+                            <span>وحدة التحكم بالتوجيه الكهربائي</span>
+                        </div>
+                        <span class="ecu-abbr">EPS</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">10</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Steering Column Control Module</strong>
+                            <span>وحدة التحكم بعمود المقود</span>
+                        </div>
+                        <span class="ecu-abbr">SCCM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">11</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">A/C Heater Module</strong>
+                            <span>وحدة التحكم بالتكييف والتدفئة</span>
+                        </div>
+                        
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">12</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Tire Pressure Monitoring System</strong>
+                            <span>نظام مراقبة ضغط الإطارات</span>
+                        </div>
+                        <span class="ecu-abbr">TPMS</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">13</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Active Damping Control Module</strong>
+                            <span>وحدة التحكم بالتخميد النشط للتعليق</span>
+                        </div>
+                        <span class="ecu-abbr">ADCM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">14</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Driver Door Module</strong>
+                            <span>وحدة التحكم بباب السائق</span>
+                        </div>
+                        <span class="ecu-abbr">DDM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">15</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Passenger Door Module</strong>
+                            <span>وحدة التحكم بباب الراكب</span>
+                        </div>
+                        <span class="ecu-abbr">PDM</span>
+                    </li>
+                    <li class="ecu-item">
+                        <span class="ecu-num">16</span>
+                        <div class="ecu-info">
+                            <strong dir="ltr">Electronic Overhead Module</strong>
+                            <span>الوحدة الإلكترونية العلوية</span>
+                        </div>
+                        <span class="ecu-abbr">EOM</span>
+                    </i>
+            </ol>
+
+        </section>
 
 
         <!-- =================================================
@@ -2387,6 +4333,22 @@
 
             <small>
                 البيت
+            </small>
+
+        </button>
+
+        <button
+            type="button"
+            class="nav-item"
+            data-page="chargerPage"
+        >
+
+            <span>
+                🚘
+            </span>
+
+            <small>
+                Dodge Charger
             </small>
 
         </button>

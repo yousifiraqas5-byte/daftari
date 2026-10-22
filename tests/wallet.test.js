@@ -8,8 +8,10 @@
      3) Withdrawal protection: رصيد المحفظة غير كافٍ
      4) Transactions are recorded with date + monthKey
      5) Persistence: survives localStorage save/reload
-     6) Finance: deposit reduces remaining, withdrawal increases it
+     6) Finance: wallet is storage only - it never adds to nor
+         subtracts from the budget (المتبقي / المصروفات)
      7) End-to-end: 500,000 → deposit 100,000 → withdraw 30,000
+     8) The card stays collapsed unless the user opens it
  ========================================================= */
 
 "use strict";
@@ -269,6 +271,15 @@ async function testWalletMarkup() {
         "index.html: سجل حركات المحفظة داخل البطاقة"
     );
 
+    /* السجل داخل الجسم المطوي: لا يظهر إلا بعد فتح البطاقة */
+    const bodyIndex = HTML_SOURCE.indexOf('id="walletCardBody"');
+    const logIndex = HTML_SOURCE.indexOf('id="walletLogList"');
+
+    check(
+        bodyIndex !== -1 && logIndex > bodyIndex,
+        "index.html: السجل داخل walletCardBody (مطوي معها)"
+    );
+
     check(
         HTML_SOURCE.indexOf('id="walletBalanceValue"') === -1,
         "index.html: لا يُعرض الرصيد بشكل كبير في الواجهة الرئيسية"
@@ -296,6 +307,22 @@ async function testWalletCardToggle() {
         button.getAttribute("aria-expanded") === "true",
         "aria-expanded = true عند الفتح"
     );
+
+    /* التنقل يعيد طيّ البطاقة: مطوية دائماً إلا حين يفتحها المستخدم */
+    app.sandbox.showPage("savingsPage");
+
+    check(
+        !card.classList.contains("open"),
+        "بعد التنقل: البطاقة مطوية مرة أخرى"
+    );
+    check(
+        button.getAttribute("aria-expanded") === "false",
+        "aria-expanded = false بعد التنقل"
+    );
+
+    toggle();
+
+    check(card.classList.contains("open"), "يمكن فتحها مجدداً بعد التنقل");
 
     toggle();
 
@@ -464,21 +491,24 @@ async function testFinanceLogic() {
 
     const finance1 = monthFinance(month, 0);
     check(finance1.walletNet === 100000, "صافي المحفظة = +100,000 بعد الإيداع");
-    check(finance1.remaining === 400000, "المتبقي = 400,000 بعد إيداع 100,000");
+    check(
+        finance1.remaining === 500000,
+        "الإيداع لا يغيّر المتبقي (المحفظة تخزين فقط)"
+    );
 
     addWalletTransaction("withdraw", 30000);
 
     const finance2 = monthFinance(month, 0);
     check(finance2.walletNet === 70000, "صافي المحفظة = 70,000 بعد صرف 30,000");
     check(
-        finance2.spent === 30000,
-        "الصرف 30,000 يُحسب ضمن المصروفات"
+        finance2.spent === 0,
+        "الصرف لا ينشئ مصروفاً - المصروفات 0"
     );
     check(
-        finance2.remaining === 370000,
-        "المتبقي = 370,000 بعد صرف 30,000 (لا خصم مزدوج)"
+        finance2.remaining === 500000,
+        "المتبقي = 500,000 (المحفظة لا تجمع ولا تطرح)"
     );
-    check(availableBalance(month) === 370000, "الرصيد المتاح = 370,000");
+    check(availableBalance(month) === 500000, "الرصيد المتاح = 500,000");
 }
 
 async function testPersistence() {
@@ -592,10 +622,10 @@ async function testEndToEnd() {
 
     const finance = monthFinance(month, 0);
     check(finance.walletNet === 70000, "صافي المحفظة = 70,000");
-    check(finance.spent === 30000, "المصروفات = 30,000 بعد الصرف");
+    check(finance.spent === 0, "المصروفات = 0 (لا مصروف من الصرف)");
     check(
-        finance.remaining === 370000,
-        "المتبقي = 370,000 (500k - 100k إيداع - 30k صرف)"
+        finance.remaining === 500000,
+        "المتبقي = 500,000 بلا تغيير (المحفظة مجرد خزن)"
     );
 
     const r3 = addWalletTransaction("withdraw", 100000);

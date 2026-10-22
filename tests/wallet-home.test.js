@@ -521,7 +521,7 @@ function testWallet() {
     submit(app, "genericForm");
 
     check(app.walletBalance() === 100000, "إيداع 100,000: المحفظة 100,000");
-    check(remainingText(app) === app.currency(400000), "إيداع 100,000: المتاح 400,000");
+    check(remainingText(app) === app.currency(500000), "إيداع 100,000: المتاح لا يتغير 500,000 (تخزين فقط)");
 
     /* withdraw 30,000 */
     app.openWalletModal("withdraw");
@@ -529,7 +529,7 @@ function testWallet() {
     submit(app, "genericForm");
 
     check(app.walletBalance() === 70000, "صرف 30,000: المحفظة 70,000");
-    check(remainingText(app) === app.currency(370000), "صرف 30,000: المتاح 370,000");
+    check(remainingText(app) === app.currency(500000), "صرف 30,000: المتاح لا يتغير 500,000 (تخزين فقط)");
 
     /* over-withdraw is rejected */
     app.openWalletModal("withdraw");
@@ -537,7 +537,7 @@ function testWallet() {
     submit(app, "genericForm");
 
     check(app.walletBalance() === 70000, "سحب 100,000 مرفوض: الرصيد 70,000 كما هو");
-    check(remainingText(app) === app.currency(370000), "الصرف المرفوض لا يغيّر المتاح");
+    check(remainingText(app) === app.currency(500000), "الصرف المرفوض لا يغيّر المتاح");
     check(
         app.getElement("toast").textContent === "رصيد المحفظة غير كافٍ.",
         "رسالة: رصيد المحفظة غير كافٍ."
@@ -598,7 +598,7 @@ function testWallet() {
 }
 
 /* =========================================================
-   2b) المحفظة: الإيداع يخفض المتبقي، والصرف مصروف حقيقي
+   2b) المحفظة: مجرد مكان خزن - لا تجمع ولا تطرح من الميزانية
    ========================================================= */
 
 /* press the confirm button of the delete dialog */
@@ -607,7 +607,7 @@ function confirmDelete(app) {
 }
 
 function testWalletAccounting() {
-    console.log("\n2b) المحفظة: الإيداع يخفض المتبقي / الصرف مصروف فعلي");
+    console.log("\n2b) المحفظة تخزين فقط: لا تغيّر المتبقي ولا المصروفات");
 
     const app = createApp();
 
@@ -625,8 +625,8 @@ function testWalletAccounting() {
 
     check(app.walletBalance() === 100000, "إيداع 100,000: رصيد المحفظة 100,000");
     check(
-        remainingText(app) === app.currency(900000),
-        "إيداع 100,000: المتبقي 900,000 (نقص 100,000)"
+        remainingText(app) === app.currency(1000000),
+        "إيداع 100,000: المتبقي لا يتغير (المحفظة تخزين فقط)"
     );
     check(
         app.currentMonthData().expenses.length === 0,
@@ -634,7 +634,7 @@ function testWalletAccounting() {
     );
     check(
         app.walletDepositsForMonth(app.monthKey()) === 100000,
-        "إيداعات الشهر = 100,000"
+        "إيداعات الشهر = 100,000 (إحصائية عرض فقط)"
     );
 
     /* ---------- 4-7) صرف 30,000 ---------- */
@@ -645,14 +645,13 @@ function testWalletAccounting() {
     check(app.walletBalance() === 70000, "صرف 30,000: رصيد المحفظة 70,000");
 
     check(
-        app.currentMonthData().expenses.length === 1 &&
-            app.currentMonthData().expenses[0].amount === 30000,
-        "صرف 30,000: المصروفات تزيد 30,000"
+        app.currentMonthData().expenses.length === 0,
+        "صرف 30,000: لا يُنشئ مصروفاً (لا يُطرح من الميزانية)"
     );
 
     check(
-        remainingText(app) === app.currency(870000),
-        "صرف 30,000: المتبقي 870,000 (ينقص مرة واحدة فقط)"
+        remainingText(app) === app.currency(1000000),
+        "صرف 30,000: المتبقي لا يتغير 1,000,000"
     );
 
     check(
@@ -671,7 +670,7 @@ function testWalletAccounting() {
     );
     check(app.walletBalance() === 70000, "الصرف المرفوض: الرصيد كما هو 70,000");
     check(
-        app.currentMonthData().expenses.length === 1,
+        app.currentMonthData().expenses.length === 0,
         "الصرف المرفوض لا يُنشئ مصروفاً"
     );
     check(
@@ -726,11 +725,11 @@ function testWalletDelete() {
     check(app.walletBalance() === 100000, "حذف الصرف 30,000: رصيد المحفظة 100,000");
     check(
         app.currentMonthData().expenses.length === 0,
-        "حذف الصرف: يُحذف المصروف المرتبط"
+        "حذف الصرف: لا مصروفات أصلاً (لم يُنشئ الصرف مصروفاً)"
     );
     check(
-        remainingText(app) === app.currency(900000),
-        "حذف الصرف: المتبقي يعود إلى 900,000"
+        remainingText(app) === app.currency(1000000),
+        "حذف الصرف: المتبقي لم يتغير (1,000,000)"
     );
 
     /* ---------- 6ب) حذف إيداع ---------- */
@@ -743,7 +742,7 @@ function testWalletDelete() {
     check(app.walletBalance() === 0, "حذف الإيداع 100,000: رصيد المحفظة 0");
     check(
         remainingText(app) === app.currency(1000000),
-        "حذف الإيداع: المبلغ يعود للمتبقي (1,000,000)"
+        "حذف الإيداع: المتبقي لم يتغير (المحفظة لا تدخل الميزانية)"
     );
     check(
         app.currentMonthData().expenses.length === 0,
@@ -760,16 +759,36 @@ function testWalletDelete() {
    ========================================================= */
 
 function testWalletCrossDelete() {
-    console.log("\n2c2) حذف المصروف المرتبط من صفحة المصروفات");
+    console.log("\n2c2) بيانات قديمة: حذف المصروف المرتبط يسحب معه حركة المحفظة");
 
     const app = createApp();
 
     setAvailable(app, 1000000);
 
-    runWalletScenario(app);
+    /* بيانات قديمة: إيداع ثم صرف أُنشئ له مصروف مرتبط */
+    const deposit = app.addWalletTransaction("deposit", 100000);
+    const withdraw = app.addWalletTransaction("withdraw", 30000);
+
+    check(deposit.ok && withdraw.ok, "إيداع 100,000 ثم صرف 30,000 يُسجَّلان");
+
+    const month = app.currentMonthData();
+
+    month.expenses.push({
+        id: withdraw.transaction.id,
+        title: "صرف من المحفظة",
+        amount: 30000,
+        walletTransactionId: withdraw.transaction.id,
+        date: withdraw.transaction.date
+    });
+
+    /* المصروف القديم مستثنى من الإجمالي: المحفظة لا تطرح */
+    check(
+        remainingText(app) === app.currency(1000000),
+        "المصروف القديم المرتبط لا يُطرح من المتبقي"
+    );
 
     check(
-        app.currentMonthData().expenses[0].walletTransactionId ===
+        month.expenses[0].walletTransactionId ===
             app.getWalletTransactions()[1].id,
         "المصروف والحركة يتشاركان نفس المعرّف"
     );
@@ -782,7 +801,7 @@ function testWalletCrossDelete() {
         "المصروف يظهر موسوماً بأنه من صرف المحفظة"
     );
 
-    app.deleteRecord("expenses", app.currentMonthData().expenses[0].id);
+    app.deleteRecord("expenses", month.expenses[0].id);
 
     check(
         app.getWalletTransactions().length === 1,
@@ -790,8 +809,8 @@ function testWalletCrossDelete() {
     );
     check(app.walletBalance() === 100000, "حذف المصروف: المحفظة ترجع 100,000");
     check(
-        remainingText(app) === app.currency(900000),
-        "حذف المصروف: المتبقي يعود 900,000"
+        remainingText(app) === app.currency(1000000),
+        "حذف المصروف: المتبقي لم يتغيّر (1,000,000)"
     );
 }
 
@@ -1103,16 +1122,16 @@ function testWalletPersistence() {
 
     check(reloaded.walletBalance() === 70000, "إعادة التحميل: رصيد المحفظة 70,000");
     check(
-        remainingText(reloaded) === app.currency(870000),
-        "إعادة التحميل: المتبقي 870,000"
+        remainingText(reloaded) === app.currency(1000000),
+        "إعادة التحميل: المتبقي 1,000,000 (لم تتغير الميزانية)"
     );
     check(
         reloaded.getWalletTransactions().length === 2,
         "إعادة التحميل: حركتان بلا تكرار"
     );
     check(
-        reloaded.currentMonthData().expenses.length === 1,
-        "إعادة التحميل: مصروف صرف واحد بلا تكرار"
+        reloaded.currentMonthData().expenses.length === 0,
+        "إعادة التحميل: لا مصروفات من الصرف"
     );
 
     /* ---------- 10) تسجيل الخروج ثم الدخول ---------- */
@@ -1134,16 +1153,16 @@ function testWalletPersistence() {
 
     check(signedIn.walletBalance() === 70000, "بعد الدخول: المحفظة 70,000");
     check(
-        remainingText(signedIn) === app.currency(870000),
-        "بعد الدخول: المتبقي 870,000 كما هو"
+        remainingText(signedIn) === app.currency(1000000),
+        "بعد الدخول: المتبقي 1,000,000 كما هو"
     );
     check(
         signedIn.getWalletTransactions().length === 2,
         "بعد الدخول: حركتان فقط بلا تكرار"
     );
     check(
-        signedIn.currentMonthData().expenses.length === 1,
-        "بعد الدخول: مصروف واحد فقط بلا تكرار"
+        signedIn.currentMonthData().expenses.length === 0,
+        "بعد الدخول: لا مصروفات من الصرف"
     );
 
     /* ---------- 11) المتابعة لا تضاعف الأرقام ---------- */
@@ -1155,12 +1174,12 @@ function testWalletPersistence() {
         "سيناريو ثانٍ: 4 حركات (لا دمج ولا حذف)"
     );
     check(
-        signedIn.currentMonthData().expenses.length === 2,
-        "سيناريو ثانٍ: مصروفان مرتبطان بحركتين"
+        signedIn.currentMonthData().expenses.length === 0,
+        "سيناريو ثانٍ: لا مصروفات - المحفظة تخزين فقط"
     );
     check(
-        remainingText(signedIn) === app.currency(740000),
-        "سيناريو ثانٍ: المتبقي 740,000 (200,000 إيداع - 60,000 صرف)"
+        remainingText(signedIn) === app.currency(1000000),
+        "سيناريو ثانٍ: المتبقي 1,000,000 (المحفظة لم تمسّ الميزانية)"
     );
 }
 

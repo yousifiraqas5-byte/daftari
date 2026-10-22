@@ -1473,7 +1473,7 @@ select:focus-visible {
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(4, 1fr);
 
     padding:
         7px;
@@ -3408,3 +3408,513 @@ body.dark .modal-overlay {
     font-size: 22px;
 }
 
+
+
+/* ECUs & Control Modules (car page) */
+.ecu-list {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+}
+
+.ecu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-soft);
+}
+
+.ecu-num {
+    flex: 0 0 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.ecu-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ecu-info strong {
+    color: var(--text);
+    font-size: 14px;
+    text-align: right;
+}
+
+.ecu-info span {
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    line-height: 1.5;
+}
+
+.ecu-abbr {
+    flex: 0 0 auto;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 11.5px;
+    font-weight: 700;
+    direction: ltr;
+}
+
+
+/* BCM pin groups (Dodge Charger page) */
+.bcm-note {
+    margin: 0 0 14px;
+    color: var(--text-secondary);
+    font-size: 12.5px;
+    line-height: 1.7;
+}
+
+.bcm-groups {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 110px;
+}
+
+.bcm-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-soft);
+    overflow: hidden;
+}
+
+.bcm-group > summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.bcm-group > summary::-webkit-details-marker {
+    display: none;
+}
+
+.bcm-ico {
+    font-size: 20px;
+}
+
+.bcm-title {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.bcm-title strong {
+    color: var(--text);
+    font-size: 14px;
+}
+
+.bcm-title small {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.bcm-conn {
+    padding: 8px 14px;
+    background: var(--surface-soft);
+    border-top: 1px solid var(--border);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    direction: ltr;
+    text-align: right;
+}
+
+.bcm-pins {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bcm-pin {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+}
+
+.bcm-pinno {
+    flex: 0 0 34px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.bcm-meta {
+    color: var(--text-light) !important;
+    font-size: 11.5px !important;
+}
+
+
+/* PCM pins (Dodge Charger page) */
+.pcm-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 14px;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.pcm-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-inline-start: 2px;
+}
+
+.pcm-dot.pcm-in { background: #1f9d55; }
+.pcm-dot.pcm-out { background: #d94a4a; }
+.pcm-dot.pcm-gnd { background: #8a9598; }
+.pcm-dot.pcm-com { background: #3b82c4; }
+
+.pcm-groups {
+    margin-bottom: 110px;
+}
+
+.pcm-pin {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    border-inline-start: 4px solid transparent;
+}
+
+.pcm-pin.pcm-in { border-inline-start-color: #1f9d55; }
+.pcm-pin.pcm-out { border-inline-start-color: #d94a4a; }
+.pcm-pin.pcm-gnd { border-inline-start-color: #8a9598; }
+.pcm-pin.pcm-com { border-inline-start-color: #3b82c4; }
+
+.pcm-tag {
+    flex: 0 0 auto;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.pcm-in .pcm-tag { background: #1f9d55; }
+.pcm-out .pcm-tag { background: #d94a4a; }
+.pcm-gnd .pcm-tag { background: #8a9598; }
+.pcm-com .pcm-tag { background: #3b82c4; }
+
+.pcm-unused {
+    margin: 0;
+    padding: 12px 14px;
+    border-top: 1px solid var(--border);
+    color: var(--text-light);
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+
+/* expandable ECU item (PCM) */
+.ecu-item.ecu-expand {
+    display: block;
+    padding: 0;
+}
+
+.ecu-details > .ecu-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.ecu-details > .ecu-summary::-webkit-details-marker {
+    display: none;
+}
+
+.ecu-details > .ecu-summary::after {
+    content: "⌄";
+    color: var(--text-light);
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.ecu-details[open] > .ecu-summary::after {
+    transform: rotate(180deg);
+}
+
+.ecu-body {
+    padding: 4px 12px 14px;
+    border-top: 1px solid var(--border);
+}
+
+.ecu-body .bcm-note {
+    margin-top: 10px;
+}
+
+.ecu-body .pcm-groups {
+    margin-bottom: 0;
+}
+
+.ecu-body .bcm-groups {
+    margin-bottom: 0;
+}
+
+.pcm-operation-guide {
+    margin: 14px 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--surface, #fff) 92%, #dcecff);
+}
+
+.pcm-operation-guide > summary {
+    padding: 12px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.7;
+}
+
+.pcm-operation-guide[open] > summary {
+    border-bottom: 1px solid var(--border);
+}
+
+.pcm-operation-content {
+    padding: 14px;
+}
+
+.pcm-operation-guide > summary::marker {
+    color: var(--text-light);
+}
+
+.pcm-operation-guide h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+}
+
+.pcm-operation-intro,
+.pcm-operation-note {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.pcm-operation-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0;
+}
+
+.pcm-operation-flow span {
+    padding: 8px 11px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--background, #fff);
+    color: var(--text-primary, inherit);
+    font-size: 12px;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.pcm-operation-flow b {
+    color: var(--text-light);
+}
+
+.pcm-operation-steps {
+    margin: 0 0 12px;
+    padding-inline-start: 24px;
+    color: var(--text-primary, inherit);
+    font-size: 13px;
+    line-height: 1.9;
+}
+
+.pcm-operation-steps li + li {
+    margin-top: 5px;
+}
+
+.pcm-operation-note {
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+}
+
+@media (max-width: 640px) {
+    .pcm-operation-flow {
+        flex-direction: column;
+    }
+
+    .pcm-operation-flow b {
+        transform: rotate(-90deg);
+    }
+}
+
+.pcm-components {
+    margin-top: 12px;
+}
+
+.pcm-component-note {
+    margin: 0;
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.pcm-component-list {
+    list-style: decimal;
+    margin: 0;
+    padding: 0 34px 0 0;
+    border-top: 1px solid var(--border);
+}
+
+.pcm-component-row {
+    padding: 0;
+    border-top: 1px solid var(--border);
+}
+
+.pcm-component-group > h3 {
+    margin: 0;
+    padding: 12px 14px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 13px;
+}
+
+.pcm-component-group .pcm-component-row {
+    padding-right: 4px;
+}
+
+.pcm-component-details > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.pcm-component-details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.pcm-component-details > summary::after {
+    content: "⌄";
+    color: var(--text-light);
+    transition: transform 0.2s;
+}
+
+.pcm-component-details[open] > summary::after {
+    transform: rotate(180deg);
+}
+
+.pcm-bcm-connectors {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.pcm-bcm-connector {
+    border-top: 1px solid var(--border);
+}
+
+.pcm-bcm-connector > summary {
+    padding: 8px 14px;
+    background: var(--surface);
+}
+
+.pcm-bcm-connector > summary strong {
+    font-size: 12px;
+}
+
+.pcm-component-row strong {
+    color: var(--text);
+    font-size: 13px;
+}
+
+.pcm-component-description {
+    margin: 0;
+    padding: 0 14px 10px;
+    color: var(--text-light);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pcm-component-description > strong {
+    color: var(--text-secondary);
+}
+
+.pcm-component-mechanism {
+    margin: 0;
+    padding: 0 14px 10px;
+    color: var(--text-light);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.pcm-component-mechanism > strong {
+    color: var(--text-secondary);
+}
+
+.pcm-component-location {
+    margin: 0;
+    padding: 0 14px 8px;
+    color: var(--text-light);
+    font-size: 11.5px;
+    line-height: 1.5;
+}
+
+.pcm-component-location strong {
+    color: var(--text-secondary);
+}
+
+.pcm-wire-color {
+    display: block;
+    margin-top: 3px;
+    direction: rtl;
+}
+
+.pcm-pin-count {
+    flex: 0 0 auto;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pcm-power .pcm-tag {
+    background: #b58112;
+}

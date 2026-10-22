@@ -824,6 +824,9 @@ function setupMonthNavigation() {
 function showPage(pageId) {
     activePage = pageId;
 
+    /* بطاقة محفظتي تبقى مطوية دائماً إلا حين يفتحها المستخدم */
+    collapseWalletCard();
+
     document
         .querySelectorAll(".page")
         .forEach((page) => {
@@ -5690,10 +5693,10 @@ function setupCloudSync() {
 /* =========================================================
    FINANCE SUMMARY (راتب / مصروف / محفظتي / متبقي)
 
-   remaining = salary - spent - wallet net of THIS month
-   where wallet net = deposits - withdrawals recorded in this month.
-   A deposit takes money out of the available balance, a withdrawal
-   gives it back - same single "remaining" figure the page already uses.
+   remaining = salary - spent - savings reserved
+   المحفظة لا تدخل الحساب إطلاقاً: مجرد مكان تخزين للحركات،
+   لا تجمع على المتبقي ولا تطرح منه. صافي شهر المحفظة
+   (walletNet) للعرض فقط.
 ========================================================= */
 
 function signedCurrency(value) {
@@ -5712,6 +5715,9 @@ function signedCurrency(value) {
     المصروف المحوَّل للادخار (isSavings) لا يُحسب هنا، لأن مبلغه
     يُخصم مرة واحدة عبر savingsReserved() (حركته في سجل الادخار).
     لو احتُسب هنا أيضاً لخصم نفس المبلغ مرتين.
+
+    المصروفات القديمة المرتبطة بصرف المحفظة (walletTransactionId)
+    مستثناة أيضاً: المحفظة تخزين ولا تطرح من الميزانية.
 */
 function spentExpensesTotal(month) {
     const expenses = Array.isArray(month.expenses) ? month.expenses : [];
@@ -5719,6 +5725,10 @@ function spentExpensesTotal(month) {
     return expenses.reduce((total, record) => {
 
         if (!record || record.isSavings) {
+            return total;
+        }
+
+        if (record.walletTransactionId) {
             return total;
         }
 
@@ -5737,18 +5747,17 @@ function monthFinance(month, fixedTotal) {
     /* صافي ما مرّ بالمحفظة (للعرض فقط) */
     const walletNet = walletNetForMonth(key);
 
-    /* ما دخل المحفظة فعلاً في هذا الشهر - يخفض المتبقي */
+    /* ما دخل المحفظة في هذا الشهر (إحصائية تخزين - لا تُخصم) */
     const walletDeposits = walletDepositsForMonth(key);
 
     /* الادخار المخصوم من هذا الشهر فقط (محسوب مرة واحدة) */
     const savings = savingsReserved(month.year, month.month);
 
     /*
-        المتبقي = الدخل - المصروفات - الإيداعات - الادخار
+        المتبقي = الدخل - المصروفات - الادخار
 
-        الإيداع يخصم مباشرةً (مال انتقل من الميزانية إلى المحفظة)،
-        والصرف ليس هنا لأنه مصروف حقيقي داخل المصروفات - لو خُصم
-        مرتين لصار الخصم مزدوجاً.
+        المحفظة لا تدخل هنا إطلاقاً: إيداعها وصرفها مجرد حركات
+        تخزين لا تجمع ولا تطرح من الميزانية.
     */
     return {
         salary,
@@ -5756,7 +5765,7 @@ function monthFinance(month, fixedTotal) {
         walletNet,
         walletDeposits,
         savings,
-        remaining: salary - spent - walletDeposits - savings
+        remaining: salary - spent - savings
     };
 }
 
@@ -5778,27 +5787,24 @@ function availableBalance(month = currentMonthData()) {
 /* =========================================================
    WALLET (محفظتي)
 
-   Cumulative balance across ALL months, kept in the same cloud
-   document as the savings ledger (database.savingsLedger.
+   مجرد مكان تخزين (storage only) للحركات عبر كل الأشهر،
+   محفوظة في نفس مستند السجل (database.savingsLedger.
    walletTransactions -> users/{uid}/meta/ledger). Each record:
 
      { id, type: "deposit" | "withdraw", amount, date, monthKey }
 
-   `monthKey` is the month the operation was made in; it decides
-   which month's available balance it affects. Changing the month
-   never resets or edits the wallet balance itself.
+   Accounting rule (never break it):
 
-   Accounting rules (never break them):
+     المحفظة لا تجمع ولا تطرح من الميزانية إطلاقاً:
 
-     deposit  -> money moves from the budget INTO the wallet:
-                 wallet balance up, remaining down (walletDeposits),
-                 NOT an expense.
-
-     withdraw -> money leaves the wallet and becomes a real expense:
-                 wallet balance down, an entry is added to
-                 month.expenses sharing the same `id`, and the
-                 remaining drops through the expenses total.
-                 It is NOT subtracted again via the wallet.
+       - لا تغيّر المتبقي (remaining): إيداعها وصرفها لا
+         يدخلان معادلة monthFinance().
+       - الصرف لا ينشئ مصروفاً داخل month.expenses.
+       - الرصيد الداخلي (walletBalance()) حساب تخزيني فقط،
+         والصرف الأكبر منه مرفوض برسالة
+         «رصيد المحفظة غير كافٍ.».
+       - المصروفات القديمة المرتبطة مستثناة من إجمالي
+         المصروفات حتى لا يُطرح شيء بسبب المحفظة.
 
    Both sides share one id (`walletTransactionId`), so deleting
    either one (the movement or the expense) removes both.
@@ -5865,12 +5871,10 @@ function walletNetForMonth(key) {
 }
 
 /*
-    إجمالي ما دخل المحفظة في شهر معيّن (الإيداعات فقط).
+    إجمالي ما دخل المحفظة في شهر معيّن - إحصائية للعرض فقط.
 
-    الإيداع ينقل المال من الميزانية إلى المحفظة، فهو يُخصم من
-    المتبقي. أما الصرف فيُسجَّل مصروفاً حقيقياً داخل month.expenses
-    ويظهر أثره عبر المصروفات - لو خُصم أيضاً من هنا لخصم المبلغ
-    مرتين.
+    لا يُخصم من المتبقي إطلاقاً: المحفظة مجرد مكان تخزين
+    لا تجمع ولا تطرح من الميزانية.
 */
 function walletDepositsForMonth(key) {
     return getWalletTransactions().reduce((total, transaction) => {
@@ -5904,13 +5908,10 @@ function nextWalletTransactionId() {
 }
 
 /*
-    الإيداع يخصم من المتبقي فقط. والصرف مصروف حقيقي يُضاف
-    إلى month.expenses بنفس المعرّف، فلا يُخصم مرتين.
-*/
-
-/*
     Validates and records one wallet operation.
     Returns { ok: true, transaction } or { ok: false, message }.
+
+    مجرد تخزين: لا يُنشئ مصروفاً ولا يمسّ المتبقي.
 */
 function addWalletTransaction(type, rawAmount) {
     if (type !== "deposit" && type !== "withdraw") {
@@ -5940,30 +5941,19 @@ function addWalletTransaction(type, rawAmount) {
     database.savingsLedger.walletTransactions.push(transaction);
 
     /*
-        الصرف مصروف فعلي: يُضاف إلى month.expenses بنفس المعرّف
-        ليربط السجلين. أما الإيداع فلا يُضاف هنا - هو فقط ما ينقل
-        المال من الميزانية إلى المحفظة ويخفض المتبقي.
+        مجرد تخزين: لا يُضاف شيء إلى month.expenses ولا يُخصم
+        شيء من المتبقي - المحفظة لا تجمع ولا تطرح.
     */
-    if (type === "withdraw") {
-        const month = currentMonthData();
-
-        month.expenses.push({
-            id: transaction.id,
-            title: "صرف من المحفظة",
-            amount,
-            walletTransactionId: transaction.id,
-            date: transaction.date
-        });
-    }
 
     return { ok: true, transaction };
 }
 
 /*
-    حذف حركة محفظة مع عكس أثرها بالكامل:
+    حذف حركة محفظة:
 
-      حذف إيداع  -> يخرج المبلغ من المحفظة ويعود إلى المتبقي
-      حذف صرف   -> يعود المبلغ إلى المحفظة ويُحذف مصروفه المرتبط
+      حذف إيداع  -> يخرج المبلغ من المحفظة
+      حذف صرف   -> يعود المبلغ إلى المحفظة، ويُحذف أي مصروف
+                    قديم مرتبط به (للبيانات القديمة فقط)
 */
 function deleteWalletMovement(transactionId) {
     const ledger = getSavingsLedger();
@@ -6005,6 +5995,21 @@ function deleteWalletMovement(transactionId) {
 
         }
     });
+}
+
+/*
+    يطوي بطاقة محفظتي (تبقى مطوية دائماً إلا حين يفتحها المستخدم).
+*/
+function collapseWalletCard() {
+    const card = $("walletCard");
+
+    if (!card) {
+        return;
+    }
+
+    card.classList.remove("open");
+
+    $("walletToggleButton")?.setAttribute("aria-expanded", "false");
 }
 
 /*

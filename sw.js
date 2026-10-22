@@ -2,7 +2,7 @@
    DAFTARI - Service Worker
 ========================================================= */
 
-const CACHE_NAME = "daftari-v8";
+const CACHE_NAME = "daftari-v16";
 
 const ASSETS = [
     "./",

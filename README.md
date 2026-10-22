@@ -139,18 +139,21 @@ maintenance log below it shows the remaining car records.
 
 Personal -> مصروف -> **محفظتي**: an independent card placed above
 "المصروفات الأساسية" and styled exactly like the basic-expense cards. It is
-collapsed by default and reveals only two options when tapped — **إيداع** and
-**صرف** (no log and no big balance in the main view; the current balance is
-shown inside the amount modal). A deposit adds to the balance, a withdraw
-(never more than the balance) subtracts from it.
+**always collapsed** — the actions and the movements log live inside the
+collapsible body, so nothing shows until the user taps it — and reveals only
+two options when opened — **إيداع** and **صرف** (navigating away collapses it
+again; the balance is shown inside the amount modal). A deposit adds to the
+balance, a withdraw (never more than the balance) subtracts from it; neither
+touches the budget.
 
 ```
 users/{uid}/meta/ledger.walletTransactions = [{ id, type: "deposit"|"withdraw", amount, date, monthKey }]
 ```
 
 Stored in the existing ledger document (cumulative, never reset by a month
-change). `monthKey` is the month the operation was made in: a deposit lowers
-that month's available balance (المتبقي), a withdrawal gives it back.
+change). The wallet is **storage only**: `monthKey` records the month the
+operation was made in, but a deposit or a withdrawal **never** changes the
+budget — المتبقي والمصروفات لا تتغير بسبب المحفظة إطلاقاً.
 
 ## المواد المنزلية (home groceries)
 
@@ -206,7 +209,9 @@ node tests/phase5-acceptance.test.js
 
 ## الادخار والمتبقي
 
-**المتبقي = الدخل - المصروفات - صافي المحفظة - الادخار**
+**المتبقي = الدخل - المصروفات - الادخار**
+
+(المحفظة لا تدخل المعادلة: هي مجرد مكان تخزين لا يجمع ولا يطرح.)
 
 الادخار المخصوم يُحسب في مكان واحد فقط (`savingsReserved`) ويقرأه
 `monthFinance()` وحده، فلا يحدث خصم مزدوج مهما أُعيد رسم الصفحة أو
@@ -306,54 +311,56 @@ node tests/savings-basic-edit.test.js
 
 ## محفظتي: الإيداع والصرف
 
-بطاقة **محفظتي** (قابلة للطي) تعرض خيارين فقط: **إيداع** و**صرف**،
-وتحتها سجل الحركات (الأحدث أولاً) مع التاريخ والوقت وزر حذف.
+بطاقة **محفظتي** مطوية دائماً حتى يفتحها المستخدم: تعرض خيارين فقط
+**إيداع** و**صرف**، وداخل الجسم المطوي سجل الحركات (الأحدث أولاً)
+مع التاريخ والوقت وزر حذف.
 
 ### معادلة المتبقي
 
 ```
-المتبقي = الدخل - المصروفات - إيداعات المحفظة - الادخار
+المتبقي = الدخل - المصروفات - الادخار
 ```
+
+المحفظة **لا تدخل المعادلة** — لا إيداعها يُخصم ولا صرفها يُضاف:
 
 | العملية | رصيد المحفظة | المصروفات | المتبقي |
 |---|---|---|---|
-| **إيداع** 100,000 | ↑ 100,000 | لا يتغير | ↓ 100,000 |
-| **صرف** 30,000 | ↓ 30,000 | ↑ 30,000 | ↓ 30,000 (عبر المصروفات) |
+| **إيداع** 100,000 | ↑ 100,000 | لا يتغير | لا يتغير |
+| **صرف** 30,000 | ↓ 30,000 | لا يتغير | لا يتغير |
 
-- **الإيداع** ينقل المال من الميزانية إلى المحفظة، فيُخصم مباشرةً عبر
-  `walletDepositsForMonth()`، **وليس** مصروفاً.
-- **الصرف** مصروف فعلي: `addWalletTransaction()` يضيف سطراً في
-  `month.expenses` (عنوانه «صرف من المحفظة») بنفس معرّف الحركة.
-- المتبقي لا يخصم الصرف مرتين — إطلاقاً. لو خُصم من `walletNetForMonth()`
-  ومن المصروفات معاً لصار الخصم مزدوجاً، لذلك `monthFinance()` يستخدم
-  `walletDepositsForMonth()` (الإيداعات فقط) لا `walletNetForMonth()`.
-  الصافي يبقى متاحاً **للعرض فقط** في سطر «محفظتي (صافي هذا الشهر)».
+- **المحفظة مجرد مكان خزن**: `addWalletTransaction()` يسجّل الحركة في
+  `walletTransactions` فقط، ولا ينشئ مصروفاً ولا يمسّ المتبقي.
+- `walletNetForMonth()` و`walletDepositsForMonth()` أرقام **للعرض فقط**
+  (سطر «محفظتي (صافي هذا الشهر)» والإحصائية داخل `monthFinance()`).
+- المصروفات القديمة المرتبطة بمحفظة (`walletTransactionId`) مستثناة من
+  `spentExpensesTotal()`، فبيانات المستخدم القديمة لا تُطرح شيء أيضاً.
 
 مثال كامل (المتبقي 1,000,000):
 
 ```
-إيداع 100,000  → المحفظة 100,000 · المصروفات 0     · المتبقي 900,000
-صرف   30,000  → المحفظة  70,000 · المصروفات 30,000 · المتبقي 870,000
+إيداع 100,000  → المحفظة 100,000 · المصروفات 0 · المتبقي 1,000,000
+صرف   30,000  → المحفظة  70,000 · المصروفات 0 · المتبقي 1,000,000
 ```
 
 ### منع الصرف أكبر من الرصيد
 
 `addWalletTransaction()` يرفض أي صرف يتجاوز `walletBalance()` برسالة
-**«رصيد المحفظة غير كافٍ.»** ولا يُسجَّل ولا يُضاف مصروف.
+**«رصيد المحفظة غير كافٍ.»** ولا يُسجَّل.
 
-### الربط والحذف
+### الربط والحذف (البيانات القديمة فقط)
 
-الحركة والمصروف يتشاركان معرّفاً واحداً عبر `walletTransactionId`:
+الصرف الجديد لا ينشئ مصروفاً، لكن المصروفات القديمة المرتبطة
+(`walletTransactionId`) تبقى محفوظة ومرتبطة بحركتها:
 
 ```
 savingsLedger.walletTransactions (حركة صرف)
       ↕  نفس المعرّف
-month.expenses (مصروف «صرف من المحفظة»)
+month.expenses (مصروف قديم «صرف من المحفظة»)
 ```
 
 - زر 🗑️ بجانب الحركة يفتح نافذة تأكيد، وعند التأكيد **يعكس العملية**:
-  - حذف **إيداع** → ينقص رصيد المحفظة ويعود المبلغ للمتبقي (لا مصروف).
-  - حذف **صرف** → يعود المبلغ للمحفظة ويُحذف مصروفه المرتبط.
+  - حذف **إيداع** → ينقص رصيد المحفظة.
+  - حذف **صرف** → يعود المبلغ للمحفظة، ويُحذف أي مصروف قديم مرتبط به.
 - حذف المصروف من صفحة **المصروفات الشخصية** يحذف معه حركة الصرف
   المرتبطة، فلا تبقى حركة يتيمة.
 
@@ -361,8 +368,7 @@ month.expenses (مصروف «صرف من المحفظة»)
 
 كل شيء داخل النظام الحالي بلا تغيير في `firestore-sync.js`:
 `walletTransactions` في `savingsLedger` (المسند إلى
-`users/{uid}/meta/ledger`)، والمصروف المرتبط داخل `month.expenses`
-(المسند إلى مستند الشهر). بعد إعادة التحميل أو تسجيل الخروج والدخول
+`users/{uid}/meta/ledger`). بعد إعادة التحميل أو تسجيل الخروج والدخول
 تبقى القيم كما هي بلا تكرار.
 
 معرّفات الحركات **تصاعدية دائماً** (`nextWalletTransactionId()`) حتى لو

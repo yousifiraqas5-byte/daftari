@@ -444,8 +444,8 @@ function testWalletScenario() {
 
     check(
         baseAvailable ===
-            app.getSalary(month) - fixed - 500000,
-        "الرصيد المتاح = الراتب - الثابت - 500,000"
+            app.getSalary(month) - fixed,
+        "الرصيد المتاح = الراتب - الثابت (المحفظة لا تدخل)"
     );
 
     /* ايداع 100,000 */
@@ -456,8 +456,8 @@ function testWalletScenario() {
     check(deposit.transaction.amount === 100000, "مبلغ الايداع 100,000");
     check(app.walletBalance() === 600000, "الرصيد بعد الايداع = 600,000");
     check(
-        app.availableBalance() === baseAvailable - 100000,
-        "الرصيد المتاح انخفض 100,000 بعد الايداع"
+        app.availableBalance() === baseAvailable,
+        "الرصيد المتاح لا يتغير بعد الإيداع (تخزين فقط)"
     );
 
     /* صرف 30,000 */
@@ -467,12 +467,12 @@ function testWalletScenario() {
     check(withdraw.transaction.type === "withdraw", "نوع العملية withdraw");
     check(app.walletBalance() === 570000, "الرصيد النهائي = 570,000");
     check(
-        app.availableBalance() === baseAvailable - 100000 - 30000,
-        "الرصيد المتاح انخفض 30,000 بعد الصرف (عبر زيادة المصروفات)"
+        app.availableBalance() === baseAvailable,
+        "الرصيد المتاح لا يتغير بعد الصرف (لا يُطرح شيء)"
     );
     check(
-        month.expenses.some((row) => row.walletTransactionId === withdraw.transaction.id),
-        "الصرف انشأ مصروفاً مرتبطاً داخل المصروفات"
+        !month.expenses.some((row) => row.walletTransactionId === withdraw.transaction.id),
+        "الصرف لا ينشئ مصروفاً داخل المصروفات"
     );
 
     /* صرف أكبر من الرصيد */
