@@ -3886,6 +3886,20 @@ body.dark .modal-overlay {
     color: var(--text-secondary);
 }
 
+.pcm-component-benefit {
+    margin: 0 10px 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--surface, #fff) 86%, #dcecff);
+    color: var(--text-light);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
+.pcm-component-benefit > strong {
+    color: var(--text-secondary);
+}
+
 .pcm-component-location {
     margin: 0;
     padding: 0 14px 8px;
