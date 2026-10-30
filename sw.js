@@ -2,7 +2,7 @@
    DAFTARI - Service Worker
 ========================================================= */
 
-const CACHE_NAME = "daftari-v16";
+const CACHE_NAME = "daftari-v80";
 
 const ASSETS = [
     "./",
@@ -14,7 +14,8 @@ const ASSETS = [
     "./manifest.json",
     "./icon-180.png",
     "./icon-192.png",
-    "./icon-512.png"
+    "./icon-512.png",
+    "./assets/relay-pinout.jpg"
 ];
 
 self.addEventListener(
@@ -94,7 +95,7 @@ self.addEventListener(
                         })
                         .catch(() => cached);
 
-                    return cached || network;
+                    return network;
 
                 })
         );
