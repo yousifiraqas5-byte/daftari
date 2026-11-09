@@ -2,11 +2,11 @@
    DAFTARI - Service Worker
 ========================================================= */
 
-const CACHE_NAME = "daftari-v80";
+const CACHE_NAME = "daftari-v132";
 
 const ASSETS = [
     "./",
-    "./index.html",
+    "./index.html","./guides/ec-connectors.js","./guides/engine.js",
     "./style.css",
     "./script.js",
     "./firebase-config.js",
